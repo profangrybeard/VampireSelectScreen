@@ -55,6 +55,7 @@ export default function App() {
         activeIndex={activeIndex}
         rotationDeg={rotationDeg}
         silhouettes={SILHOUETTE_COMPONENTS}
+        clanIds={CLANS.map(c => c.id)}
       />
 
       {/* Clan title — tap to toggle stats */}

@@ -11,6 +11,7 @@
  * Pass 1: Grey only. No clan colors.
  */
 import { useRef, useState, useEffect, useCallback } from 'react';
+import SilhouetteLoader from '../silhouettes/SilhouetteLoader.jsx';
 
 // Star line connections (tip-to-tip, skipping one)
 function starLines(cx, cy, r) {
@@ -41,7 +42,7 @@ const R = 180;
 const INNER_R = R * 0.382;
 const TILT_DEG = 75;
 
-export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [] }) {
+export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [] }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -168,7 +169,10 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               // NO transition — position is updated every frame by rAF
             }}
           >
-            <Silhouette />
+            <SilhouetteLoader
+              clanId={clanIds[i] || ''}
+              FallbackSVG={Silhouette}
+            />
           </div>
         );
       })}
