@@ -10,6 +10,7 @@ import './App.css';
 import CLANS from './data/clans.js';
 import Nosferatu from './silhouettes/Nosferatu.jsx';
 import ClanTitle from './components/ClanTitle.jsx';
+import StatsPanel from './components/StatsPanel.jsx';
 import IndicatorDots from './components/IndicatorDots.jsx';
 import Pentagram from './components/Pentagram.jsx';
 import DebugGrid from './components/DebugGrid.jsx';
@@ -23,6 +24,7 @@ export default function App() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [rotationDeg, setRotationDeg] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   const rotate = useCallback((direction) => {
     if (transitioning) return;
@@ -34,7 +36,12 @@ export default function App() {
     });
     setRotationDeg((prev) => direction === 'left' ? prev - 72 : prev + 72);
     setTimeout(() => setTransitioning(false), 420);
+    // Stats stay open — content updates to new clan automatically
   }, [transitioning]);
+
+  const toggleStats = useCallback(() => {
+    setStatsOpen((prev) => !prev);
+  }, []);
 
   const activeClan = CLANS[activeIndex];
 
@@ -50,8 +57,15 @@ export default function App() {
         silhouettes={SILHOUETTE_COMPONENTS}
       />
 
-      {/* Clan title */}
-      <ClanTitle name={activeClan.name} archetype={activeClan.archetype} />
+      {/* Clan title — tap to toggle stats */}
+      <ClanTitle
+        name={activeClan.name}
+        archetype={activeClan.archetype}
+        onClick={toggleStats}
+      />
+
+      {/* Stats panel — slides down from title */}
+      <StatsPanel clan={activeClan} isOpen={statsOpen} />
 
       {/* Debug grid overlay */}
       <DebugGrid />

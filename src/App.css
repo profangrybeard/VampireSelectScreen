@@ -64,8 +64,11 @@
   position: absolute;
   top: 4%;
   left: 5%;
-  z-index: 5;
+  z-index: 20;
   text-align: left;
+  pointer-events: auto;
+  cursor: pointer;
+  user-select: none;
 }
 
 .clan-title__archetype {
@@ -87,6 +90,86 @@
   letter-spacing: 0.04em;
   line-height: 1.1;
   margin: 0;
+}
+
+/* ---- Stats panel ---- */
+.stats-panel {
+  position: absolute;
+  top: 12%;
+  left: 5%;
+  z-index: 20;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 400ms ease, opacity 300ms ease;
+  pointer-events: none;
+}
+
+.stats-panel--open {
+  max-height: 300px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.stats-panel__content {
+  padding-top: 8px;
+}
+
+.stats-panel__epithet {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(12px, 3.5vw, 16px);
+  color: #777;
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+}
+
+.stats-panel__section {
+  margin-bottom: 12px;
+}
+
+.stats-panel__label {
+  display: block;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.stats-panel__disciplines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.stats-panel__discipline {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(13px, 3.5vw, 16px);
+  color: #999;
+  line-height: 1.6;
+}
+
+.stats-panel__pips {
+  display: flex;
+  gap: 4px;
+}
+
+.stats-panel__pip {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #555;
+  background: transparent;
+}
+
+.stats-panel__pip--filled {
+  background: #888;
+  border-color: #888;
 }
 
 /* ---- Indicator dots ---- */

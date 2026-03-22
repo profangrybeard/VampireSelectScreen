@@ -54,8 +54,8 @@ function goldenRatioLines(iterations) {
 }
 
 export default function DebugGrid() {
-  const [showGrid, setShowGrid] = useState(true);
-  const [showGolden, setShowGolden] = useState(true);
+  const [showGrid, setShowGrid] = useState(false);
+  const [showGolden, setShowGolden] = useState(false);
 
   const goldenLines = goldenRatioLines(3);
 
