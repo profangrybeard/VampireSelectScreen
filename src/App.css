@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --max-w: 430px;
+}
+
+.screen {
+  position: relative;
+  width: 100%;
+  max-width: var(--max-w);
+  height: 100vh;
+  height: 100dvh;
+  max-height: 932px;
+  margin: 0 auto;
+  background: var(--bg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---- Silhouettes at projected tip positions ---- */
+/* Front silhouette targets 20%-80% of viewport.
+   Positioned so bottom edge = pentagram anchor point. */
+.silhouette-slot {
+  position: absolute;
+  width: 55%;
+  height: 62%;
+  pointer-events: none;
+  will-change: left, top, transform, opacity;
+  transform-origin: bottom center;
+}
+
+.silhouette-slot svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---- Tap zones ---- */
+.tap-zone {
+  position: absolute;
+  top: 0;
+  width: 22%;
+  height: 100%;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.tap-zone--left {
+  left: 0;
+}
+
+.tap-zone--right {
+  right: 0;
+}
+
+/* ---- Clan title (top-left, stats draw below) ---- */
+.clan-title {
+  position: absolute;
+  top: 4%;
+  left: 5%;
+  z-index: 5;
+  text-align: left;
+}
+
+.clan-title__archetype {
+  display: block;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.clan-title__name {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-weight: 700;
+  font-size: clamp(24px, 7vw, 40px);
+  color: #c8c8c8;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+/* ---- Indicator dots ---- */
+.indicator-dots {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 6px;
+}
+
+.indicator-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: #333;
+  transition: width 400ms ease, background 400ms ease;
+}
+
+.indicator-dot--active {
+  width: 20px;
+  background: #666;
+}
+
+/* ---- Pentagram floor ---- */
+.pentagram-container {
+  position: absolute;
+  bottom: -17%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 100%;
+  z-index: 1;
+  perspective: 800px;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.pentagram-perspective {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 400ms ease;
+  transform-style: preserve-3d;
+  animation: pentagram-pulse 6s ease-in-out infinite;
+  overflow: visible;
+}
+
+.pentagram-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes pentagram-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+}
+
+/* ---- Debug overlay ---- */
+.debug-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.debug-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.debug-menu {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 200;
+  display: flex;
+  gap: 4px;
+}
+
+.debug-btn {
+  background: rgba(30, 30, 30, 0.8);
+  border: 1px solid #444;
+  color: #777;
+  font-family: monospace;
+  font-size: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  pointer-events: auto;
+}
+
+.debug-btn--active {
+  color: #ccc;
+  border-color: #888;
+}
