@@ -1,0 +1,82 @@
+# ============================================================
+# GitHub Actions: Build & Deploy to GitHub Pages
+# ============================================================
+# This workflow runs automatically every time you push to main.
+# It installs dependencies, builds your Vite project, and
+# publishes the dist/ folder to GitHub Pages.
+#
+# STUDENTS: You can copy this file into your own repo.
+# The only thing you need to change is the base path in
+# your vite.config.js (see DEPLOY.md for details).
+# ============================================================
+
+name: Deploy to GitHub Pages
+
+# ---- TRIGGER ----
+# Run this workflow on every push to the main branch.
+on:
+  push:
+    branches: [main]
+
+# ---- PERMISSIONS ----
+# The workflow needs permission to deploy to Pages.
+# These three lines grant that access.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# ---- CONCURRENCY ----
+# If you push twice quickly, cancel the first deploy
+# so only the latest version goes live.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+# ---- JOBS ----
+jobs:
+  # Job 1: Build the project
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Check out your repo's code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js (match your local version)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Step 3: Install dependencies from package.json
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Build the Vite project (creates dist/ folder)
+      - name: Build
+        run: npm run build
+
+      # Step 5: Configure Pages (tells GitHub where the site files are)
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      # Step 6: Upload the dist/ folder as an artifact
+      # (passes it to the deploy job)
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  # Job 2: Deploy to GitHub Pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Deploy the uploaded artifact to Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

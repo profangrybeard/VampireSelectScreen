@@ -11,7 +11,8 @@ A mobile-first clan selection screen inspired by Vampire: The Masquerade. Five v
 
 This project is the instructor's demonstration build for AI 201, following the same assignment brief, deliverables, and ESF practices required of students. It exists to model the process — not just the output.
 
-**Live URL:** *(will be added when deployed to GitHub Pages)*
+**Live URL:** [https://profangrybeard.github.io/VampireSelectScreen/](https://profangrybeard.github.io/VampireSelectScreen/)
+**Deployment Guide:** [`DEPLOY.md`](DEPLOY.md) — step-by-step GitHub Actions setup for students
 
 ---
 
