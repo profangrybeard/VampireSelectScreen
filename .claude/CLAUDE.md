@@ -4,9 +4,26 @@
 
 This is an AI 201 instructor demo project: a mobile-first vampire clan selection screen inspired by Vampire: The Masquerade. It follows the "Hero Faction Screen" assignment brief exactly, modeling the process for students.
 
-## Creative Direction
+## Documentation Structure
 
-**Read the full Design Intent before making any changes:** `design-intent.md` in this folder.
+Teachable docs live in `docs/`. This folder (`.claude/`) is for AI context only.
+
+```
+docs/
+  design-intent.md              <- The bible. Read before making changes.
+  defining-done.md              <- Per-pass completion criteria.
+  pass-briefs/
+    pass-1-monochrome.md        <- Current pass build brief.
+  logs/
+    ai-direction-log.md         <- Asked/Produced/Decision entries.
+    resistance-log.md           <- Raw resistance tracking.
+  lectures/
+    when-the-ai-becomes-the-art-director.md
+```
+
+**Read `docs/design-intent.md` before making any changes.**
+
+## Creative Direction
 
 ### The Non-Negotiables
 - Silhouette posture must communicate the clan archetype without text. If you can cover the title and not know which clan it is, the silhouette failed.
@@ -43,10 +60,10 @@ This is an AI 201 instructor demo project: a mobile-first vampire clan selection
 
 ## Interaction Model
 
-- **Tap left/right edges** → Rotate pentagram carousel (400ms transition)
-- **Tap clan title** → Unroll stat panel (clan-specific animation in Pass 4)
-- **Tap title again** → Collapse stats
-- **Rotate while stats open** → Auto-collapse, then rotate
+- **Tap left/right edges** -> Rotate pentagram carousel (400ms transition)
+- **Tap clan title** -> Unroll stat panel (clan-specific animation in Pass 4)
+- **Tap title again** -> Collapse stats
+- **Rotate while stats open** -> Auto-collapse, then rotate
 
 ## Mood References
 
@@ -63,6 +80,15 @@ This is an AI 201 instructor demo project: a mobile-first vampire clan selection
 - Not a showcase for animation over composition
 - The mood is the deliverable. The silhouette is the UI.
 
+## Doc Placement Rules
+
+When creating new documents:
+- **Pass briefs** -> `docs/pass-briefs/pass-N-name.md`
+- **Log entries** -> append to existing files in `docs/logs/`
+- **Lecture material / case studies** -> `docs/lectures/`
+- **Pipeline or process docs** -> `docs/` root
+- **Claude-only context** -> `.claude/` (this folder)
+
 ## ESF Documentation
 
-The README.md contains the AI Direction Log, Records of Resistance, and Five Questions templates. Update these as we work. Every significant AI interaction should produce a log entry. Every rejection or major revision is a Record of Resistance.
+The README.md contains the Records of Resistance summary and Five Questions template. Full logs live in `docs/logs/`. Update these as we work. Every significant AI interaction should produce a direction log entry. Every rejection or major revision is a resistance log entry.
