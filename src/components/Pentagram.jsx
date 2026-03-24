@@ -8,6 +8,12 @@
  * are on screen and position the silhouettes there. The silhouettes
  * follow the dots like shadows — same speed, same curve, same feel.
  *
+ * LIGHTING SYSTEM:
+ * A central light source at the pentagram's center illuminates
+ * silhouettes directionally based on their position relative to center.
+ * Front slot = rim light (light behind). Back slots = front-lit.
+ * Side slots = directionally lit from center. Grey only for Pass 1.
+ *
  * Pass 1: Grey only. No clan colors.
  */
 import { useRef, useState, useEffect, useCallback } from 'react';
@@ -42,12 +48,14 @@ const R = 180;
 const INNER_R = R * 0.382;
 const TILT_DEG = 75;
 
-export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [] }) {
+export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
+  const centerRef = useRef(null);
   const rafRef = useRef(null);
   const [dotPositions, setDotPositions] = useState([]);
+  const [centerPos, setCenterPos] = useState(null);
 
   // Read dot positions from the DOM — called every animation frame during transitions
   const readPositions = useCallback(() => {
@@ -65,6 +73,16 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     });
 
     setDotPositions(positions);
+
+    // Track center point for lighting
+    const cd = centerRef.current;
+    if (cd) {
+      const cr = cd.getBoundingClientRect();
+      setCenterPos({
+        x: ((cr.left + cr.right) / 2 - screenRect.left) / screenRect.width * 100,
+        y: ((cr.top + cr.bottom) / 2 - screenRect.top) / screenRect.height * 100,
+      });
+    }
   }, []);
 
   // On every rotation change, start an rAF loop that tracks dot positions
@@ -88,8 +106,53 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     };
   }, [rotationDeg, readPositions]);
 
+  // Compute directional light style for a silhouette based on its
+  // position relative to the central light source.
+  // Front slots get rim light (glow pushes toward viewer).
+  // Side slots get directional light (glow toward outside edge).
+  // Back slots get front-lit glow (soft, centered).
+  function getLightStyle(pos, depthNorm) {
+    if (!centerPos) return '';
+
+    // Vector from light source (center) to silhouette
+    const dx = pos.x - centerPos.x;
+    const dy = pos.y - centerPos.y;
+    const angle = Math.atan2(dy, dx);
+
+    // Shadow offset distance — front characters get stronger rim
+    const dist = 2 + depthNorm * 5;
+    // Blur — softer for front (rim), tighter for back (fill)
+    const blur = 3 + depthNorm * 6;
+    // Opacity — front rim is most visible
+    const alpha = 0.15 + depthNorm * 0.35;
+
+    // Dim during transition — light is "resetting" between clans
+    const dimFactor = transitioning ? 0.3 : 1;
+    const finalAlpha = alpha * dimFactor;
+
+    // Shadow pushes away from light source (same direction as vector)
+    const shadowX = Math.cos(angle) * dist;
+    const shadowY = Math.sin(angle) * dist;
+
+    return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(200,200,200,${finalAlpha.toFixed(2)}))`;
+  }
+
   return (
     <>
+      {/* Central glow — the ritual light source.
+          Positioned at the pentagram center projected into screen space.
+          Sits between front and back silhouettes in z-order. */}
+      {centerPos && (
+        <div
+          className="pentagram-glow"
+          style={{
+            left: `${centerPos.x}%`,
+            top: `${centerPos.y}%`,
+            opacity: transitioning ? 0.08 : 0.3,
+          }}
+        />
+      )}
+
       {/* Pentagram floor — the ONE thing that transitions */}
       <div className="pentagram-container" ref={containerRef}>
         <div
@@ -112,6 +175,15 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               strokeLinejoin="round" opacity="0.6" />
             <polygon points={pentagramPoints(CX, CY, R, INNER_R)}
               fill="none" stroke="#2a2a2a" strokeWidth="0.5" opacity="0.3" />
+
+            {/* Center reference point — invisible, tracked for lighting */}
+            <circle
+              ref={centerRef}
+              cx={CX}
+              cy={CY}
+              r={2}
+              fill="none"
+            />
 
             {/* Anchor dots — these are what we track */}
             {Array.from({ length: 5 }, (_, i) => {
@@ -139,11 +211,11 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
       </div>
 
       {/* Silhouettes — NO transitions. Positioned directly at dot locations
-          every frame. Movement comes from tracking the pentagram. */}
+          every frame. Movement comes from tracking the pentagram.
+          Directional lighting applied via drop-shadow from central light. */}
       {dotPositions.length === 5 && silhouettes.map((Silhouette, i) => {
         if (!Silhouette) return null;
         const pos = dotPositions[i];
-        const isActive = i === activeIndex;
 
         // Normalize depth: front dot (~85%) → 1.0, back dot (~58%) → 0.0
         const depthNorm = Math.max(0, Math.min(1, (pos.y - 58) / 27));
@@ -155,6 +227,9 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
 
+        // Directional light from pentagram center
+        const shadowFilter = getLightStyle(pos, depthNorm);
+
         return (
           <div
             key={i}
@@ -164,7 +239,7 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               top: `${pos.y}%`,
               transform: `translate(-50%, -100%) scale(${silScale})`,
               opacity,
-              filter: `brightness(${brightness})`,
+              filter: `brightness(${brightness}) ${shadowFilter}`,
               zIndex,
               // NO transition — position is updated every frame by rAF
             }}

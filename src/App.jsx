@@ -56,6 +56,7 @@ export default function App() {
         rotationDeg={rotationDeg}
         silhouettes={SILHOUETTE_COMPONENTS}
         clanIds={CLANS.map(c => c.id)}
+        transitioning={transitioning}
       />
 
       {/* Clan title — tap to toggle stats */}

@@ -200,6 +200,25 @@
   background: #666;
 }
 
+/* ---- Central glow (ritual light source) ---- */
+/* Radial light at pentagram center. Positioned in screen space
+   via inline styles. Grey only for Pass 1 — color plugs in at Pass 2. */
+.pentagram-glow {
+  position: absolute;
+  width: 40%;
+  height: 25%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(200, 200, 200, 0.15) 0%,
+    rgba(200, 200, 200, 0.05) 40%,
+    transparent 70%
+  );
+  z-index: 3;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+
 /* ---- Pentagram floor ---- */
 .pentagram-container {
   position: absolute;
