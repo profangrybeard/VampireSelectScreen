@@ -9,10 +9,11 @@
  * follow the dots like shadows — same speed, same curve, same feel.
  *
  * LIGHTING SYSTEM:
- * A central light source at the pentagram's center illuminates
- * silhouettes directionally based on their position relative to center.
- * Front slot = rim light (light behind). Back slots = front-lit.
- * Side slots = directionally lit from center. Grey only for Pass 1.
+ * A floor-level light source at the pentagram's center uplights all
+ * silhouettes. The glow sits on the floor plane, so shadows push
+ * upward on every character. The pentagram lines themselves radiate
+ * from a bright center to dim edges — magically imbued from within.
+ * Grey only for Pass 1.
  *
  * Pass 1: Grey only. No clan colors.
  */
@@ -106,31 +107,37 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     };
   }, [rotationDeg, readPositions]);
 
-  // Compute directional light style for a silhouette based on its
-  // position relative to the central light source.
-  // Front slots get rim light (glow pushes toward viewer).
-  // Side slots get directional light (glow toward outside edge).
-  // Back slots get front-lit glow (soft, centered).
-  function getLightStyle(pos, depthNorm) {
-    if (!centerPos) return '';
+  // Floor-level light position — the glow sits on the pentagram floor,
+  // below all characters. We offset the tracked center down toward the
+  // front character's feet so all shadows push upward (uplight).
+  const floorLightPos = centerPos ? {
+    x: centerPos.x,
+    y: centerPos.y + 18,
+  } : null;
 
-    // Vector from light source (center) to silhouette
-    const dx = pos.x - centerPos.x;
-    const dy = pos.y - centerPos.y;
+  // Compute uplight style for a silhouette based on its position
+  // relative to the floor light. All characters get shadows that
+  // push upward — light is below them on the floor plane.
+  function getLightStyle(pos, depthNorm) {
+    if (!floorLightPos) return '';
+
+    // Vector from floor light to silhouette
+    const dx = pos.x - floorLightPos.x;
+    const dy = pos.y - floorLightPos.y;
     const angle = Math.atan2(dy, dx);
 
-    // Shadow offset distance — front characters get stronger rim
+    // Shadow offset distance — scales with depth
     const dist = 2 + depthNorm * 5;
-    // Blur — softer for front (rim), tighter for back (fill)
-    const blur = 3 + depthNorm * 6;
-    // Opacity — front rim is most visible
+    // Blur — softer spread for uplight
+    const blur = 4 + depthNorm * 7;
+    // Opacity — front characters closest to light get strongest glow
     const alpha = 0.15 + depthNorm * 0.35;
 
     // Dim during transition — light is "resetting" between clans
     const dimFactor = transitioning ? 0.3 : 1;
     const finalAlpha = alpha * dimFactor;
 
-    // Shadow pushes away from light source (same direction as vector)
+    // Shadow pushes away from floor light (upward for all characters)
     const shadowX = Math.cos(angle) * dist;
     const shadowY = Math.sin(angle) * dist;
 
@@ -139,16 +146,16 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
 
   return (
     <>
-      {/* Central glow — the ritual light source.
-          Positioned at the pentagram center projected into screen space.
-          Sits between front and back silhouettes in z-order. */}
-      {centerPos && (
+      {/* Floor glow — the ritual light source.
+          Positioned on the pentagram floor plane, below all characters.
+          All silhouettes are uplit from this point. */}
+      {floorLightPos && (
         <div
           className="pentagram-glow"
           style={{
-            left: `${centerPos.x}%`,
-            top: `${centerPos.y}%`,
-            opacity: transitioning ? 0.08 : 0.3,
+            left: `${floorLightPos.x}%`,
+            top: `${floorLightPos.y}%`,
+            opacity: transitioning ? 0.08 : 0.35,
           }}
         />
       )}
@@ -166,15 +173,37 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
             xmlns="http://www.w3.org/2000/svg"
             className="pentagram-svg"
           >
+            {/* Radial gradient — bright center, dim at edges.
+                The pentagram glows from within, magically imbued. */}
+            <defs>
+              <radialGradient id="pentagram-glow-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#666" />
+                <stop offset="40%" stopColor="#444" />
+                <stop offset="100%" stopColor="#222" />
+              </radialGradient>
+              <radialGradient id="pentagram-star-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#888" />
+                <stop offset="35%" stopColor="#555" />
+                <stop offset="100%" stopColor="#333" />
+              </radialGradient>
+              <radialGradient id="pentagram-fill-grad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="rgba(200,200,200,0.06)" />
+                <stop offset="100%" stopColor="rgba(200,200,200,0)" />
+              </radialGradient>
+            </defs>
+
+            {/* Subtle center fill — floor glow on the pentagram plane */}
+            <circle cx={CX} cy={CY} r={R} fill="url(#pentagram-fill-grad)" />
+
             <circle cx={CX} cy={CY} r={R}
-              fill="none" stroke="#222" strokeWidth="0.75" opacity="0.4" />
+              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.75" opacity="0.4" />
             <circle cx={CX} cy={CY} r={INNER_R}
-              fill="none" stroke="#222" strokeWidth="0.5" opacity="0.3" />
+              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.5" opacity="0.3" />
             <polygon points={starLines(CX, CY, R)}
-              fill="none" stroke="#333" strokeWidth="1.25"
+              fill="none" stroke="url(#pentagram-star-grad)" strokeWidth="1.25"
               strokeLinejoin="round" opacity="0.6" />
             <polygon points={pentagramPoints(CX, CY, R, INNER_R)}
-              fill="none" stroke="#2a2a2a" strokeWidth="0.5" opacity="0.3" />
+              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.5" opacity="0.3" />
 
             {/* Center reference point — invisible, tracked for lighting */}
             <circle
