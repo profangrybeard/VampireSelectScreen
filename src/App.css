@@ -10,7 +10,7 @@
   width: 100%;
   max-width: var(--max-w);
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
   max-height: 932px;
   margin: 0 auto;
   background: var(--bg);
