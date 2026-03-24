@@ -194,4 +194,20 @@ For example, if you use Gemini CLI:
 
 ---
 
+## Known Gotchas
+
+### Compound Commands Break the Whitelist
+
+The permission matcher evaluates the **first command** in a chain. If you or Claude run:
+
+```bash
+cd "C:/my/project" && git add . && git commit -m "message"
+```
+
+The matcher sees `cd`, not `git`. Even though both are whitelisted individually, the compound structure can trigger an approval prompt.
+
+**Fix:** Run each command separately. Use absolute paths instead of `cd`. If Claude is chaining commands with `&&`, tell it to stop — each command should be its own call.
+
+---
+
 *AI 201 Creative Computing with AI | Spring 2026 | SCAD Applied AI Degree Program*
