@@ -222,7 +222,7 @@
 /* ---- Pentagram floor ---- */
 .pentagram-container {
   position: absolute;
-  bottom: -17%;
+  bottom: -22%;
   left: 50%;
   transform: translateX(-50%);
   width: 200%;
