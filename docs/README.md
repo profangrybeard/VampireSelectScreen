@@ -12,6 +12,7 @@ All teachable project documentation lives here. If you're looking for something,
 | AI direction log | `logs/ai-direction-log.md` | Append new entries. Asked/Produced/Decision format. |
 | Resistance log | `logs/resistance-log.md` | Append new entries. Raw, timestamped, unpolished. |
 | Case studies / lecture material | `lectures/` | One file per case study. |
+| Tool setup guides | root `docs/` | Reference material for student environments. |
 
 ## Rules for New Docs
 
