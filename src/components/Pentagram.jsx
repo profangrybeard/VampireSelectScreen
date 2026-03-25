@@ -58,15 +58,21 @@ const TILT_DEG = 80;
 
 // Candle definitions — offsets from pentagram center in SVG coords.
 // Spread in a noisy cluster so they parallax on rotation.
+// Heights are deliberately irregular — no two adjacent candles
+// should align to the same height or form visible lines.
 const CANDLES = [
-  { dx: 0,   dy: -8,  height: 42, width: 9,  flameH: 16, id: 'c0' },
-  { dx: -16, dy: -4,  height: 36, width: 8,  flameH: 15, id: 'c1' },
-  { dx: 13,  dy: -3,  height: 30, width: 7,  flameH: 13, id: 'c2' },
-  { dx: -8,  dy: 5,   height: 22, width: 7,  flameH: 10, id: 'c3' },
-  { dx: 10,  dy: 7,   height: 26, width: 6,  flameH: 12, id: 'c4' },
-  { dx: -20, dy: 8,   height: 18, width: 6,  flameH: 9,  id: 'c5' },
-  { dx: 3,   dy: 10,  height: 20, width: 6,  flameH: 10, id: 'c6' },
-  { dx: 18,  dy: 6,   height: 24, width: 6,  flameH: 11, id: 'c7' },
+  { dx: -4,  dy: -6,  height: 44, width: 9,  flameH: 16, id: 'c0' },
+  { dx: 12,  dy: -10, height: 28, width: 7,  flameH: 12, id: 'c1' },
+  { dx: -18, dy: -2,  height: 36, width: 8,  flameH: 15, id: 'c2' },
+  { dx: 8,   dy: 2,   height: 32, width: 7,  flameH: 13, id: 'c3' },
+  { dx: -10, dy: 6,   height: 20, width: 6,  flameH: 10, id: 'c4' },
+  { dx: 16,  dy: 4,   height: 24, width: 6,  flameH: 11, id: 'c5' },
+  { dx: -22, dy: 9,   height: 15, width: 5,  flameH: 8,  id: 'c6' },
+  { dx: 2,   dy: 8,   height: 18, width: 6,  flameH: 9,  id: 'c7' },
+  { dx: 20,  dy: 8,   height: 22, width: 6,  flameH: 10, id: 'c8' },
+  { dx: -6,  dy: -12, height: 26, width: 7,  flameH: 11, id: 'c9' },
+  { dx: 6,   dy: 12,  height: 12, width: 5,  flameH: 7,  id: 'c10' },
+  { dx: -14, dy: 10,  height: 16, width: 5,  flameH: 8,  id: 'c11' },
 ];
 
 export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false }) {
@@ -292,8 +298,11 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
         const pos = candlePositions[i];
         if (!pos) return null;
 
-        // Z-index: lower Y (further from camera) = behind. Higher Y = in front.
-        const zIndex = Math.round(pos.y);
+        // Z-index: candles sit on the floor, behind all silhouettes.
+        // Silhouettes use z-index 0-10. Candles stay at 2-4 so the
+        // front character (z-index ~10) always obscures them.
+        // Within the cluster, lower Y (further back) = lower z.
+        const zIndex = 2 + Math.round((pos.y / 100) * 2);
         // Scale candles slightly by depth — further = smaller
         const depthScale = 0.7 + (pos.y / 100) * 0.4;
         const w = candle.width * depthScale * 0.6;
