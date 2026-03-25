@@ -165,12 +165,11 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     const dy = pos.y - floorLightPos.y;
     const angle = Math.atan2(dy, dx);
 
-    // Shadow offset distance — scales with depth
-    const dist = 2 + depthNorm * 5;
-    // Blur — softer spread for uplight
-    const blur = 4 + depthNorm * 7;
-    // Opacity — front characters closest to light get strongest glow
-    const alpha = 0.15 + depthNorm * 0.35;
+    // Tight rim light — small offset, minimal blur.
+    // The reference: razor-thin edge catch, not a soft halo.
+    const dist = 1 + depthNorm * 1.5;   // front: 2.5px, back: 1px
+    const blur = 1 + depthNorm * 2;     // front: 3px, back: 1px — crisp edge
+    const alpha = 0.05 + depthNorm * 0.4; // front: 0.45, back: 0.05 — barely there in back
 
     // Dim during transition — light is "resetting" between clans
     const dimFactor = transitioning ? 0.3 : 1;
@@ -180,7 +179,8 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     const shadowX = Math.cos(angle) * dist;
     const shadowY = Math.sin(angle) * dist;
 
-    return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(200,200,200,${finalAlpha.toFixed(2)}))`;
+    // Warm grey — not pure white. Candlelight even in monochrome.
+    return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(180,170,155,${finalAlpha.toFixed(2)}))`;
   }
 
   return (
@@ -385,8 +385,9 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
         const depthNorm = Math.max(0, Math.min(1, (pos.y - 58) / 27));
         // Scale: front = 1.4, back = 0.625 (perspective depth, front exaggerated)
         const silScale = 0.625 + depthNorm * 0.775;
-        // Brightness: 80% front → 32% back (linear)
-        const brightness = 0.32 + depthNorm * 0.48;
+        // Brightness: 75% front → 18% back
+        // Back characters are dark shapes, barely visible. Not reflective ghosts.
+        const brightness = 0.18 + depthNorm * 0.57;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
