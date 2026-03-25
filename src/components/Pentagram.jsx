@@ -397,6 +397,20 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
         // Directional light from pentagram center
         const shadowFilter = getLightStyle(pos, depthNorm);
 
+        // Three.js light direction — convert screen-space floor light
+        // position to a 3D vector relative to this sprite.
+        // X: horizontal offset (screen % mapped to -2..2 range)
+        // Y: vertical offset (inverted — screen Y down, Three.js Y up)
+        // Z: depth. Slightly in front for fill, behind for rim.
+        const lightDir = floorLightPos ? {
+          x: (floorLightPos.x - pos.x) * 0.04,
+          y: (pos.y - floorLightPos.y) * -0.04,
+          z: 0.8 + depthNorm * 0.4,
+        } : { x: 0, y: -1, z: 0.5 };
+
+        // Light intensity scales with depth — front character gets more
+        const lightIntensity = 0.5 + depthNorm * 1.5;
+
         return (
           <div
             key={i}
@@ -414,6 +428,8 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
             <SilhouetteLoader
               clanId={clanIds[i] || ''}
               FallbackSVG={Silhouette}
+              lightDir={lightDir}
+              lightIntensity={lightIntensity}
             />
           </div>
         );
