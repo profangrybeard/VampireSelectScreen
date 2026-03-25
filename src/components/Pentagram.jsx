@@ -175,9 +175,11 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     const dimFactor = transitioning ? 0.3 : 1;
     const finalAlpha = alpha * dimFactor;
 
-    // Shadow pushes away from floor light (upward for all characters)
-    const shadowX = Math.cos(angle) * dist;
-    const shadowY = Math.sin(angle) * dist;
+    // Shadow offsets TOWARD the light source. CSS drop-shadow renders
+    // the glow on the side it's offset to — so pushing toward the light
+    // puts the glow on the edge facing the candles. Not away from them.
+    const shadowX = -Math.cos(angle) * dist;
+    const shadowY = -Math.sin(angle) * dist;
 
     // Warm grey — not pure white. Candlelight even in monochrome.
     return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(180,170,155,${finalAlpha.toFixed(2)}))`;
