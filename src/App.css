@@ -222,7 +222,7 @@
 /* ---- Pentagram floor ---- */
 .pentagram-container {
   position: absolute;
-  bottom: -22%;
+  bottom: -26%;
   left: 50%;
   transform: translateX(-50%);
   width: 200%;
@@ -254,6 +254,23 @@
 @keyframes pentagram-pulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 0.8; }
+}
+
+/* ---- Candle slots (screen-space, vertical) ---- */
+/* Candles stand upright regardless of floor tilt.
+   Positioned at tracked anchor dots near pentagram center.
+   Parallax comes from 3D-projected positions shifting on rotation. */
+.candle-slot {
+  position: absolute;
+  pointer-events: none;
+  transform-origin: bottom center;
+}
+
+.candle-slot svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* ---- Candle flame flicker ---- */
