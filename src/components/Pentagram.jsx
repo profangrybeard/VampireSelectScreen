@@ -47,7 +47,7 @@ const CX = 200;
 const CY = 200;
 const R = 180;
 const INNER_R = R * 0.382;
-const TILT_DEG = 75;
+const TILT_DEG = 80;
 
 export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false }) {
   const parentRotation = 180 - rotationDeg;
@@ -190,6 +190,20 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
                 <stop offset="0%" stopColor="rgba(200,200,200,0.06)" />
                 <stop offset="100%" stopColor="rgba(200,200,200,0)" />
               </radialGradient>
+              {/* Flame glow — soft bloom around each flame tip */}
+              <filter id="flame-glow" x="-100%" y="-100%" width="300%" height="300%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              {/* Flame gradient — warm grey, hot center to dim edge */}
+              <radialGradient id="flame-grad" cx="50%" cy="40%" r="50%">
+                <stop offset="0%" stopColor="#ddd8cc" />
+                <stop offset="60%" stopColor="#b0a898" />
+                <stop offset="100%" stopColor="#887860" />
+              </radialGradient>
             </defs>
 
             {/* Subtle center fill — floor glow on the pentagram plane */}
@@ -204,6 +218,63 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               strokeLinejoin="round" opacity="0.6" />
             <polygon points={pentagramPoints(CX, CY, R, INNER_R)}
               fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.5" opacity="0.3" />
+
+            {/* Candle cluster — ritual light source at pentagram center.
+                Varying heights, organic placement. Flames have .candle-flame
+                class for clan color targeting in Pass 2. */}
+            <g className="candle-cluster">
+              {/* Candle bodies — dark wax columns */}
+              {/* Tall center candle */}
+              <rect x="196" y="162" width="8" height="38" rx="1" fill="#1a1816" />
+              <ellipse cx="200" cy="162" rx="5" ry="1.5" fill="#222018" />
+              {/* Left tall */}
+              <rect x="184" y="168" width="7" height="32" rx="1" fill="#1c1a17" />
+              <ellipse cx="187.5" cy="168" rx="4.5" ry="1.2" fill="#242018" />
+              {/* Right medium */}
+              <rect x="208" y="174" width="6" height="26" rx="1" fill="#1a1816" />
+              <ellipse cx="211" cy="174" rx="4" ry="1.2" fill="#222018" />
+              {/* Far left short */}
+              <rect x="176" y="180" width="6" height="20" rx="1" fill="#1c1a17" />
+              <ellipse cx="179" cy="180" rx="3.5" ry="1" fill="#242018" />
+              {/* Far right medium */}
+              <rect x="216" y="176" width="5" height="24" rx="1" fill="#181614" />
+              <ellipse cx="218.5" cy="176" rx="3.5" ry="1" fill="#201c18" />
+              {/* Front left small */}
+              <rect x="190" y="183" width="5" height="17" rx="1" fill="#1a1816" />
+              <ellipse cx="192.5" cy="183" rx="3" ry="0.8" fill="#222018" />
+              {/* Front right small */}
+              <rect x="205" y="181" width="5" height="19" rx="1" fill="#1c1a17" />
+              <ellipse cx="207.5" cy="181" rx="3" ry="0.8" fill="#242018" />
+              {/* Back center */}
+              <rect x="198" y="170" width="5" height="30" rx="1" fill="#181614" />
+              <ellipse cx="200.5" cy="170" rx="3.5" ry="1" fill="#201c18" />
+
+              {/* Wax drips — organic melted shapes */}
+              <path d="M195 198 Q193 202 196 200 Z" fill="#1c1a17" opacity="0.6" />
+              <path d="M210 198 Q213 201 211 200 Z" fill="#1a1816" opacity="0.5" />
+              <path d="M185 199 Q183 202 186 200 Z" fill="#1c1a17" opacity="0.5" />
+              <path d="M217 199 Q220 201 218 200 Z" fill="#181614" opacity="0.4" />
+
+              {/* Flames — warm grey, glowing. Class-ready for clan color. */}
+              <g filter="url(#flame-glow)">
+                {/* Center tall flame */}
+                <path className="candle-flame" d="M200 162 Q196 154 200 146 Q204 154 200 162 Z" fill="url(#flame-grad)" opacity="0.9" />
+                {/* Left tall flame */}
+                <path className="candle-flame" d="M187.5 168 Q184 161 187.5 153 Q191 161 187.5 168 Z" fill="url(#flame-grad)" opacity="0.85" />
+                {/* Right medium flame */}
+                <path className="candle-flame" d="M211 174 Q208 168 211 161 Q214 168 211 174 Z" fill="url(#flame-grad)" opacity="0.8" />
+                {/* Far left flame */}
+                <path className="candle-flame" d="M179 180 Q177 175 179 170 Q181 175 179 180 Z" fill="url(#flame-grad)" opacity="0.75" />
+                {/* Far right flame */}
+                <path className="candle-flame" d="M218.5 176 Q216 170 218.5 164 Q221 170 218.5 176 Z" fill="url(#flame-grad)" opacity="0.8" />
+                {/* Front left flame */}
+                <path className="candle-flame" d="M192.5 183 Q191 179 192.5 175 Q194 179 192.5 183 Z" fill="url(#flame-grad)" opacity="0.7" />
+                {/* Front right flame */}
+                <path className="candle-flame" d="M207.5 181 Q206 176 207.5 172 Q209 176 207.5 181 Z" fill="url(#flame-grad)" opacity="0.75" />
+                {/* Back center flame */}
+                <path className="candle-flame" d="M200.5 170 Q198 164 200.5 158 Q203 164 200.5 170 Z" fill="url(#flame-grad)" opacity="0.8" />
+              </g>
+            </g>
 
             {/* Center reference point — invisible, tracked for lighting */}
             <circle
