@@ -57,6 +57,12 @@ export default function DebugGrid({
   devLightScale = 1.0, onLightScale,
   devNormalScale = 1.5, onNormalScale,
   devRoughness = 0.4, onRoughness,
+  devSpotX = -0.5, onSpotX,
+  devSpotY = 1.0, onSpotY,
+  devSpotZ = 1.5, onSpotZ,
+  devSpotIntensity = 3.0, onSpotIntensity,
+  devSpotAngle = 0.3, onSpotAngle,
+  devSpotPenumbra = 0.5, onSpotPenumbra,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
@@ -110,6 +116,51 @@ export default function DebugGrid({
             <input type="range" min="0" max="1" step="0.05"
               value={devRoughness}
               onChange={(e) => onRoughness?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div style={{ borderTop: '1px solid #333', margin: '4px 0', paddingTop: '4px' }}>
+            <span style={{ color: '#666', fontSize: '8px', letterSpacing: '0.1em' }}>SPOTLIGHT</span>
+          </div>
+          <label>
+            <span>Spot X {devSpotX.toFixed(1)}</span>
+            <input type="range" min="-2" max="2" step="0.1"
+              value={devSpotX}
+              onChange={(e) => onSpotX?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Spot Y {devSpotY.toFixed(1)}</span>
+            <input type="range" min="-2" max="2" step="0.1"
+              value={devSpotY}
+              onChange={(e) => onSpotY?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Spot Z {devSpotZ.toFixed(1)}</span>
+            <input type="range" min="0" max="3" step="0.1"
+              value={devSpotZ}
+              onChange={(e) => onSpotZ?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Spot Int {devSpotIntensity.toFixed(1)}</span>
+            <input type="range" min="0" max="10" step="0.1"
+              value={devSpotIntensity}
+              onChange={(e) => onSpotIntensity?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Angle {devSpotAngle.toFixed(2)}</span>
+            <input type="range" min="0.05" max="1.5" step="0.05"
+              value={devSpotAngle}
+              onChange={(e) => onSpotAngle?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Penum {devSpotPenumbra.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.05"
+              value={devSpotPenumbra}
+              onChange={(e) => onSpotPenumbra?.(parseFloat(e.target.value))}
             />
           </label>
         </div>

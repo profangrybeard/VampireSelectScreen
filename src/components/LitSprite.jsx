@@ -30,6 +30,8 @@ export default function LitSprite({
   normalScale = 1.5,
   roughness = 0.4,
   baseColor = 0x1a1a1a,
+  spotActive = false,
+  spotPos = {},
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
@@ -85,6 +87,14 @@ export default function LitSprite({
     const ambientLight = new THREE.AmbientLight(0x888888, ambientIntensity);
     scene.add(ambientLight);
 
+    // Spotlight — film noir key light. Only active on the front character.
+    // Targets the center of the sprite plane. Warm grey for Pass 1.
+    const spotLight = new THREE.SpotLight(0xc8bfb0, 0, 10, 0.3, 0.5, 1.0);
+    spotLight.position.set(-0.5, 1.0, 1.5);
+    spotLight.target.position.set(0, 0.5, 0);
+    scene.add(spotLight);
+    scene.add(spotLight.target);
+
     // Render function
     const render = () => {
       const w = canvas.clientWidth || 200;
@@ -127,6 +137,7 @@ export default function LitSprite({
       camera,
       pointLight,
       ambientLight,
+      spotLight,
       material,
       geometry,
       mesh,
@@ -151,12 +162,22 @@ export default function LitSprite({
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, material, render } = state;
+    const { pointLight, ambientLight, spotLight, material, render } = state;
 
-    // Light position and intensity
+    // Point light position and intensity
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
     pointLight.intensity = lightIntensity;
     ambientLight.intensity = ambientIntensity;
+
+    // Spotlight — only on when this is the active/front character
+    if (spotActive) {
+      spotLight.intensity = spotPos.intensity || 3.0;
+      spotLight.position.set(spotPos.x || -0.5, spotPos.y || 1.0, spotPos.z || 1.5);
+      spotLight.angle = spotPos.angle || 0.3;
+      spotLight.penumbra = spotPos.penumbra || 0.5;
+    } else {
+      spotLight.intensity = 0;
+    }
 
     // Material tunables
     material.roughness = roughness;
@@ -166,7 +187,7 @@ export default function LitSprite({
     }
 
     render();
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, spotPos.x, spotPos.y, spotPos.z, spotPos.intensity, spotPos.angle, spotPos.penumbra]);
 
   return (
     <canvas

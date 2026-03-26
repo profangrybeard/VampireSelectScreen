@@ -31,6 +31,14 @@ export default function App() {
   const [devNormalScale, setDevNormalScale] = useState(1.5);
   const [devRoughness, setDevRoughness] = useState(0.4);
 
+  // Spotlight dev controls
+  const [devSpotX, setDevSpotX] = useState(-0.5);
+  const [devSpotY, setDevSpotY] = useState(1.0);
+  const [devSpotZ, setDevSpotZ] = useState(1.5);
+  const [devSpotIntensity, setDevSpotIntensity] = useState(3.0);
+  const [devSpotAngle, setDevSpotAngle] = useState(0.3);
+  const [devSpotPenumbra, setDevSpotPenumbra] = useState(0.5);
+
   const rotate = useCallback((direction) => {
     if (transitioning) return;
     setTransitioning(true);
@@ -65,6 +73,7 @@ export default function App() {
         devLightScale={devLightScale}
         devNormalScale={devNormalScale}
         devRoughness={devRoughness}
+        devSpot={{ x: devSpotX, y: devSpotY, z: devSpotZ, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra }}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -79,12 +88,15 @@ export default function App() {
 
       {/* Debug grid overlay + dev controls */}
       <DebugGrid
-        devLightScale={devLightScale}
-        onLightScale={setDevLightScale}
-        devNormalScale={devNormalScale}
-        onNormalScale={setDevNormalScale}
-        devRoughness={devRoughness}
-        onRoughness={setDevRoughness}
+        devLightScale={devLightScale} onLightScale={setDevLightScale}
+        devNormalScale={devNormalScale} onNormalScale={setDevNormalScale}
+        devRoughness={devRoughness} onRoughness={setDevRoughness}
+        devSpotX={devSpotX} onSpotX={setDevSpotX}
+        devSpotY={devSpotY} onSpotY={setDevSpotY}
+        devSpotZ={devSpotZ} onSpotZ={setDevSpotZ}
+        devSpotIntensity={devSpotIntensity} onSpotIntensity={setDevSpotIntensity}
+        devSpotAngle={devSpotAngle} onSpotAngle={setDevSpotAngle}
+        devSpotPenumbra={devSpotPenumbra} onSpotPenumbra={setDevSpotPenumbra}
       />
 
       {/* Build number */}

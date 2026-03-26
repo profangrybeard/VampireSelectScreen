@@ -47,7 +47,7 @@ for (const [path, url] of Object.entries(artModules)) {
  * @param {number} lightIntensity — point light intensity
  * @param {object} style — passed through to the element
  */
-export default function SilhouetteLoader({ clanId, FallbackSVG, lightDir, lightIntensity, normalScale, roughness, style }) {
+export default function SilhouetteLoader({ clanId, FallbackSVG, lightDir, lightIntensity, normalScale, roughness, spotActive, spotPos, style }) {
   const diffuseUrl = diffuseMap[clanId];
   const normalUrl = normalMap[clanId] || null;
 
@@ -60,6 +60,8 @@ export default function SilhouetteLoader({ clanId, FallbackSVG, lightDir, lightI
         lightIntensity={lightIntensity || 2.5}
         normalScale={normalScale || 1.5}
         roughness={roughness || 0.4}
+        spotActive={spotActive || false}
+        spotPos={spotPos || {}}
       />
     );
   }
