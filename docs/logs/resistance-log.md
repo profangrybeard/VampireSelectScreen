@@ -167,4 +167,60 @@ Each resistance moment follows this structure:
 
 ---
 
+### R-008 — Drop-Shadow Direction Inverted (2026-03-24)
+
+**Lead-Up:** After implementing CSS drop-shadow rim lighting from the candle position, the professor observed that back characters had glow on their outer edges (facing away from candles) instead of their inner edges (facing the light).
+
+**AI Direction:** The AI computed the shadow offset vector from light to silhouette and applied it directly. CSS `drop-shadow` renders glow on the side it's offset toward — so pushing the shadow AWAY from the light put the glow on the wrong edge.
+
+**The Pushback:** "They are getting light on the opposite edges they should based on light angle." The professor identified the direction issue immediately from the screenshot.
+
+**Resolution:** Negated the shadow vector. Glow now appears on the edge facing the candles.
+
+**Iteration Feedback:** CSS drop-shadow direction is counterintuitive for lighting. The "shadow" offset determines where the GLOW appears, not where the shadow falls. This is the opposite of how you'd think about it from a lighting perspective. The AI should have tested the direction with a simple case before committing.
+
+---
+
+### R-009 — Rim Light Too Soft / Back Characters Too Bright (2026-03-24)
+
+**Lead-Up:** After fixing the direction, the lighting was still wrong. The front character had a huge soft halo instead of a tight rim. The back characters looked like "reflective ghosts instead of underlit creatures of the night."
+
+**AI Direction:** Drop-shadow blur was 11px (front), offset 7px. Back character brightness was 32%. The AI was treating drop-shadow as a fill light when it needed to be an edge catch.
+
+**The Pushback:** Professor sent rim light photography references showing razor-thin edge catches — not soft bloom. "The back characters look like reflective ghosts."
+
+**Resolution:** Blur reduced from 11px to 3px. Offset from 7px to 2.5px. Back brightness from 32% to 18%. Color warmed from pure white to rgba(180,170,155). The rim became a tight edge catch, not a halo.
+
+**Iteration Feedback:** Reference images resolve lighting debates instantly. The AI was treating "rim light" as "glow around edges" when it should be "thin bright line at the edge." The photography reference communicated this in one image.
+
+---
+
+### R-010 — Three.js alphaMap Reads Greyscale, Not Alpha Channel (2026-03-26)
+
+**Lead-Up:** The Three.js LitSprite was rendering the Nosferatu character as translucent — candles visible through her body. The professor reported it; the AI had missed it.
+
+**AI Direction:** The AI used `material.alphaMap = diffuseTexture` to drive transparency. Three.js documentation states that `alphaMap` reads the texture as a greyscale map where white=opaque and black=transparent. Since the Nosferatu figure is DARK, it became semi-transparent. The AI used the wrong API.
+
+**The Pushback:** "The card is definitely transparent. You can see candles right through her." The professor included a screenshot showing the issue clearly.
+
+**Resolution:** Switched from `alphaMap` to `material.map` (which reads the texture's actual alpha channel for opacity). The `material.color` darkens the RGB. Result: opaque figure with proper cutout.
+
+**Iteration Feedback:** API misunderstanding caused a fundamental rendering bug. `alphaMap` and `map` behave completely differently regarding transparency. The AI should have verified the Three.js documentation for `alphaMap` behavior before choosing it. On a visual project, "it compiles" is not "it works" — the screen is the only truth (echoing R-004).
+
+---
+
+### R-011 — Volumetric Cone Clipped to Character Card (2026-03-26)
+
+**Lead-Up:** The volumetric light cone (visible beam in the air) was implemented inside the LitSprite Three.js canvas as a second plane behind the character.
+
+**AI Direction:** The cone plane was positioned at Z=-0.1 inside the per-character canvas. This meant the cone was clipped to the character card's bounding box — the beam stopped at the card edges.
+
+**The Pushback:** "We should not have clipped that to the front card. It blows the effect. It has to be edge to edge."
+
+**Resolution:** Extracted the cone into a standalone `VolumetricCone` component that renders as a full-screen canvas element. Same spotlight controls drive it, but it's no longer trapped inside the character card.
+
+**Iteration Feedback:** A volumetric lighting effect that stops at a rectangular boundary looks artificial. The effect needs to fill the space it would naturally fill. When implementing screen-space effects, think about what the effect would look like in the real scene, not what's convenient to render inside an existing container.
+
+---
+
 *This is a living document. Entries are raw and chronological. The README gets the curated version.*

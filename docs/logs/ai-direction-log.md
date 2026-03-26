@@ -20,6 +20,26 @@
 **Produced:** Multiple iterations of tilt angle (35deg → 85deg → 75deg), perspective tuning, and container positioning. Initial "flatten" interpretation was backwards (made the floor look like a wall). depthNorm range was stale after layout changes, making brightness/z-index controls ineffective.
 **Decision:** Settled on 75deg tilt, front scale 1.4x, back scale 0.625x, brightness range 80%-32%. Z-index layering puts clan title between front and back silhouettes for depth. Visual reference (Saving Private Ryan low-angle shot, character carousel GIF) resolved the perspective miscommunication. (See R-006, R-007 in resistance log.)
 
+## Entry 4 — 2026-03-24
+**Asked:** Add a central light source at the pentagram center with directional per-slot rim lighting via CSS drop-shadow.
+**Produced:** Floor-level glow element, per-slot drop-shadow computed from light-to-silhouette angle. Initial implementation had shadow direction inverted (glow on wrong edges). Six iterations of lighting adjustments: too much blur (halo instead of rim), back characters too bright (reflective ghosts), wrong light direction.
+**Decision:** Reversed shadow vector so glow appears on light-facing edges. Tightened rim (blur 11px→3px). Darkened back characters (32%→18% brightness). Warm grey color (rgba 180,170,155) instead of pure white. (See R-008, R-009 in resistance log.)
+
+## Entry 5 — 2026-03-24
+**Asked:** Add candle cluster at pentagram center as the visible light source. Candles should stand vertically, create parallax on rotation.
+**Produced:** Initially placed candles inside the pentagram SVG (tilted with floor). Professor redirected: candles must stand vertical and parallax independently. Rebuilt as screen-space elements with invisible anchor dots on the pentagram floor tracked via rAF. 12 candles, varying heights, staggered flicker animation.
+**Decision:** Candles separated from floor SVG. Same one-motion-system architecture — anchors on the floor, candles track them but stand upright. Natural parallax from 3D projection differences.
+
+## Entry 6 — 2026-03-25/26
+**Asked:** SVG silhouette iteration isn't working — switch to PNG cards with Three.js normal map lighting.
+**Produced:** LitSprite component with MeshStandardMaterial, SilhouetteLoader auto-detection of PNG/normal map files. Initial implementation had critical transparency bug: used `alphaMap` (reads greyscale for opacity) instead of `map` (reads alpha channel). Character was translucent — candles visible through her body.
+**Decision:** Switched from `alphaMap` to `map` for proper alpha channel handling. Adopted normal-first workflow: diffuse darkened by material.color, all visible detail from normal map + lighting. (See R-010 in resistance log.)
+
+## Entry 7 — 2026-03-26
+**Asked:** Add film noir spotlight with per-character positioning, volumetric light cone, and dev controls for live tuning.
+**Produced:** SpotLight with movable target, VolumetricCone component (procedural canvas texture with noise). Initially clipped cone to character card — professor redirected to full-screen element. Dev sliders for all parameters. Per-clan lighting presets stored in clan data.
+**Decision:** Cone moved to screen-space (edge to edge). Up to 3 spotlights per character (key/fill/accent rig). Nosferatu lighting locked from tuning session. Pipeline checkpoint reached.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
