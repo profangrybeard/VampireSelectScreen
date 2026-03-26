@@ -205,6 +205,20 @@
   background: #666;
 }
 
+/* ---- Volumetric light cone ---- */
+/* Full-screen canvas behind the character, edge to edge.
+   Z-index between candles and silhouettes so the character
+   naturally occludes it. */
+.volumetric-cone {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
 /* ---- Central glow (ritual light source) ---- */
 /* Radial light at pentagram center. Positioned in screen space
    via inline styles. Grey only for Pass 1 — color plugs in at Pass 2. */
