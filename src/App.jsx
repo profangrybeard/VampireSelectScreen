@@ -72,6 +72,9 @@ export default function App() {
       {/* Debug grid overlay */}
       <DebugGrid />
 
+      {/* Build number */}
+      <div className="build-tag">{__BUILD_HASH__}</div>
+
       {/* Tap zones */}
       <div
         className="tap-zone tap-zone--left"

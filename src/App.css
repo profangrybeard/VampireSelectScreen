@@ -301,6 +301,19 @@
   75% { transform: scaleX(0.95) scaleY(1.03); opacity: 0.88; }
 }
 
+/* ---- Build tag ---- */
+.build-tag {
+  position: absolute;
+  bottom: 2%;
+  right: 4%;
+  font-family: monospace;
+  font-size: 9px;
+  color: #333;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
 /* ---- Debug overlay ---- */
 .debug-overlay {
   position: absolute;

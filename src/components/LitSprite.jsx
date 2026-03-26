@@ -58,16 +58,17 @@ export default function LitSprite({
     // Plane geometry — 1 wide x 2 tall, matching the 1:2 card aspect.
     const geometry = new THREE.PlaneGeometry(1, 2);
 
-    // Material — near-black base. Normal map does all the visual work.
-    // The diffuse texture is loaded only for its alpha channel.
+    // Material — dark base color multiplied with the diffuse texture.
+    // The diffuse texture's ALPHA CHANNEL drives opacity (figure=opaque,
+    // background=transparent). The color darkens the diffuse so the
+    // normal map does the visual heavy lifting.
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(baseColor),
       transparent: true,
-      alphaTest: 0.01,
+      alphaTest: 0.5,
       side: THREE.FrontSide,
       roughness: roughness,
       metalness: 0.0,
-      // Tiny emissive so the figure isn't pure invisible in total shadow
       emissive: new THREE.Color(0x060606),
       emissiveIntensity: 1.0,
     });
@@ -95,12 +96,15 @@ export default function LitSprite({
     // Load textures
     const loader = new THREE.TextureLoader();
 
-    // Diffuse — used as alphaMap only. The color comes from material.color.
+    // Diffuse — used as map. Its RGB is multiplied by material.color
+    // (darkening it). Its ALPHA CHANNEL drives opacity — figure pixels
+    // are opaque, background pixels are transparent. NOT alphaMap
+    // (which reads greyscale and would make dark areas transparent).
     loader.load(diffuseUrl, (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
-      material.alphaMap = tex;
+      material.map = tex;
       material.needsUpdate = true;
       render();
     });
@@ -135,7 +139,7 @@ export default function LitSprite({
     return () => {
       geometry.dispose();
       material.dispose();
-      if (material.alphaMap) material.alphaMap.dispose();
+      if (material.map) material.map.dispose();
       if (material.normalMap) material.normalMap.dispose();
       renderer.dispose();
       stateRef.current = null;
