@@ -29,7 +29,7 @@
 .silhouette-slot {
   position: absolute;
   width: 48%;
-  height: 54%;
+  height: 59%;
   pointer-events: none;
   will-change: left, top, transform, opacity;
   transform-origin: bottom center;
