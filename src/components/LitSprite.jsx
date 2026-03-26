@@ -1,13 +1,20 @@
 /**
  * LitSprite — Three.js lit character sprite with normal map support.
  *
- * Renders a transparent PNG on a plane with real per-pixel lighting.
- * The point light position is driven by the parent (Pentagram) based
- * on the candle/floor light position relative to each character.
+ * NORMAL-FIRST WORKFLOW:
+ * The diffuse texture is used ONLY for its alpha channel (figure shape).
+ * The base color is a near-black flat tone. All visible surface detail
+ * comes from the normal map catching the point light. This isolates
+ * the lighting contribution so we can tune normals before adding albedo.
+ *
+ * Tunable props:
+ *   normalScale — exaggerates normal map detail (1.0 = default, 2.0+ = dramatic)
+ *   roughness   — lower = more specular catch on normal ridges (0.3 = wet WoD look)
+ *   baseColor   — flat body color (default near-black, override for testing)
  *
  * Texture pipeline per clan:
- *   diffuse:  src/silhouettes/art/{clanId}.png        (required)
- *   normal:   src/silhouettes/art/{clanId}-normal.png  (optional)
+ *   diffuse:  src/silhouettes/art/{clanId}.png        (alpha source)
+ *   normal:   src/silhouettes/art/{clanId}-normal.png  (lighting detail)
  *
  * Pass 1: Grey light only. Clan color plugs into the point light at Pass 2.
  */
@@ -18,8 +25,11 @@ export default function LitSprite({
   diffuseUrl,
   normalUrl = null,
   lightDir = { x: 0, y: -1, z: 0.5 },
-  lightIntensity = 1.5,
-  ambientIntensity = 0.08,
+  lightIntensity = 2.5,
+  ambientIntensity = 0.02,
+  normalScale = 1.5,
+  roughness = 0.4,
+  baseColor = 0x1a1a1a,
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
@@ -42,23 +52,23 @@ export default function LitSprite({
     const scene = new THREE.Scene();
 
     // Orthographic camera — matches the 1:2 plane exactly.
-    // left/right = -0.5 to 0.5 (1 unit wide)
-    // top/bottom = 1 to -1 (2 units tall)
     const camera = new THREE.OrthographicCamera(-0.5, 0.5, 1, -1, 0.1, 10);
     camera.position.z = 2;
 
     // Plane geometry — 1 wide x 2 tall, matching the 1:2 card aspect.
-    // Centered at origin so it fills the camera frustum exactly.
     const geometry = new THREE.PlaneGeometry(1, 2);
 
-    // Material — MeshStandardMaterial for normal map + specular support
+    // Material — near-black base. Normal map does all the visual work.
+    // The diffuse texture is loaded only for its alpha channel.
     const material = new THREE.MeshStandardMaterial({
+      color: new THREE.Color(baseColor),
       transparent: true,
       alphaTest: 0.01,
       side: THREE.FrontSide,
-      roughness: 0.7,
+      roughness: roughness,
       metalness: 0.0,
-      emissive: new THREE.Color(0x0a0a0a),
+      // Tiny emissive so the figure isn't pure invisible in total shadow
+      emissive: new THREE.Color(0x060606),
       emissiveIntensity: 1.0,
     });
 
@@ -66,14 +76,15 @@ export default function LitSprite({
     scene.add(mesh);
 
     // Point light — driven by parent. Warm grey for Pass 1.
-    const pointLight = new THREE.PointLight(0xc8bfb0, 1.5, 6, 1.5);
+    // Higher intensity to compensate for dark base color.
+    const pointLight = new THREE.PointLight(0xc8bfb0, lightIntensity, 8, 1.0);
     scene.add(pointLight);
 
-    // Ambient — very low. The point light does the work.
-    const ambientLight = new THREE.AmbientLight(0x888888, 0.08);
+    // Ambient — barely there. The point light does the work.
+    const ambientLight = new THREE.AmbientLight(0x888888, ambientIntensity);
     scene.add(ambientLight);
 
-    // Render function — called after texture loads AND on prop changes
+    // Render function
     const render = () => {
       const w = canvas.clientWidth || 200;
       const h = canvas.clientHeight || 400;
@@ -81,24 +92,26 @@ export default function LitSprite({
       renderer.render(scene, camera);
     };
 
-    // Load textures — render after each loads
+    // Load textures
     const loader = new THREE.TextureLoader();
 
+    // Diffuse — used as alphaMap only. The color comes from material.color.
     loader.load(diffuseUrl, (tex) => {
       tex.colorSpace = THREE.SRGBColorSpace;
       tex.minFilter = THREE.LinearFilter;
       tex.magFilter = THREE.LinearFilter;
-      material.map = tex;
+      material.alphaMap = tex;
       material.needsUpdate = true;
       render();
     });
 
+    // Normal map — this is where all the visible detail comes from.
     if (normalUrl) {
       loader.load(normalUrl, (tex) => {
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
         material.normalMap = tex;
-        material.normalScale.set(1.0, 1.0);
+        material.normalScale.set(normalScale, normalScale);
         material.needsUpdate = true;
         render();
       });
@@ -116,32 +129,40 @@ export default function LitSprite({
       render,
     };
 
-    // Initial render (blank until textures load, but sizes the canvas)
+    // Initial render
     render();
 
     return () => {
       geometry.dispose();
       material.dispose();
-      if (material.map) material.map.dispose();
+      if (material.alphaMap) material.alphaMap.dispose();
       if (material.normalMap) material.normalMap.dispose();
       renderer.dispose();
       stateRef.current = null;
     };
   }, [diffuseUrl, normalUrl]);
 
-  // Update light and re-render whenever props change
+  // Update tunable props and re-render
   useEffect(() => {
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, render } = state;
+    const { pointLight, ambientLight, material, render } = state;
 
+    // Light position and intensity
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
     pointLight.intensity = lightIntensity;
     ambientLight.intensity = ambientIntensity;
 
+    // Material tunables
+    material.roughness = roughness;
+    material.color.set(baseColor);
+    if (material.normalMap) {
+      material.normalScale.set(normalScale, normalScale);
+    }
+
     render();
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor]);
 
   return (
     <canvas
