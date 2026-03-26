@@ -28,18 +28,18 @@ export default function App() {
 
   // Dev controls — tunable lighting props
   const [devLightScale, setDevLightScale] = useState(1.0);
-  const [devNormalScale, setDevNormalScale] = useState(1.5);
-  const [devRoughness, setDevRoughness] = useState(0.4);
+  const [devNormalScale, setDevNormalScale] = useState(1.0);
+  const [devRoughness, setDevRoughness] = useState(0.65);
 
   // Spotlight dev controls — Nosferatu defaults from tuning session
-  const [devSpotX, setDevSpotX] = useState(-2.0);
-  const [devSpotY, setDevSpotY] = useState(1.5);
+  const [devSpotX, setDevSpotX] = useState(-1.7);
+  const [devSpotY, setDevSpotY] = useState(2.6);
   const [devSpotZ, setDevSpotZ] = useState(1.0);
-  const [devSpotIntensity, setDevSpotIntensity] = useState(5.0);
-  const [devSpotAngle, setDevSpotAngle] = useState(0.10);
-  const [devSpotPenumbra, setDevSpotPenumbra] = useState(0.75);
-  const [devSpotTargetX, setDevSpotTargetX] = useState(0);
-  const [devSpotTargetY, setDevSpotTargetY] = useState(0.5);
+  const [devSpotIntensity, setDevSpotIntensity] = useState(9.0);
+  const [devSpotAngle, setDevSpotAngle] = useState(0.20);
+  const [devSpotPenumbra, setDevSpotPenumbra] = useState(0.50);
+  const [devSpotTargetX, setDevSpotTargetX] = useState(-0.1);
+  const [devSpotTargetY, setDevSpotTargetY] = useState(0.6);
 
   const rotate = useCallback((direction) => {
     if (transitioning) return;

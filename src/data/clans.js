@@ -18,12 +18,12 @@ const CLANS = [
     disciplines: ["Obfuscate", "Potence", "Animalism"],
     humanity: 2,
     lighting: {
-      normalScale: 1.1,
-      roughness: 0.40,
+      normalScale: 1.0,
+      roughness: 0.65,
       lightScale: 1.0,
       spots: [
-        // Key — steep diagonal from upper left
-        { x: -2.0, y: 1.5, z: 1.0, targetX: 0, targetY: 0.5, intensity: 5.0, angle: 0.10, penumbra: 0.75 },
+        // Key — steep diagonal from upper left, ceiling height
+        { x: -1.7, y: 2.6, z: 1.0, targetX: -0.1, targetY: 0.6, intensity: 9.0, angle: 0.20, penumbra: 0.50 },
       ],
     },
   },
