@@ -26,6 +26,11 @@ export default function App() {
   const [transitioning, setTransitioning] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
 
+  // Dev controls — tunable lighting props
+  const [devLightScale, setDevLightScale] = useState(1.0);
+  const [devNormalScale, setDevNormalScale] = useState(1.5);
+  const [devRoughness, setDevRoughness] = useState(0.4);
+
   const rotate = useCallback((direction) => {
     if (transitioning) return;
     setTransitioning(true);
@@ -57,6 +62,9 @@ export default function App() {
         silhouettes={SILHOUETTE_COMPONENTS}
         clanIds={CLANS.map(c => c.id)}
         transitioning={transitioning}
+        devLightScale={devLightScale}
+        devNormalScale={devNormalScale}
+        devRoughness={devRoughness}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -69,8 +77,15 @@ export default function App() {
       {/* Stats panel — slides down from title */}
       <StatsPanel clan={activeClan} isOpen={statsOpen} />
 
-      {/* Debug grid overlay */}
-      <DebugGrid />
+      {/* Debug grid overlay + dev controls */}
+      <DebugGrid
+        devLightScale={devLightScale}
+        onLightScale={setDevLightScale}
+        devNormalScale={devNormalScale}
+        onNormalScale={setDevNormalScale}
+        devRoughness={devRoughness}
+        onRoughness={setDevRoughness}
+      />
 
       {/* Build number */}
       <div className="build-tag">{__BUILD_HASH__}</div>

@@ -75,7 +75,7 @@ const CANDLES = [
   { dx: -14, dy: 10,  height: 16, width: 5,  flameH: 8,  id: 'c11' },
 ];
 
-export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false }) {
+export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4 }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -409,7 +409,8 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
         } : { x: 0, y: -1, z: 0.5 };
 
         // Light intensity scales with depth — front character gets more
-        const lightIntensity = 0.5 + depthNorm * 1.5;
+        // devLightScale multiplies the base intensity for live tuning
+        const lightIntensity = (0.5 + depthNorm * 1.5) * devLightScale;
 
         return (
           <div
@@ -430,6 +431,8 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               FallbackSVG={Silhouette}
               lightDir={lightDir}
               lightIntensity={lightIntensity}
+              normalScale={devNormalScale}
+              roughness={devRoughness}
             />
           </div>
         );

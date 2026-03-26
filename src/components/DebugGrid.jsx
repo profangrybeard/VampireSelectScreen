@@ -53,9 +53,14 @@ function goldenRatioLines(iterations) {
   return lines;
 }
 
-export default function DebugGrid() {
+export default function DebugGrid({
+  devLightScale = 1.0, onLightScale,
+  devNormalScale = 1.5, onNormalScale,
+  devRoughness = 0.4, onRoughness,
+}) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
+  const [showDev, setShowDev] = useState(false);
 
   const goldenLines = goldenRatioLines(3);
 
@@ -75,7 +80,40 @@ export default function DebugGrid() {
         >
           φ
         </button>
+        <button
+          className={`debug-btn ${showDev ? 'debug-btn--active' : ''}`}
+          onClick={() => setShowDev(!showDev)}
+        >
+          Dev
+        </button>
       </div>
+
+      {/* Dev sliders */}
+      {showDev && (
+        <div className="dev-panel">
+          <label>
+            <span>Light {devLightScale.toFixed(1)}</span>
+            <input type="range" min="0" max="5" step="0.1"
+              value={devLightScale}
+              onChange={(e) => onLightScale?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Normal {devNormalScale.toFixed(1)}</span>
+            <input type="range" min="0" max="5" step="0.1"
+              value={devNormalScale}
+              onChange={(e) => onNormalScale?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Rough {devRoughness.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.05"
+              value={devRoughness}
+              onChange={(e) => onRoughness?.(parseFloat(e.target.value))}
+            />
+          </label>
+        </div>
+      )}
 
       {/* Grid overlay */}
       {(showGrid || showGolden) && (
