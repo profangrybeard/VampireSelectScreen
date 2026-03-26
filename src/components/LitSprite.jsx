@@ -75,11 +75,16 @@ export default function LitSprite({
     const ambientLight = new THREE.AmbientLight(0x888888, ambientIntensity);
     scene.add(ambientLight);
 
-    const spotLight = new THREE.SpotLight(0xc8bfb0, 0, 10, 0.3, 0.5, 1.0);
-    spotLight.position.set(-0.5, 1.0, 1.5);
-    spotLight.target.position.set(0, 0.5, 0);
-    scene.add(spotLight);
-    scene.add(spotLight.target);
+    // Up to 3 spotlights — key/fill/accent rig per character
+    const spotLights = [];
+    for (let s = 0; s < 3; s++) {
+      const sl = new THREE.SpotLight(0xc8bfb0, 0, 10, 0.3, 0.5, 1.0);
+      sl.position.set(-0.5, 1.0, 1.5);
+      sl.target.position.set(0, 0.5, 0);
+      scene.add(sl);
+      scene.add(sl.target);
+      spotLights.push(sl);
+    }
 
     // Render function
     const render = () => {
@@ -114,7 +119,7 @@ export default function LitSprite({
 
     stateRef.current = {
       renderer, scene, camera,
-      pointLight, ambientLight, spotLight,
+      pointLight, ambientLight, spotLights,
       material, geometry, mesh, render,
     };
 
@@ -135,28 +140,27 @@ export default function LitSprite({
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, spotLight, material, render } = state;
+    const { pointLight, ambientLight, spotLights, material, render } = state;
 
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
     pointLight.intensity = lightIntensity;
     ambientLight.intensity = ambientIntensity;
 
-    // Spotlight + volumetric cone — only on active character
-    if (spotActive) {
-      const sx = spotPos.x ?? -0.5;
-      const sy = spotPos.y ?? 1.0;
-      const sz = spotPos.z ?? 1.5;
-      const sIntensity = spotPos.intensity ?? 3.0;
-      const sAngle = spotPos.angle ?? 0.3;
-      const sPenumbra = spotPos.penumbra ?? 0.5;
-
-      spotLight.intensity = sIntensity;
-      spotLight.position.set(sx, sy, sz);
-      spotLight.angle = sAngle;
-      spotLight.penumbra = sPenumbra;
-    } else {
-      spotLight.intensity = 0;
+    // Spotlights — only on active character. Up to 3 from spots array.
+    const spots = (spotActive && spotPos.spots) ? spotPos.spots : [];
+    for (let s = 0; s < spotLights.length; s++) {
+      const sl = spotLights[s];
+      const cfg = spots[s];
+      if (cfg) {
+        sl.intensity = cfg.intensity ?? 3.0;
+        sl.position.set(cfg.x ?? -0.5, cfg.y ?? 1.0, cfg.z ?? 1.5);
+        sl.target.position.set(cfg.targetX ?? 0, cfg.targetY ?? 0.5, 0);
+        sl.angle = cfg.angle ?? 0.3;
+        sl.penumbra = cfg.penumbra ?? 0.5;
+      } else {
+        sl.intensity = 0;
+      }
     }
 
     // Material tunables
@@ -167,7 +171,8 @@ export default function LitSprite({
     }
 
     render();
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, spotPos.x, spotPos.y, spotPos.z, spotPos.intensity, spotPos.angle, spotPos.penumbra]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos)]);
 
   return (
     <canvas

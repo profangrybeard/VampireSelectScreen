@@ -31,13 +31,15 @@ export default function App() {
   const [devNormalScale, setDevNormalScale] = useState(1.5);
   const [devRoughness, setDevRoughness] = useState(0.4);
 
-  // Spotlight dev controls
-  const [devSpotX, setDevSpotX] = useState(-0.5);
-  const [devSpotY, setDevSpotY] = useState(1.0);
-  const [devSpotZ, setDevSpotZ] = useState(1.5);
-  const [devSpotIntensity, setDevSpotIntensity] = useState(3.0);
-  const [devSpotAngle, setDevSpotAngle] = useState(0.3);
-  const [devSpotPenumbra, setDevSpotPenumbra] = useState(0.5);
+  // Spotlight dev controls — Nosferatu defaults from tuning session
+  const [devSpotX, setDevSpotX] = useState(-2.0);
+  const [devSpotY, setDevSpotY] = useState(1.5);
+  const [devSpotZ, setDevSpotZ] = useState(1.0);
+  const [devSpotIntensity, setDevSpotIntensity] = useState(5.0);
+  const [devSpotAngle, setDevSpotAngle] = useState(0.10);
+  const [devSpotPenumbra, setDevSpotPenumbra] = useState(0.75);
+  const [devSpotTargetX, setDevSpotTargetX] = useState(0);
+  const [devSpotTargetY, setDevSpotTargetY] = useState(0.5);
 
   const rotate = useCallback((direction) => {
     if (transitioning) return;
@@ -73,7 +75,7 @@ export default function App() {
         devLightScale={devLightScale}
         devNormalScale={devNormalScale}
         devRoughness={devRoughness}
-        devSpot={{ x: devSpotX, y: devSpotY, z: devSpotZ, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra }}
+        devSpot={{ x: devSpotX, y: devSpotY, z: devSpotZ, targetX: devSpotTargetX, targetY: devSpotTargetY, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra }}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -97,6 +99,8 @@ export default function App() {
         devSpotIntensity={devSpotIntensity} onSpotIntensity={setDevSpotIntensity}
         devSpotAngle={devSpotAngle} onSpotAngle={setDevSpotAngle}
         devSpotPenumbra={devSpotPenumbra} onSpotPenumbra={setDevSpotPenumbra}
+        devSpotTargetX={devSpotTargetX} onSpotTargetX={setDevSpotTargetX}
+        devSpotTargetY={devSpotTargetY} onSpotTargetY={setDevSpotTargetY}
       />
 
       {/* Build number */}

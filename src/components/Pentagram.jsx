@@ -380,6 +380,7 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
       {/* Volumetric light cone — full screen, behind the active character */}
       <VolumetricCone spotActive={!transitioning} spotPos={devSpot} />
 
+
       {/* Silhouettes — NO transitions. Positioned directly at dot locations
           every frame. Movement comes from tracking the pentagram.
           Directional lighting applied via drop-shadow from central light. */}
@@ -438,7 +439,7 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               normalScale={devNormalScale}
               roughness={devRoughness}
               spotActive={i === activeIndex}
-              spotPos={devSpot}
+              spotPos={{ spots: [{ ...devSpot }] }}
             />
           </div>
         );

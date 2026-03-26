@@ -63,6 +63,8 @@ export default function DebugGrid({
   devSpotIntensity = 3.0, onSpotIntensity,
   devSpotAngle = 0.3, onSpotAngle,
   devSpotPenumbra = 0.5, onSpotPenumbra,
+  devSpotTargetX = 0, onSpotTargetX,
+  devSpotTargetY = 0.5, onSpotTargetY,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
@@ -130,7 +132,7 @@ export default function DebugGrid({
           </label>
           <label>
             <span>Spot Y {devSpotY.toFixed(1)}</span>
-            <input type="range" min="-2" max="2" step="0.1"
+            <input type="range" min="-2" max="4" step="0.1"
               value={devSpotY}
               onChange={(e) => onSpotY?.(parseFloat(e.target.value))}
             />
@@ -161,6 +163,23 @@ export default function DebugGrid({
             <input type="range" min="0" max="1" step="0.05"
               value={devSpotPenumbra}
               onChange={(e) => onSpotPenumbra?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div style={{ borderTop: '1px solid #333', margin: '4px 0', paddingTop: '4px' }}>
+            <span style={{ color: '#666', fontSize: '8px', letterSpacing: '0.1em' }}>TARGET</span>
+          </div>
+          <label>
+            <span>Tgt X {devSpotTargetX.toFixed(1)}</span>
+            <input type="range" min="-1" max="1" step="0.05"
+              value={devSpotTargetX}
+              onChange={(e) => onSpotTargetX?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Tgt Y {devSpotTargetY.toFixed(1)}</span>
+            <input type="range" min="-1" max="1.5" step="0.05"
+              value={devSpotTargetY}
+              onChange={(e) => onSpotTargetY?.(parseFloat(e.target.value))}
             />
           </label>
         </div>

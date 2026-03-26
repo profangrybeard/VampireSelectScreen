@@ -17,16 +17,16 @@ import { useRef, useEffect } from 'react';
  * Generate the cone texture on a canvas.
  * spotX/spotY are in normalized screen space (0-1).
  */
-function drawCone(ctx, w, h, spotX, spotY, angle, penumbra, intensity) {
+function drawCone(ctx, w, h, spotX, spotY, tgtX, tgtY, angle, penumbra, intensity) {
   ctx.clearRect(0, 0, w, h);
 
   // Spotlight origin in canvas coords
   const originX = spotX * w;
   const originY = spotY * h;
 
-  // Target: center of the screen, roughly where the character's chest is
-  const targetX = w * 0.5;
-  const targetY = h * 0.45;
+  // Target — where the spotlight aims (already normalized 0-1)
+  const targetX = tgtX * w;
+  const targetY = tgtY * h;
 
   // Direction from origin to target
   const dx = targetX - originX;
@@ -116,15 +116,17 @@ export default function VolumetricCone({ spotActive, spotPos = {} }) {
     const sAngle = spotPos.angle ?? 0.3;
     const sPenumbra = spotPos.penumbra ?? 0.5;
     const sIntensity = spotPos.intensity ?? 3.0;
+    const sTgtX = spotPos.targetX ?? 0;
+    const sTgtY = spotPos.targetY ?? 0.5;
 
     // Map Three.js spotlight coords to normalized screen coords (0-1)
-    // spotX: -2..2 → 0..1 (center = 0.5)
     const normX = (sx + 2) / 4;
-    // spotY: -2..2 → 1..0 (inverted, high Y = top of screen)
     const normY = 1 - (sy + 2) / 4;
+    const normTgtX = (sTgtX + 2) / 4;
+    const normTgtY = 1 - (sTgtY + 2) / 4;
 
-    drawCone(ctx, w, h, normX, normY, sAngle, sPenumbra, sIntensity);
-  }, [spotActive, spotPos.x, spotPos.y, spotPos.angle, spotPos.penumbra, spotPos.intensity]);
+    drawCone(ctx, w, h, normX, normY, normTgtX, normTgtY, sAngle, sPenumbra, sIntensity);
+  }, [spotActive, spotPos.x, spotPos.y, spotPos.angle, spotPos.penumbra, spotPos.intensity, spotPos.targetX, spotPos.targetY]);
 
   if (!spotActive) return null;
 
