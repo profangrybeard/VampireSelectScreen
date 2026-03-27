@@ -42,6 +42,10 @@ export default function App() {
   const [devSpotTargetY, setDevSpotTargetY] = useState(0.6);
   const [devSpotColor, setDevSpotColor] = useState('#c8bfb0');
 
+  // Additive tint controls
+  const [devTintColor, setDevTintColor] = useState('#2d4a1e');
+  const [devTintOpacity, setDevTintOpacity] = useState(0.0);
+
   const rotate = useCallback((direction) => {
     if (transitioning) return;
     setTransitioning(true);
@@ -77,6 +81,7 @@ export default function App() {
         devNormalScale={devNormalScale}
         devRoughness={devRoughness}
         devSpot={{ x: devSpotX, y: devSpotY, z: devSpotZ, targetX: devSpotTargetX, targetY: devSpotTargetY, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra, color: devSpotColor }}
+        devTint={{ color: devTintColor, opacity: devTintOpacity }}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -103,6 +108,8 @@ export default function App() {
         devSpotTargetX={devSpotTargetX} onSpotTargetX={setDevSpotTargetX}
         devSpotTargetY={devSpotTargetY} onSpotTargetY={setDevSpotTargetY}
         devSpotColor={devSpotColor} onSpotColor={setDevSpotColor}
+        devTintColor={devTintColor} onTintColor={setDevTintColor}
+        devTintOpacity={devTintOpacity} onTintOpacity={setDevTintOpacity}
       />
 
       {/* Build number */}

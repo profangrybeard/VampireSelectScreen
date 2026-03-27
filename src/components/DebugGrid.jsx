@@ -66,10 +66,13 @@ export default function DebugGrid({
   devSpotTargetX = 0, onSpotTargetX,
   devSpotTargetY = 0.5, onSpotTargetY,
   devSpotColor = '#c8bfb0', onSpotColor,
+  devTintColor = '#2d4a1e', onTintColor,
+  devTintOpacity = 0.0, onTintOpacity,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
-  const [showDev, setShowDev] = useState(false);
+  const [showLight, setShowLight] = useState(false);
+  const [showTexture, setShowTexture] = useState(false);
 
   const goldenLines = goldenRatioLines(3);
 
@@ -90,40 +93,31 @@ export default function DebugGrid({
           φ
         </button>
         <button
-          className={`debug-btn ${showDev ? 'debug-btn--active' : ''}`}
-          onClick={() => setShowDev(!showDev)}
+          className={`debug-btn ${showLight ? 'debug-btn--active' : ''}`}
+          onClick={() => setShowLight(!showLight)}
         >
-          Dev
+          Light
+        </button>
+        <button
+          className={`debug-btn ${showTexture ? 'debug-btn--active' : ''}`}
+          onClick={() => setShowTexture(!showTexture)}
+        >
+          Tex
         </button>
       </div>
 
-      {/* Dev sliders */}
-      {showDev && (
+      {/* Light controls */}
+      {showLight && (
         <div className="dev-panel">
+          <div className="dev-panel__header">LIGHT</div>
           <label>
-            <span>Light {devLightScale.toFixed(1)}</span>
+            <span>Fill {devLightScale.toFixed(1)}</span>
             <input type="range" min="0" max="5" step="0.1"
               value={devLightScale}
               onChange={(e) => onLightScale?.(parseFloat(e.target.value))}
             />
           </label>
-          <label>
-            <span>Normal {devNormalScale.toFixed(1)}</span>
-            <input type="range" min="0" max="5" step="0.1"
-              value={devNormalScale}
-              onChange={(e) => onNormalScale?.(parseFloat(e.target.value))}
-            />
-          </label>
-          <label>
-            <span>Rough {devRoughness.toFixed(2)}</span>
-            <input type="range" min="0" max="1" step="0.05"
-              value={devRoughness}
-              onChange={(e) => onRoughness?.(parseFloat(e.target.value))}
-            />
-          </label>
-          <div style={{ borderTop: '1px solid #333', margin: '4px 0', paddingTop: '4px' }}>
-            <span style={{ color: '#666', fontSize: '8px', letterSpacing: '0.1em' }}>SPOTLIGHT</span>
-          </div>
+          <div className="dev-panel__sep">SPOTLIGHT</div>
           <label>
             <span>Spot X {devSpotX.toFixed(1)}</span>
             <input type="range" min="-2" max="2" step="0.1"
@@ -166,9 +160,7 @@ export default function DebugGrid({
               onChange={(e) => onSpotPenumbra?.(parseFloat(e.target.value))}
             />
           </label>
-          <div style={{ borderTop: '1px solid #333', margin: '4px 0', paddingTop: '4px' }}>
-            <span style={{ color: '#666', fontSize: '8px', letterSpacing: '0.1em' }}>TARGET</span>
-          </div>
+          <div className="dev-panel__sep">TARGET</div>
           <label>
             <span>Tgt X {devSpotTargetX.toFixed(1)}</span>
             <input type="range" min="-1" max="1" step="0.05"
@@ -183,15 +175,50 @@ export default function DebugGrid({
               onChange={(e) => onSpotTargetY?.(parseFloat(e.target.value))}
             />
           </label>
-          <div style={{ borderTop: '1px solid #333', margin: '4px 0', paddingTop: '4px' }}>
-            <span style={{ color: '#666', fontSize: '8px', letterSpacing: '0.1em' }}>COLOR</span>
-          </div>
+          <div className="dev-panel__sep">COLOR</div>
           <label>
             <span>Spot</span>
             <input type="color"
               value={devSpotColor}
               onChange={(e) => onSpotColor?.(e.target.value)}
               style={{ width: '60px', height: '20px', border: '1px solid #444', background: 'none', cursor: 'pointer' }}
+            />
+          </label>
+        </div>
+      )}
+
+      {/* Texture controls */}
+      {showTexture && (
+        <div className="dev-panel dev-panel--right">
+          <div className="dev-panel__header">TEXTURE</div>
+          <label>
+            <span>Normal {devNormalScale.toFixed(1)}</span>
+            <input type="range" min="0" max="5" step="0.1"
+              value={devNormalScale}
+              onChange={(e) => onNormalScale?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Rough {devRoughness.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.05"
+              value={devRoughness}
+              onChange={(e) => onRoughness?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div className="dev-panel__sep">ADDITIVE TINT</div>
+          <label>
+            <span>Color</span>
+            <input type="color"
+              value={devTintColor}
+              onChange={(e) => onTintColor?.(e.target.value)}
+              style={{ width: '60px', height: '20px', border: '1px solid #444', background: 'none', cursor: 'pointer' }}
+            />
+          </label>
+          <label>
+            <span>Opacity {devTintOpacity.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.02"
+              value={devTintOpacity}
+              onChange={(e) => onTintOpacity?.(parseFloat(e.target.value))}
             />
           </label>
         </div>

@@ -76,7 +76,7 @@ const CANDLES = [
   { dx: -14, dy: 10,  height: 16, width: 5,  flameH: 8,  id: 'c11' },
 ];
 
-export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {} }) {
+export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {} }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -440,6 +440,7 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               roughness={devRoughness}
               spotActive={i === activeIndex}
               spotPos={{ spots: [{ ...devSpot }] }}
+              tint={devTint}
             />
           </div>
         );

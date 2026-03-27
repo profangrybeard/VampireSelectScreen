@@ -27,6 +27,7 @@ export default function LitSprite({
   baseColor = 0x1a1a1a,
   spotActive = false,
   spotPos = {},
+  tint = {},
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
@@ -68,6 +69,23 @@ export default function LitSprite({
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
+    // --- ADDITIVE TINT LAYER ---
+    // A plane in front of the character with additive blending.
+    // Uses the diffuse alpha as its own alpha so the tint only
+    // appears on the figure, not the background.
+    const tintGeometry = new THREE.PlaneGeometry(1, 2);
+    const tintMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(0x2d4a1e),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const tintMesh = new THREE.Mesh(tintGeometry, tintMaterial);
+    tintMesh.position.z = 0.01; // just in front of character
+    tintMesh.renderOrder = 1;
+    scene.add(tintMesh);
+
     // --- LIGHTS ---
     const pointLight = new THREE.PointLight(0xc8bfb0, lightIntensity, 8, 1.0);
     scene.add(pointLight);
@@ -103,6 +121,12 @@ export default function LitSprite({
       tex.magFilter = THREE.LinearFilter;
       material.map = tex;
       material.needsUpdate = true;
+      // Share the texture with the tint layer — its alpha channel
+      // masks the tint to the figure shape. With additive blending,
+      // only the tint color matters (dark diffuse pixels add ~nothing).
+      tintMaterial.map = tex;
+      tintMaterial.alphaTest = 0.5;
+      tintMaterial.needsUpdate = true;
       render();
     });
 
@@ -120,13 +144,17 @@ export default function LitSprite({
     stateRef.current = {
       renderer, scene, camera,
       pointLight, ambientLight, spotLights,
-      material, geometry, mesh, render,
+      material, geometry, mesh,
+      tintMaterial, tintMesh,
+      render,
     };
 
     render();
 
     return () => {
       geometry.dispose();
+      tintGeometry.dispose();
+      tintMaterial.dispose();
       material.dispose();
       if (material.map) material.map.dispose();
       if (material.normalMap) material.normalMap.dispose();
@@ -140,7 +168,7 @@ export default function LitSprite({
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, spotLights, material, render } = state;
+    const { pointLight, ambientLight, spotLights, material, tintMaterial, render } = state;
 
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
@@ -171,9 +199,13 @@ export default function LitSprite({
       material.normalScale.set(normalScale, normalScale);
     }
 
+    // Additive tint layer
+    if (tint.color) tintMaterial.color.set(tint.color);
+    tintMaterial.opacity = tint.opacity ?? 0;
+
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos)]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity]);
 
   return (
     <canvas

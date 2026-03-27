@@ -399,6 +399,30 @@
   min-width: 72px;
 }
 
+.dev-panel--right {
+  left: auto;
+  right: 12px;
+}
+
+.dev-panel__header {
+  font-family: monospace;
+  font-size: 9px;
+  font-weight: bold;
+  color: #aaa;
+  letter-spacing: 0.15em;
+  margin-bottom: 4px;
+}
+
+.dev-panel__sep {
+  border-top: 1px solid #333;
+  margin: 4px 0;
+  padding-top: 4px;
+  font-family: monospace;
+  font-size: 8px;
+  color: #666;
+  letter-spacing: 0.1em;
+}
+
 .dev-panel input[type="range"] {
   width: 100px;
   height: 4px;
