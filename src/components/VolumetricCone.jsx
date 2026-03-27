@@ -17,7 +17,7 @@ import { useRef, useEffect } from 'react';
  * Generate the cone texture on a canvas.
  * spotX/spotY are in normalized screen space (0-1).
  */
-function drawCone(ctx, w, h, spotX, spotY, tgtX, tgtY, angle, penumbra, intensity) {
+function drawCone(ctx, w, h, spotX, spotY, tgtX, tgtY, angle, penumbra, intensity, colorR, colorG, colorB) {
   ctx.clearRect(0, 0, w, h);
 
   // Spotlight origin in canvas coords
@@ -85,11 +85,10 @@ function drawCone(ctx, w, h, spotX, spotY, tgtX, tgtY, angle, penumbra, intensit
       const n = noise(px * 0.5, py * 0.5);
       brightness *= 0.5 + n * 0.5;
 
-      // Warm grey
       const idx = (py * w + px) * 4;
-      data[idx] = 200;
-      data[idx + 1] = 191;
-      data[idx + 2] = 176;
+      data[idx] = colorR;
+      data[idx + 1] = colorG;
+      data[idx + 2] = colorB;
       data[idx + 3] = Math.round(brightness * 255);
     }
   }
@@ -125,8 +124,14 @@ export default function VolumetricCone({ spotActive, spotPos = {} }) {
     const normTgtX = (sTgtX + 2) / 4;
     const normTgtY = 1 - (sTgtY + 2) / 4;
 
-    drawCone(ctx, w, h, normX, normY, normTgtX, normTgtY, sAngle, sPenumbra, sIntensity);
-  }, [spotActive, spotPos.x, spotPos.y, spotPos.angle, spotPos.penumbra, spotPos.intensity, spotPos.targetX, spotPos.targetY]);
+    // Parse hex color or default to warm grey
+    const sColor = spotPos.color || '#c8bfb0';
+    const cR = parseInt(sColor.slice(1, 3), 16) || 200;
+    const cG = parseInt(sColor.slice(3, 5), 16) || 191;
+    const cB = parseInt(sColor.slice(5, 7), 16) || 176;
+
+    drawCone(ctx, w, h, normX, normY, normTgtX, normTgtY, sAngle, sPenumbra, sIntensity, cR, cG, cB);
+  }, [spotActive, spotPos.x, spotPos.y, spotPos.angle, spotPos.penumbra, spotPos.intensity, spotPos.targetX, spotPos.targetY, spotPos.color]);
 
   if (!spotActive) return null;
 

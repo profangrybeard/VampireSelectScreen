@@ -65,6 +65,7 @@ export default function DebugGrid({
   devSpotPenumbra = 0.5, onSpotPenumbra,
   devSpotTargetX = 0, onSpotTargetX,
   devSpotTargetY = 0.5, onSpotTargetY,
+  devSpotColor = '#c8bfb0', onSpotColor,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
@@ -180,6 +181,17 @@ export default function DebugGrid({
             <input type="range" min="-1" max="1.5" step="0.05"
               value={devSpotTargetY}
               onChange={(e) => onSpotTargetY?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div style={{ borderTop: '1px solid #333', margin: '4px 0', paddingTop: '4px' }}>
+            <span style={{ color: '#666', fontSize: '8px', letterSpacing: '0.1em' }}>COLOR</span>
+          </div>
+          <label>
+            <span>Spot</span>
+            <input type="color"
+              value={devSpotColor}
+              onChange={(e) => onSpotColor?.(e.target.value)}
+              style={{ width: '60px', height: '20px', border: '1px solid #444', background: 'none', cursor: 'pointer' }}
             />
           </label>
         </div>

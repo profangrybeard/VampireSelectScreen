@@ -158,6 +158,7 @@ export default function LitSprite({
         sl.target.position.set(cfg.targetX ?? 0, cfg.targetY ?? 0.5, 0);
         sl.angle = cfg.angle ?? 0.3;
         sl.penumbra = cfg.penumbra ?? 0.5;
+        if (cfg.color) sl.color.set(cfg.color);
       } else {
         sl.intensity = 0;
       }
