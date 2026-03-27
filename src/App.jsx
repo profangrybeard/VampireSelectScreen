@@ -5,7 +5,7 @@
  * Current Pass: 1 — Monochrome Silhouettes
  * Grey values only. No color.
  */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import './App.css';
 import CLANS from './data/clans.js';
 import Nosferatu from './silhouettes/Nosferatu.jsx';
@@ -45,6 +45,58 @@ export default function App() {
   // Additive tint controls
   const [devTintColor, setDevTintColor] = useState('#2d4a1e');
   const [devTintOpacity, setDevTintOpacity] = useState(0.0);
+
+  // --- Save/Load/Copy dev settings ---
+  const getDevSettings = useCallback(() => ({
+    lightScale: devLightScale,
+    normalScale: devNormalScale,
+    roughness: devRoughness,
+    spot: { x: devSpotX, y: devSpotY, z: devSpotZ, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra, targetX: devSpotTargetX, targetY: devSpotTargetY, color: devSpotColor },
+    tint: { color: devTintColor, opacity: devTintOpacity },
+  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity]);
+
+  const applyDevSettings = useCallback((s) => {
+    if (!s) return;
+    if (s.lightScale != null) setDevLightScale(s.lightScale);
+    if (s.normalScale != null) setDevNormalScale(s.normalScale);
+    if (s.roughness != null) setDevRoughness(s.roughness);
+    if (s.spot) {
+      if (s.spot.x != null) setDevSpotX(s.spot.x);
+      if (s.spot.y != null) setDevSpotY(s.spot.y);
+      if (s.spot.z != null) setDevSpotZ(s.spot.z);
+      if (s.spot.intensity != null) setDevSpotIntensity(s.spot.intensity);
+      if (s.spot.angle != null) setDevSpotAngle(s.spot.angle);
+      if (s.spot.penumbra != null) setDevSpotPenumbra(s.spot.penumbra);
+      if (s.spot.targetX != null) setDevSpotTargetX(s.spot.targetX);
+      if (s.spot.targetY != null) setDevSpotTargetY(s.spot.targetY);
+      if (s.spot.color != null) setDevSpotColor(s.spot.color);
+    }
+    if (s.tint) {
+      if (s.tint.color != null) setDevTintColor(s.tint.color);
+      if (s.tint.opacity != null) setDevTintOpacity(s.tint.opacity);
+    }
+  }, []);
+
+  const handleSave = useCallback(() => {
+    const s = getDevSettings();
+    localStorage.setItem('vss-dev-settings', JSON.stringify(s));
+  }, [getDevSettings]);
+
+  const handleCopy = useCallback(() => {
+    const s = getDevSettings();
+    navigator.clipboard.writeText(JSON.stringify(s, null, 2)).catch(() => {
+      // Fallback: prompt with the text
+      window.prompt('Copy this JSON:', JSON.stringify(s));
+    });
+  }, [getDevSettings]);
+
+  // Load saved settings on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('vss-dev-settings');
+      if (raw) applyDevSettings(JSON.parse(raw));
+    } catch (e) { /* ignore parse errors */ }
+  }, [applyDevSettings]);
 
   const rotate = useCallback((direction) => {
     if (transitioning) return;
@@ -110,6 +162,8 @@ export default function App() {
         devSpotColor={devSpotColor} onSpotColor={setDevSpotColor}
         devTintColor={devTintColor} onTintColor={setDevTintColor}
         devTintOpacity={devTintOpacity} onTintOpacity={setDevTintOpacity}
+        onSave={handleSave}
+        onCopy={handleCopy}
       />
 
       {/* Build number */}

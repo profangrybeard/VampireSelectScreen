@@ -68,11 +68,14 @@ export default function DebugGrid({
   devSpotColor = '#c8bfb0', onSpotColor,
   devTintColor = '#2d4a1e', onTintColor,
   devTintOpacity = 0.0, onTintOpacity,
+  onSave, onCopy,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
   const [showLight, setShowLight] = useState(false);
   const [showTexture, setShowTexture] = useState(false);
+  const [saveFlash, setSaveFlash] = useState(false);
+  const [copyFlash, setCopyFlash] = useState(false);
 
   const goldenLines = goldenRatioLines(3);
 
@@ -103,6 +106,20 @@ export default function DebugGrid({
           onClick={() => setShowTexture(!showTexture)}
         >
           Tex
+        </button>
+        <button
+          className="debug-btn"
+          onClick={() => { onSave?.(); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
+          style={saveFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
+        >
+          {saveFlash ? 'Saved' : 'Save'}
+        </button>
+        <button
+          className="debug-btn"
+          onClick={() => { onCopy?.(); setCopyFlash(true); setTimeout(() => setCopyFlash(false), 600); }}
+          style={copyFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
+        >
+          {copyFlash ? 'Copied' : 'Copy'}
         </button>
       </div>
 
