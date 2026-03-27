@@ -40,6 +40,11 @@
 **Produced:** SpotLight with movable target, VolumetricCone component (procedural canvas texture with noise). Initially clipped cone to character card — professor redirected to full-screen element. Dev sliders for all parameters. Per-clan lighting presets stored in clan data.
 **Decision:** Cone moved to screen-space (edge to edge). Up to 3 spotlights per character (key/fill/accent rig). Nosferatu lighting locked from tuning session. Pipeline checkpoint reached.
 
+## Entry 8 — 2026-03-27
+**Asked:** Add spotlight color picker for showing off to peers. Then add an additive color tint layer (like Linear Dodge in Photoshop) for the character texture. Split the dev panel into Light and Texture controls — it was getting too big.
+**Produced:** Color picker wired to both the Three.js SpotLight and the volumetric cone simultaneously. Additive tint implemented as a second Three.js plane with AdditiveBlending, masked to the figure alpha. Dev panel split into "Light" (left) and "Tex" (right) with separate toggle buttons.
+**Decision:** Tint defaults to opacity 0 (invisible until dialed up). Default color set to Nosferatu toxic green from the design intent palette. Pipeline is now proven for per-clan color work when we enter Pass 2.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
