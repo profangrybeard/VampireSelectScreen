@@ -27,6 +27,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import SilhouetteLoader from '../silhouettes/SilhouetteLoader.jsx';
 import VolumetricCone from './VolumetricCone.jsx';
+import CLANS from '../data/clans.js';
 
 // Star line connections (tip-to-tip, skipping one)
 function starLines(cx, cy, r) {
@@ -76,7 +77,47 @@ const CANDLES = [
   { dx: -14, dy: 10,  height: 16, width: 5,  flameH: 8,  id: 'c11' },
 ];
 
-export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {} }) {
+// Lerp a single number
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Lerp a hex color string (#rrggbb)
+function lerpColor(a, b, t) {
+  const ar = parseInt((a || '#c8bfb0').slice(1, 3), 16);
+  const ag = parseInt((a || '#c8bfb0').slice(3, 5), 16);
+  const ab = parseInt((a || '#c8bfb0').slice(5, 7), 16);
+  const br = parseInt((b || '#c8bfb0').slice(1, 3), 16);
+  const bg = parseInt((b || '#c8bfb0').slice(3, 5), 16);
+  const bb = parseInt((b || '#c8bfb0').slice(5, 7), 16);
+  const r = Math.round(lerp(ar, br, t)).toString(16).padStart(2, '0');
+  const g = Math.round(lerp(ag, bg, t)).toString(16).padStart(2, '0');
+  const bv = Math.round(lerp(ab, bb, t)).toString(16).padStart(2, '0');
+  return `#${r}${g}${bv}`;
+}
+
+// Lerp between two spotlight configs
+function lerpSpot(from, to, t) {
+  if (!from && !to) return {};
+  const f = from || to;
+  const tgt = to || from;
+  return {
+    x: lerp(f.x ?? -0.5, tgt.x ?? -0.5, t),
+    y: lerp(f.y ?? 1.0, tgt.y ?? 1.0, t),
+    z: lerp(f.z ?? 1.5, tgt.z ?? 1.5, t),
+    targetX: lerp(f.targetX ?? 0, tgt.targetX ?? 0, t),
+    targetY: lerp(f.targetY ?? 0.5, tgt.targetY ?? 0.5, t),
+    intensity: lerp(f.intensity ?? 3.0, tgt.intensity ?? 3.0, t),
+    angle: lerp(f.angle ?? 0.3, tgt.angle ?? 0.3, t),
+    penumbra: lerp(f.penumbra ?? 0.5, tgt.penumbra ?? 0.5, t),
+    color: lerpColor(f.color, tgt.color, t),
+  };
+}
+
+// Ease-in-out for smooth transitions
+function easeInOut(t) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {} }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -86,6 +127,7 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
   const [dotPositions, setDotPositions] = useState([]);
   const [centerPos, setCenterPos] = useState(null);
   const [candlePositions, setCandlePositions] = useState([]);
+  const [lerpT, setLerpT] = useState(1); // 0 = at prev clan, 1 = at active clan
 
   // Read dot positions from the DOM — called every animation frame during transitions
   const readPositions = useCallback(() => {
@@ -134,8 +176,13 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
 
     function tick() {
       readPositions();
-      if (performance.now() - startTime < TRANSITION_MS) {
+      const elapsed = performance.now() - startTime;
+      const t = Math.min(1, elapsed / TRANSITION_MS);
+      setLerpT(easeInOut(t));
+      if (elapsed < TRANSITION_MS) {
         rafRef.current = requestAnimationFrame(tick);
+      } else {
+        setLerpT(1);
       }
     }
 
@@ -185,6 +232,13 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
     // Warm grey — not pure white. Candlelight even in monochrome.
     return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(180,170,155,${finalAlpha.toFixed(2)}))`;
   }
+
+  // Compute lerped spotlight config between prev and active clan.
+  // During transition (lerpT < 1): interpolate from prev to active.
+  // At rest (lerpT >= 1): use dev slider overrides for live tuning.
+  const prevSpot = CLANS[prevActiveIndex]?.lighting?.spots?.[0] || {};
+  const activeSpot = CLANS[activeIndex]?.lighting?.spots?.[0] || {};
+  const lerpedSpotConfig = lerpT >= 1 ? devSpot : lerpSpot(prevSpot, activeSpot, lerpT);
 
   return (
     <>
@@ -377,8 +431,8 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
         );
       })}
 
-      {/* Volumetric light cone — full screen, behind the active character */}
-      <VolumetricCone spotActive={!transitioning} spotPos={devSpot} />
+      {/* Volumetric light cone — uses lerped spotlight */}
+      <VolumetricCone spotActive={true} spotPos={lerpedSpotConfig} />
 
 
       {/* Silhouettes — NO transitions. Positioned directly at dot locations
@@ -439,7 +493,7 @@ export default function Pentagram({ activeIndex = 0, rotationDeg = 0, silhouette
               normalScale={devNormalScale}
               roughness={devRoughness}
               spotActive={i === activeIndex}
-              spotPos={{ spots: [{ ...devSpot }] }}
+              spotPos={{ spots: [{ ...lerpedSpotConfig }] }}
               tint={devTint}
             />
           </div>

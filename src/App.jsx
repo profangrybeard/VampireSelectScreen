@@ -22,6 +22,7 @@ const SILHOUETTE_COMPONENTS = [
 
 export default function App() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [prevActiveIndex, setPrevActiveIndex] = useState(0);
   const [rotationDeg, setRotationDeg] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
@@ -98,9 +99,29 @@ export default function App() {
     } catch (e) { /* ignore parse errors */ }
   }, [applyDevSettings]);
 
+  // When active clan changes, load its lighting preset into the dev sliders
+  useEffect(() => {
+    const lighting = CLANS[activeIndex]?.lighting;
+    if (!lighting) return;
+    const spot = lighting.spots?.[0] || {};
+    setDevLightScale(lighting.lightScale ?? 1.0);
+    setDevNormalScale(lighting.normalScale ?? 1.5);
+    setDevRoughness(lighting.roughness ?? 0.4);
+    setDevSpotX(spot.x ?? -0.5);
+    setDevSpotY(spot.y ?? 1.0);
+    setDevSpotZ(spot.z ?? 1.5);
+    setDevSpotIntensity(spot.intensity ?? 3.0);
+    setDevSpotAngle(spot.angle ?? 0.3);
+    setDevSpotPenumbra(spot.penumbra ?? 0.5);
+    setDevSpotTargetX(spot.targetX ?? 0);
+    setDevSpotTargetY(spot.targetY ?? 0.5);
+    if (spot.color) setDevSpotColor(spot.color);
+  }, [activeIndex]);
+
   const rotate = useCallback((direction) => {
     if (transitioning) return;
     setTransitioning(true);
+    setPrevActiveIndex(activeIndex);
     setActiveIndex((prev) => {
       return direction === 'left'
         ? (prev - 1 + CLANS.length) % CLANS.length
@@ -108,8 +129,7 @@ export default function App() {
     });
     setRotationDeg((prev) => direction === 'left' ? prev - 72 : prev + 72);
     setTimeout(() => setTransitioning(false), 420);
-    // Stats stay open — content updates to new clan automatically
-  }, [transitioning]);
+  }, [transitioning, activeIndex]);
 
   const toggleStats = useCallback(() => {
     setStatsOpen((prev) => !prev);
@@ -125,6 +145,7 @@ export default function App() {
       {/* Pentagram floor + silhouettes anchored to points */}
       <Pentagram
         activeIndex={activeIndex}
+        prevActiveIndex={prevActiveIndex}
         rotationDeg={rotationDeg}
         silhouettes={SILHOUETTE_COMPONENTS}
         clanIds={CLANS.map(c => c.id)}
