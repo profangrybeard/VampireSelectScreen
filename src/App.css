@@ -354,20 +354,30 @@
 }
 
 .debug-btn {
-  background: rgba(30, 30, 30, 0.8);
-  border: 1px solid #444;
-  color: #777;
-  font-family: monospace;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
   font-size: 10px;
-  padding: 4px 8px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  padding: 8px 16px;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 4px;
   pointer-events: auto;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.debug-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .debug-btn--active {
-  color: #ccc;
-  border-color: #888;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 /* ---- Dev slider panel ---- */
