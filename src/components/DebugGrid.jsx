@@ -69,6 +69,7 @@ export default function DebugGrid({
   devTintColor = '#2d4a1e', onTintColor,
   devTintOpacity = 0.0, onTintOpacity,
   onSave, onCopy,
+  activeSlot, onSaveSlot, onLoadSlot, getSlotPreview,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
@@ -142,13 +143,25 @@ export default function DebugGrid({
           >
             Tex
           </button>
-          <button
-            className="debug-btn"
-            onClick={() => { onSave?.(); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
-            style={saveFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
-          >
-            {saveFlash ? 'Saved' : 'Save'}
-          </button>
+          {/* Preset slots — tap to load, double-tap to save */}
+          {['A', 'B', 'C'].map(slot => {
+            const preview = getSlotPreview?.(slot);
+            const spotColor = preview?.spot?.color || null;
+            const isEmpty = !preview;
+            const isActive = activeSlot === slot;
+            return (
+              <button
+                key={slot}
+                className={`debug-btn debug-slot ${isActive ? 'debug-slot--active' : ''}`}
+                onClick={() => { onLoadSlot?.(slot); onSave?.(); }}
+                onDoubleClick={(e) => { e.preventDefault(); onSaveSlot?.(slot); onSave?.(); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
+                title={isEmpty ? `Double-tap to save to ${slot}` : `Tap: load ${slot} / Double-tap: overwrite`}
+              >
+                {spotColor && <span className="debug-slot__swatch" style={{ background: spotColor }} />}
+                <span>{slot}</span>
+              </button>
+            );
+          })}
           <button
             className="debug-btn"
             onClick={() => { onCopy?.(); setCopyFlash(true); setTimeout(() => setCopyFlash(false), 600); }}

@@ -119,9 +119,41 @@ export default function App() {
     }
   }, []);
 
+  // Preset slots — 3 per clan (A, B, C)
+  const [activeSlot, setActiveSlot] = useState(null);
+  const [presets, setPresets] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('vss-presets') || '{}'); }
+    catch { return {}; }
+  });
+
+  const saveToSlot = useCallback((slot) => {
+    const clanId = CLANS[activeIndex]?.id || 'unknown';
+    const s = getDevSettings();
+    setPresets(prev => {
+      const next = { ...prev, [clanId]: { ...(prev[clanId] || {}), [slot]: s } };
+      localStorage.setItem('vss-presets', JSON.stringify(next));
+      return next;
+    });
+    setActiveSlot(slot);
+  }, [getDevSettings, activeIndex]);
+
+  const loadFromSlot = useCallback((slot) => {
+    const clanId = CLANS[activeIndex]?.id || 'unknown';
+    const s = presets[clanId]?.[slot];
+    if (s) {
+      applyDevSettings(s);
+      setActiveSlot(slot);
+    }
+  }, [activeIndex, presets, applyDevSettings]);
+
+  const getSlotPreview = useCallback((slot) => {
+    const clanId = CLANS[activeIndex]?.id || 'unknown';
+    return presets[clanId]?.[slot] || null;
+  }, [activeIndex, presets]);
+
+  // Legacy save (still stores per-clan for the auto-load on rotation)
   const handleSave = useCallback(() => {
     const s = getDevSettings();
-    // Save per-clan, keyed by clan ID
     const clanId = CLANS[activeIndex]?.id || 'unknown';
     const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
     allSaved[clanId] = s;
@@ -248,6 +280,10 @@ export default function App() {
         devTintOpacity={devTintOpacity} onTintOpacity={setDevTintOpacity}
         onSave={handleSave}
         onCopy={handleCopy}
+        activeSlot={activeSlot}
+        onSaveSlot={saveToSlot}
+        onLoadSlot={loadFromSlot}
+        getSlotPreview={getSlotPreview}
       />
 
       {/* Tap zones */}
