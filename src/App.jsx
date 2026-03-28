@@ -121,46 +121,65 @@ export default function App() {
 
   const handleSave = useCallback(() => {
     const s = getDevSettings();
-    localStorage.setItem('vss-dev-settings', JSON.stringify(s));
-  }, [getDevSettings]);
+    // Save per-clan, keyed by clan ID
+    const clanId = CLANS[activeIndex]?.id || 'unknown';
+    const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
+    allSaved[clanId] = s;
+    localStorage.setItem('vss-dev-settings', JSON.stringify(allSaved));
+  }, [getDevSettings, activeIndex]);
 
   const handleCopy = useCallback(() => {
-    const s = getDevSettings();
+    const clanId = CLANS[activeIndex]?.id || 'unknown';
+    const s = { clan: clanId, ...getDevSettings() };
     navigator.clipboard.writeText(JSON.stringify(s, null, 2)).catch(() => {
-      // Fallback: prompt with the text
       window.prompt('Copy this JSON:', JSON.stringify(s));
     });
-  }, [getDevSettings]);
+  }, [getDevSettings, activeIndex]);
 
-  // Load saved settings on mount
+  // Load saved settings for the initial clan on mount
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('vss-dev-settings');
-      if (raw) applyDevSettings(JSON.parse(raw));
+      const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
+      const clanId = CLANS[activeIndex]?.id;
+      if (allSaved[clanId]) applyDevSettings(allSaved[clanId]);
     } catch (e) { /* ignore parse errors */ }
-  }, [applyDevSettings]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  // When active clan changes, load its lighting preset into the dev sliders
+  // When active clan changes, load saved values (localStorage) first,
+  // then fall back to clans.js defaults if no saved values exist.
   useEffect(() => {
-    const lighting = CLANS[activeIndex]?.lighting;
-    if (!lighting) return;
-    const spot = lighting.spots?.[0] || {};
-    setDevLightScale(lighting.lightScale ?? 1.0);
-    setDevNormalScale(lighting.normalScale ?? 1.5);
-    setDevRoughness(lighting.roughness ?? 0.4);
-    setDevSpotX(spot.x ?? -0.5);
-    setDevSpotY(spot.y ?? 1.0);
-    setDevSpotZ(spot.z ?? 1.5);
-    setDevSpotIntensity(spot.intensity ?? 3.0);
-    setDevSpotAngle(spot.angle ?? 0.3);
-    setDevSpotPenumbra(spot.penumbra ?? 0.5);
-    setDevSpotTargetX(spot.targetX ?? 0);
-    setDevSpotTargetY(spot.targetY ?? 0.5);
-    if (spot.color) setDevSpotColor(spot.color);
-    const tint = lighting.tint || {};
-    if (tint.color) setDevTintColor(tint.color);
-    setDevTintOpacity(tint.opacity ?? 0);
-  }, [activeIndex]);
+    const clanId = CLANS[activeIndex]?.id;
+    let saved = null;
+    try {
+      const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
+      saved = allSaved[clanId] || null;
+    } catch (e) { /* ignore */ }
+
+    if (saved) {
+      applyDevSettings(saved);
+    } else {
+      // Fall back to clans.js defaults
+      const lighting = CLANS[activeIndex]?.lighting;
+      if (!lighting) return;
+      const spot = lighting.spots?.[0] || {};
+      setDevLightScale(lighting.lightScale ?? 1.0);
+      setDevNormalScale(lighting.normalScale ?? 1.5);
+      setDevRoughness(lighting.roughness ?? 0.4);
+      setDevSpotX(spot.x ?? -0.5);
+      setDevSpotY(spot.y ?? 1.0);
+      setDevSpotZ(spot.z ?? 1.5);
+      setDevSpotIntensity(spot.intensity ?? 3.0);
+      setDevSpotAngle(spot.angle ?? 0.3);
+      setDevSpotPenumbra(spot.penumbra ?? 0.5);
+      setDevSpotTargetX(spot.targetX ?? 0);
+      setDevSpotTargetY(spot.targetY ?? 0.5);
+      if (spot.color) setDevSpotColor(spot.color);
+      const tint = lighting.tint || {};
+      if (tint.color) setDevTintColor(tint.color);
+      setDevTintOpacity(tint.opacity ?? 0);
+    }
+  }, [activeIndex, applyDevSettings]);
 
   const rotate = useCallback((direction) => {
     if (transitioning) return;
