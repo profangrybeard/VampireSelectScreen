@@ -45,6 +45,16 @@
 **Produced:** Color picker wired to both the Three.js SpotLight and the volumetric cone simultaneously. Additive tint implemented as a second Three.js plane with AdditiveBlending, masked to the figure alpha. Dev panel split into "Light" (left) and "Tex" (right) with separate toggle buttons.
 **Decision:** Tint defaults to opacity 0 (invisible until dialed up). Default color set to Nosferatu toxic green from the design intent palette. Pipeline is now proven for per-clan color work when we enter Pass 2.
 
+## Entry 9 — 2026-03-27
+**Asked:** Add Save/Load/Copy for dev settings so the professor can iterate on mobile, persist values across refreshes, and paste JSON to Discord for code integration.
+**Produced:** Save button (localStorage), auto-load on mount, Copy button (clipboard JSON). Both flash green on tap for confirmation.
+**Decision:** Workflow locked: dial on phone → Save → Copy → paste JSON → values go into clans.js.
+
+## Entry 10 — 2026-03-28
+**Asked:** Drop in Malkavian art (diffuse + normal map). First pass had oversized normal map and framing issues. Second pass delivered at spec (800x1600, alpha, feet on floor).
+**Produced:** Malkavian renders through the same Three.js pipeline as Nosferatu. Auto-detected by SilhouetteLoader. Two characters now proven in the pipeline.
+**Decision:** Checkpoint. Two clans rendering with normal map lighting, spotlight, and volumetric cone. Pipeline is repeatable — art drop-in requires zero code changes.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
