@@ -498,16 +498,18 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               // NO transition — position is updated every frame by rAF
             }}
           >
+            {/* Each slot uses its OWN clan's texture preset.
+                Only the active/front character gets lerped + dev overrides. */}
             <SilhouetteLoader
               clanId={clanIds[i] || ''}
               FallbackSVG={Silhouette}
               lightDir={lightDir}
               lightIntensity={lightIntensity}
-              normalScale={lerpedNormalScale}
-              roughness={lerpedRoughness}
+              normalScale={i === activeIndex ? lerpedNormalScale : (CLANS[i]?.lighting?.normalScale ?? 1.5)}
+              roughness={i === activeIndex ? lerpedRoughness : (CLANS[i]?.lighting?.roughness ?? 0.4)}
               spotActive={i === activeIndex}
               spotPos={{ spots: [{ ...lerpedSpotConfig }] }}
-              tint={lerpedTint}
+              tint={i === activeIndex ? lerpedTint : (CLANS[i]?.lighting?.tint || { color: '#000000', opacity: 0 })}
             />
           </div>
         );
