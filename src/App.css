@@ -329,13 +329,16 @@
   75% { transform: scaleX(0.95) scaleY(1.03); opacity: 0.88; }
 }
 
-/* ---- Build hash in debug menu ---- */
+/* ---- Build hash below debug menu ---- */
 .debug-build {
+  position: absolute;
+  bottom: 46px;
+  left: 52px;
+  z-index: 200;
   font-family: 'SF Mono', 'Fira Code', monospace;
   font-size: 9px;
   color: rgba(255, 255, 255, 0.2);
-  align-self: center;
-  padding: 0 4px;
+  pointer-events: none;
   user-select: all;
 }
 
