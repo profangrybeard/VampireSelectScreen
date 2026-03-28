@@ -5,7 +5,7 @@
  * Current Pass: 1 — Monochrome Silhouettes
  * Grey values only. No color.
  */
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import './App.css';
 import CLANS from './data/clans.js';
 import Nosferatu from './silhouettes/Nosferatu.jsx';
@@ -14,6 +14,47 @@ import StatsPanel from './components/StatsPanel.jsx';
 import IndicatorDots from './components/IndicatorDots.jsx';
 import Pentagram from './components/Pentagram.jsx';
 import DebugGrid from './components/DebugGrid.jsx';
+
+// Swipe detection for the center card area.
+// Inset from edges to avoid Android back gesture zones.
+function SwipeZone({ onSwipeLeft, onSwipeRight }) {
+  const ref = useRef(null);
+  const touchStart = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const handleTouchStart = (e) => {
+      const t = e.touches[0];
+      touchStart.current = { x: t.clientX, y: t.clientY, time: Date.now() };
+    };
+
+    const handleTouchEnd = (e) => {
+      if (!touchStart.current) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - touchStart.current.x;
+      const dy = t.clientY - touchStart.current.y;
+      const dt = Date.now() - touchStart.current.time;
+      touchStart.current = null;
+
+      // Must be horizontal, fast enough, and far enough
+      if (Math.abs(dx) < 40 || Math.abs(dy) > Math.abs(dx) * 0.7 || dt > 500) return;
+
+      if (dx < 0) onSwipeLeft?.();
+      else onSwipeRight?.();
+    };
+
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [onSwipeLeft, onSwipeRight]);
+
+  return <div ref={ref} className="swipe-zone" />;
+}
 
 // All 5 slots use Nosferatu for now
 const SILHOUETTE_COMPONENTS = [
@@ -204,6 +245,9 @@ export default function App() {
         onClick={() => rotate('right')}
         aria-label="Next clan"
       />
+
+      {/* Swipe zone — center area, avoids Android edge gesture zones */}
+      <SwipeZone onSwipeLeft={() => rotate('left')} onSwipeRight={() => rotate('right')} />
     </div>
   );
 }

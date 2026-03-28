@@ -67,6 +67,20 @@
   right: 0;
 }
 
+/* ---- Swipe zone ---- */
+/* Center area for swipe gestures. Inset 15% from left/right edges
+   to avoid Android's back gesture zones (~20px from each edge). */
+.swipe-zone {
+  position: absolute;
+  top: 10%;
+  bottom: 10%;
+  left: 15%;
+  right: 15%;
+  z-index: 9;
+  pointer-events: auto;
+  touch-action: pan-y; /* allow vertical scroll, capture horizontal */
+}
+
 /* ---- Clan title (top-left, stats draw below) ---- */
 .clan-title {
   position: absolute;
