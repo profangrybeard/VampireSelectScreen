@@ -344,13 +344,48 @@
   height: 100%;
 }
 
-.debug-menu {
+/* ---- Debug trigger (bug icon) ---- */
+.debug-trigger {
   position: absolute;
   bottom: 12px;
   left: 12px;
+  z-index: 201;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.4s ease, color 0.15s ease;
+}
+
+.debug-trigger:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.debug-trigger--faded {
+  opacity: 0;
+  pointer-events: auto; /* still tappable when invisible */
+}
+
+.debug-menu {
+  position: absolute;
+  bottom: 12px;
+  left: 52px;
   z-index: 200;
   display: flex;
   gap: 4px;
+  animation: debug-flyout 0.2s ease-out;
+}
+
+@keyframes debug-flyout {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .debug-btn {

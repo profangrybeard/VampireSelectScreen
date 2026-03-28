@@ -7,7 +7,7 @@
  *
  * Temporary — removed before final build.
  */
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Golden ratio
 const PHI = 1.618033988749895;
@@ -76,52 +76,85 @@ export default function DebugGrid({
   const [showTexture, setShowTexture] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
   const [copyFlash, setCopyFlash] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [triggerVisible, setTriggerVisible] = useState(true);
+  const fadeTimerRef = useRef(null);
+
+  // Auto-fade the bug icon after 5 seconds
+  useEffect(() => {
+    if (triggerVisible && !menuOpen) {
+      fadeTimerRef.current = setTimeout(() => setTriggerVisible(false), 5000);
+      return () => clearTimeout(fadeTimerRef.current);
+    }
+  }, [triggerVisible, menuOpen]);
+
+  const handleTriggerTap = () => {
+    if (!triggerVisible) {
+      // First tap on invisible trigger — show it, start fade timer
+      setTriggerVisible(true);
+    } else {
+      // Second tap — toggle menu
+      setMenuOpen(!menuOpen);
+    }
+  };
 
   const goldenLines = goldenRatioLines(3);
 
   return (
     <>
-      {/* Debug menu — lower left */}
-      <div className="debug-menu">
-        <button
-          className={`debug-btn ${showGrid ? 'debug-btn--active' : ''}`}
-          onClick={() => setShowGrid(!showGrid)}
-        >
-          Grid
-        </button>
-        <button
-          className={`debug-btn ${showGolden ? 'debug-btn--active' : ''}`}
-          onClick={() => setShowGolden(!showGolden)}
-        >
-          φ
-        </button>
-        <button
-          className={`debug-btn ${showLight ? 'debug-btn--active' : ''}`}
-          onClick={() => setShowLight(!showLight)}
-        >
-          Light
-        </button>
-        <button
-          className={`debug-btn ${showTexture ? 'debug-btn--active' : ''}`}
-          onClick={() => setShowTexture(!showTexture)}
-        >
-          Tex
-        </button>
-        <button
-          className="debug-btn"
-          onClick={() => { onSave?.(); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
-          style={saveFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
-        >
-          {saveFlash ? 'Saved' : 'Save'}
-        </button>
-        <button
-          className="debug-btn"
-          onClick={() => { onCopy?.(); setCopyFlash(true); setTimeout(() => setCopyFlash(false), 600); }}
-          style={copyFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
-        >
-          {copyFlash ? 'Copied' : 'Copy'}
-        </button>
+      {/* Bug icon trigger — fades out after 5s */}
+      <div
+        className={`debug-trigger ${triggerVisible ? '' : 'debug-trigger--faded'}`}
+        onClick={handleTriggerTap}
+      >
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2C6.34 2 5 3.34 5 5v1H3.5l-1 2H4v1.5L2.5 11l1 .5L5 10v1c0 1.66 1.34 3 3 3s3-1.34 3-3v-1l1.5 1.5 1-.5L11.5 9.5V8h1.5l-1-2H11V5c0-1.66-1.34-3-3-3z" fill="currentColor"/>
+        </svg>
       </div>
+
+      {/* Flyout menu — slides left to right from the bug icon */}
+      {menuOpen && (
+        <div className="debug-menu">
+          <button
+            className={`debug-btn ${showGrid ? 'debug-btn--active' : ''}`}
+            onClick={() => setShowGrid(!showGrid)}
+          >
+            Grid
+          </button>
+          <button
+            className={`debug-btn ${showGolden ? 'debug-btn--active' : ''}`}
+            onClick={() => setShowGolden(!showGolden)}
+          >
+            φ
+          </button>
+          <button
+            className={`debug-btn ${showLight ? 'debug-btn--active' : ''}`}
+            onClick={() => setShowLight(!showLight)}
+          >
+            Light
+          </button>
+          <button
+            className={`debug-btn ${showTexture ? 'debug-btn--active' : ''}`}
+            onClick={() => setShowTexture(!showTexture)}
+          >
+            Tex
+          </button>
+          <button
+            className="debug-btn"
+            onClick={() => { onSave?.(); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
+            style={saveFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
+          >
+            {saveFlash ? 'Saved' : 'Save'}
+          </button>
+          <button
+            className="debug-btn"
+            onClick={() => { onCopy?.(); setCopyFlash(true); setTimeout(() => setCopyFlash(false), 600); }}
+            style={copyFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
+          >
+            {copyFlash ? 'Copied' : 'Copy'}
+          </button>
+        </div>
+      )}
 
       {/* Light controls */}
       {showLight && (
