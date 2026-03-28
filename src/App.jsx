@@ -116,6 +116,9 @@ export default function App() {
     setDevSpotTargetX(spot.targetX ?? 0);
     setDevSpotTargetY(spot.targetY ?? 0.5);
     if (spot.color) setDevSpotColor(spot.color);
+    const tint = lighting.tint || {};
+    if (tint.color) setDevTintColor(tint.color);
+    setDevTintOpacity(tint.opacity ?? 0);
   }, [activeIndex]);
 
   const rotate = useCallback((direction) => {

@@ -240,6 +240,19 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   const activeSpot = CLANS[activeIndex]?.lighting?.spots?.[0] || {};
   const lerpedSpotConfig = lerpT >= 1 ? devSpot : lerpSpot(prevSpot, activeSpot, lerpT);
 
+  // Lerped texture params (normal scale, roughness, tint) between clans
+  const prevLighting = CLANS[prevActiveIndex]?.lighting || {};
+  const activeLighting = CLANS[activeIndex]?.lighting || {};
+  const lerpedNormalScale = lerpT >= 1 ? devNormalScale : lerp(prevLighting.normalScale ?? 1.5, activeLighting.normalScale ?? 1.5, lerpT);
+  const lerpedRoughness = lerpT >= 1 ? devRoughness : lerp(prevLighting.roughness ?? 0.4, activeLighting.roughness ?? 0.4, lerpT);
+  const lerpedLightScale = lerpT >= 1 ? devLightScale : lerp(prevLighting.lightScale ?? 1.0, activeLighting.lightScale ?? 1.0, lerpT);
+  const prevTint = prevLighting.tint || {};
+  const activeTint = activeLighting.tint || {};
+  const lerpedTint = lerpT >= 1 ? devTint : {
+    color: lerpColor(prevTint.color || '#000000', activeTint.color || '#000000', lerpT),
+    opacity: lerp(prevTint.opacity ?? 0, activeTint.opacity ?? 0, lerpT),
+  };
+
   return (
     <>
       {/* Floor glow — the ritual light source.
@@ -469,7 +482,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
 
         // Light intensity scales with depth — front character gets more
         // devLightScale multiplies the base intensity for live tuning
-        const lightIntensity = (0.5 + depthNorm * 1.5) * devLightScale;
+        const lightIntensity = (0.5 + depthNorm * 1.5) * lerpedLightScale;
 
         return (
           <div
@@ -490,11 +503,11 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               FallbackSVG={Silhouette}
               lightDir={lightDir}
               lightIntensity={lightIntensity}
-              normalScale={devNormalScale}
-              roughness={devRoughness}
+              normalScale={lerpedNormalScale}
+              roughness={lerpedRoughness}
               spotActive={i === activeIndex}
               spotPos={{ spots: [{ ...lerpedSpotConfig }] }}
-              tint={devTint}
+              tint={lerpedTint}
             />
           </div>
         );

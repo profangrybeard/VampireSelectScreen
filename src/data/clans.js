@@ -21,9 +21,9 @@ const CLANS = [
       normalScale: 1.0,
       roughness: 0.65,
       lightScale: 1.0,
+      tint: { color: '#2d4a1e', opacity: 0.0 },
       spots: [
-        // Key — steep diagonal from upper left, ceiling height
-        { x: -1.7, y: 2.6, z: 1.0, targetX: -0.1, targetY: 0.6, intensity: 9.0, angle: 0.20, penumbra: 0.50 },
+        { x: -1.7, y: 2.6, z: 1.0, targetX: -0.1, targetY: 0.6, intensity: 9.0, angle: 0.20, penumbra: 0.50, color: '#c8bfb0' },
       ],
     },
   },
@@ -38,8 +38,9 @@ const CLANS = [
       normalScale: 1.5,
       roughness: 0.4,
       lightScale: 1.0,
+      tint: { color: '#000000', opacity: 0.0 },
       spots: [
-        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5 },
+        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5, color: '#c8bfb0' },
       ],
     },
   },
@@ -54,8 +55,9 @@ const CLANS = [
       normalScale: 1.5,
       roughness: 0.4,
       lightScale: 1.0,
+      tint: { color: '#000000', opacity: 0.0 },
       spots: [
-        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5 },
+        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5, color: '#c8bfb0' },
       ],
     },
   },
@@ -70,8 +72,9 @@ const CLANS = [
       normalScale: 1.5,
       roughness: 0.4,
       lightScale: 1.0,
+      tint: { color: '#000000', opacity: 0.0 },
       spots: [
-        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5 },
+        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5, color: '#c8bfb0' },
       ],
     },
   },
@@ -86,8 +89,9 @@ const CLANS = [
       normalScale: 1.5,
       roughness: 0.4,
       lightScale: 1.0,
+      tint: { color: '#000000', opacity: 0.0 },
       spots: [
-        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5 },
+        { x: -1.5, y: 1.0, z: 1.5, targetX: 0, targetY: 0.5, intensity: 3.0, angle: 0.3, penumbra: 0.5, color: '#c8bfb0' },
       ],
     },
   },
