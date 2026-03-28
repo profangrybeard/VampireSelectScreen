@@ -231,9 +231,6 @@ export default function App() {
         onCopy={handleCopy}
       />
 
-      {/* Build number */}
-      <div className="build-tag">{__BUILD_HASH__}</div>
-
       {/* Tap zones */}
       <div
         className="tap-zone tap-zone--left"

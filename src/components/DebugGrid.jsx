@@ -153,6 +153,7 @@ export default function DebugGrid({
           >
             {copyFlash ? 'Copied' : 'Copy'}
           </button>
+          <span className="debug-build">{typeof __BUILD_HASH__ !== 'undefined' ? __BUILD_HASH__ : ''}</span>
         </div>
       )}
 
