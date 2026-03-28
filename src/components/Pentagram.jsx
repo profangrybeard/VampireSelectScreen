@@ -26,7 +26,6 @@
  */
 import { useRef, useState, useEffect, useCallback } from 'react';
 import SilhouetteLoader from '../silhouettes/SilhouetteLoader.jsx';
-import VolumetricCone from './VolumetricCone.jsx';
 import CLANS from '../data/clans.js';
 
 // Star line connections (tip-to-tip, skipping one)
@@ -217,7 +216,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
     // The reference: razor-thin edge catch, not a soft halo.
     const dist = 1 + depthNorm * 1.5;   // front: 2.5px, back: 1px
     const blur = 1 + depthNorm * 2;     // front: 3px, back: 1px — crisp edge
-    const alpha = 0.05 + depthNorm * 0.4; // front: 0.45, back: 0.05 — barely there in back
+    const alpha = 0.08 + depthNorm * 0.37; // front: 0.45, flanking: ~0.25, back: 0.08
 
     // Dim during transition — light is "resetting" between clans
     const dimFactor = transitioning ? 0.3 : 1;
@@ -444,9 +443,78 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         );
       })}
 
-      {/* Volumetric light cone — uses lerped spotlight */}
-      <VolumetricCone spotActive={true} spotPos={lerpedSpotConfig} />
-
+      {/* Ritual circle — vertical occult geometry behind the front character.
+          Clean thin lines, very low opacity. The summoning circle projecting
+          upward from the floor. Provides contrast to separate the character
+          from pure black without noise. */}
+      {dotPositions.length === 5 && (() => {
+        const frontPos = dotPositions[activeIndex];
+        if (!frontPos) return null;
+        return (
+          <div
+            className="ritual-circle"
+            style={{
+              left: `${frontPos.x}%`,
+              top: `${frontPos.y - 32}%`,
+            }}
+          >
+            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              {/* Outer circle */}
+              <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+              {/* Inner circle */}
+              <circle cx="100" cy="100" r="72" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.4" />
+              {/* Inner-inner circle */}
+              <circle cx="100" cy="100" r="48" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+              {/* Radial lines — 12 spokes */}
+              {Array.from({ length: 12 }, (_, j) => {
+                const a = (j * Math.PI * 2) / 12;
+                const x1 = 100 + 48 * Math.cos(a);
+                const y1 = 100 + 48 * Math.sin(a);
+                const x2 = 100 + 95 * Math.cos(a);
+                const y2 = 100 + 95 * Math.sin(a);
+                return (
+                  <line key={j} x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke="rgba(255,255,255,0.03)" strokeWidth="0.3" />
+                );
+              })}
+              {/* Small inner pentagram */}
+              <polygon
+                points={Array.from({ length: 5 }, (_, j) => {
+                  const a = -Math.PI / 2 + (j * 2 * Math.PI) / 5;
+                  return `${100 + 30 * Math.cos(a)},${100 + 30 * Math.sin(a)}`;
+                }).join(' ')}
+                fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3"
+              />
+              {/* Connecting star lines */}
+              {[0, 2, 4, 1, 3, 0].map((j, idx, arr) => {
+                if (idx === arr.length - 1) return null;
+                const a1 = -Math.PI / 2 + (j * 2 * Math.PI) / 5;
+                const next = arr[idx + 1];
+                const a2 = -Math.PI / 2 + (next * 2 * Math.PI) / 5;
+                return (
+                  <line key={`s${idx}`}
+                    x1={100 + 30 * Math.cos(a1)} y1={100 + 30 * Math.sin(a1)}
+                    x2={100 + 30 * Math.cos(a2)} y2={100 + 30 * Math.sin(a2)}
+                    stroke="rgba(255,255,255,0.035)" strokeWidth="0.3" />
+                );
+              })}
+              {/* Arcane tick marks on the outer ring */}
+              {Array.from({ length: 36 }, (_, j) => {
+                const a = (j * Math.PI * 2) / 36;
+                const r1 = j % 3 === 0 ? 88 : 91;
+                const x1 = 100 + r1 * Math.cos(a);
+                const y1 = 100 + r1 * Math.sin(a);
+                const x2 = 100 + 95 * Math.cos(a);
+                const y2 = 100 + 95 * Math.sin(a);
+                return (
+                  <line key={`t${j}`} x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke="rgba(255,255,255,0.04)" strokeWidth="0.2" />
+                );
+              })}
+            </svg>
+          </div>
+        );
+      })()}
 
       {/* Silhouettes — NO transitions. Positioned directly at dot locations
           every frame. Movement comes from tracking the pentagram.
@@ -459,9 +527,12 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         const depthNorm = Math.max(0, Math.min(1, (pos.y - 58) / 27));
         // Scale: front = 1.4, back = 0.625 (perspective depth, front exaggerated)
         const silScale = 0.625 + depthNorm * 0.775;
-        // Brightness: 75% front → 18% back
-        // Back characters are dark shapes, barely visible. Not reflective ghosts.
-        const brightness = 0.18 + depthNorm * 0.57;
+        // Brightness curve: front 75%, flanking ~28%, far back 15%.
+        // Flanking characters (mid-depth) get a bump so they frame the
+        // front character as dark compositional bookends.
+        const brightness = i === activeIndex
+          ? 0.18 + depthNorm * 0.57
+          : 0.15 + depthNorm * 0.2 + Math.pow(depthNorm, 0.5) * 0.12;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
