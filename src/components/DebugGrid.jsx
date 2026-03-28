@@ -90,11 +90,14 @@ export default function DebugGrid({
 
   const handleTriggerTap = () => {
     if (!triggerVisible) {
-      // First tap on invisible trigger — show it, start fade timer
       setTriggerVisible(true);
+    } else if (menuOpen) {
+      // Close everything — menu, panels
+      setMenuOpen(false);
+      setShowLight(false);
+      setShowTexture(false);
     } else {
-      // Second tap — toggle menu
-      setMenuOpen(!menuOpen);
+      setMenuOpen(true);
     }
   };
 
