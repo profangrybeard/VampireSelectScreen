@@ -196,13 +196,13 @@
   width: 6px;
   height: 6px;
   border-radius: 3px;
-  background: #333;
-  transition: width 400ms ease, background 400ms ease;
+  background: rgba(255, 255, 255, 0.2);
+  transition: width 400ms ease, background 400ms ease, opacity 400ms ease;
 }
 
 .indicator-dot--active {
   width: 20px;
-  background: #666;
+  background: rgba(255, 255, 255, 1);
 }
 
 /* ---- Volumetric light cone ---- */
