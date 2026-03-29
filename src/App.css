@@ -357,7 +357,7 @@
 /* ---- Build hash below debug menu ---- */
 .debug-build {
   position: absolute;
-  bottom: 46px;
+  bottom: 80px;
   left: 52px;
   z-index: 200;
   font-family: 'SF Mono', 'Fira Code', monospace;
@@ -481,17 +481,19 @@
 /* ---- Dev slider panel ---- */
 .dev-panel {
   position: absolute;
-  bottom: 40px;
+  bottom: 90px;
   left: 12px;
   z-index: 200;
   display: flex;
   flex-direction: column;
   gap: 6px;
-  background: rgba(20, 20, 20, 0.9);
+  background: rgba(20, 20, 20, 0.95);
   border: 1px solid #444;
   border-radius: 4px;
   padding: 8px 10px;
   pointer-events: auto;
+  max-height: 60%;
+  overflow-y: auto;
 }
 
 .dev-panel label {
