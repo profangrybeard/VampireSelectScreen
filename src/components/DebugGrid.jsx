@@ -68,7 +68,7 @@ export default function DebugGrid({
   devSpotColor = '#c8bfb0', onSpotColor,
   devTintColor = '#2d4a1e', onTintColor,
   devTintOpacity = 0.0, onTintOpacity,
-  onSave, onCopy,
+  onCopy,
   activeSlot, onSaveSlot, onLoadSlot, getSlotPreview,
 }) {
   const [showGrid, setShowGrid] = useState(false);
@@ -153,8 +153,8 @@ export default function DebugGrid({
               <button
                 key={slot}
                 className={`debug-btn debug-slot ${isActive ? 'debug-slot--active' : ''}`}
-                onClick={() => { onLoadSlot?.(slot); onSave?.(); }}
-                onDoubleClick={(e) => { e.preventDefault(); onSaveSlot?.(slot); onSave?.(); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
+                onClick={() => onLoadSlot?.(slot)}
+                onDoubleClick={(e) => { e.preventDefault(); onSaveSlot?.(slot); setSaveFlash(true); setTimeout(() => setSaveFlash(false), 600); }}
                 title={isEmpty ? `Double-tap to save to ${slot}` : `Tap: load ${slot} / Double-tap: overwrite`}
               >
                 {spotColor && <span className="debug-slot__swatch" style={{ background: spotColor }} />}

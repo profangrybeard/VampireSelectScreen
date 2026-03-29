@@ -88,7 +88,20 @@ export default function App() {
   const [devTintColor, setDevTintColor] = useState('#2d4a1e');
   const [devTintOpacity, setDevTintOpacity] = useState(0.0);
 
-  // --- Save/Load/Copy dev settings ---
+  // === PERSISTENCE — ONE SOURCE OF TRUTH ===
+  // Single localStorage key: vss-settings
+  // Format: { nosferatu: { slots: { A: {...}, B: {...}, C: {...} }, active: "A" }, ... }
+  const STORAGE_KEY = 'vss-settings';
+
+  const readStorage = useCallback(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+    catch { return {}; }
+  }, []);
+
+  const writeStorage = useCallback((data) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }, []);
+
   const getDevSettings = useCallback(() => ({
     lightScale: devLightScale,
     normalScale: devNormalScale,
@@ -97,7 +110,7 @@ export default function App() {
     tint: { color: devTintColor, opacity: devTintOpacity },
   }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity]);
 
-  const applyDevSettings = useCallback((s) => {
+  const applySettings = useCallback((s) => {
     if (!s) return;
     if (s.lightScale != null) setDevLightScale(s.lightScale);
     if (s.normalScale != null) setDevNormalScale(s.normalScale);
@@ -119,46 +132,62 @@ export default function App() {
     }
   }, []);
 
-  // Preset slots — 3 per clan (A, B, C)
-  const [activeSlot, setActiveSlot] = useState(null);
-  const [presets, setPresets] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('vss-presets') || '{}'); }
-    catch { return {}; }
+  // Get the effective settings for a clan: active slot → CLANS fallback
+  const getEffectiveForClan = useCallback((clanId) => {
+    const store = readStorage();
+    const clanData = store[clanId];
+    if (clanData?.active && clanData.slots?.[clanData.active]) {
+      return clanData.slots[clanData.active];
+    }
+    // Fallback to CLANS defaults
+    const clan = CLANS.find(c => c.id === clanId);
+    const lighting = clan?.lighting || {};
+    const spot = lighting.spots?.[0] || {};
+    return {
+      lightScale: lighting.lightScale ?? 1.0,
+      normalScale: lighting.normalScale ?? 1.5,
+      roughness: lighting.roughness ?? 0.4,
+      spot: { x: spot.x ?? -0.5, y: spot.y ?? 1.0, z: spot.z ?? 1.5, intensity: spot.intensity ?? 3.0, angle: spot.angle ?? 0.3, penumbra: spot.penumbra ?? 0.5, targetX: spot.targetX ?? 0, targetY: spot.targetY ?? 0.5, color: spot.color || '#c8bfb0' },
+      tint: lighting.tint || { color: '#000000', opacity: 0 },
+    };
+  }, [readStorage]);
+
+  const [activeSlot, setActiveSlot] = useState(() => {
+    const store = readStorage();
+    return store[CLANS[0]?.id]?.active || null;
   });
 
+  // Save to slot: write current values, mark as active, persist immediately
   const saveToSlot = useCallback((slot) => {
     const clanId = CLANS[activeIndex]?.id || 'unknown';
     const s = getDevSettings();
-    setPresets(prev => {
-      const next = { ...prev, [clanId]: { ...(prev[clanId] || {}), [slot]: s } };
-      localStorage.setItem('vss-presets', JSON.stringify(next));
-      return next;
-    });
+    const store = readStorage();
+    if (!store[clanId]) store[clanId] = { slots: {}, active: null };
+    store[clanId].slots[slot] = s;
+    store[clanId].active = slot;
+    writeStorage(store);
     setActiveSlot(slot);
-  }, [getDevSettings, activeIndex]);
+  }, [getDevSettings, activeIndex, readStorage, writeStorage]);
 
+  // Load from slot: apply values, mark as active
   const loadFromSlot = useCallback((slot) => {
     const clanId = CLANS[activeIndex]?.id || 'unknown';
-    const s = presets[clanId]?.[slot];
+    const store = readStorage();
+    const s = store[clanId]?.slots?.[slot];
     if (s) {
-      applyDevSettings(s);
+      applySettings(s);
+      store[clanId].active = slot;
+      writeStorage(store);
       setActiveSlot(slot);
     }
-  }, [activeIndex, presets, applyDevSettings]);
+  }, [activeIndex, readStorage, writeStorage, applySettings]);
 
+  // Get slot preview for UI
   const getSlotPreview = useCallback((slot) => {
     const clanId = CLANS[activeIndex]?.id || 'unknown';
-    return presets[clanId]?.[slot] || null;
-  }, [activeIndex, presets]);
-
-  // Legacy save (still stores per-clan for the auto-load on rotation)
-  const handleSave = useCallback(() => {
-    const s = getDevSettings();
-    const clanId = CLANS[activeIndex]?.id || 'unknown';
-    const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
-    allSaved[clanId] = s;
-    localStorage.setItem('vss-dev-settings', JSON.stringify(allSaved));
-  }, [getDevSettings, activeIndex]);
+    const store = readStorage();
+    return store[clanId]?.slots?.[slot] || null;
+  }, [activeIndex, readStorage]);
 
   const handleCopy = useCallback(() => {
     const clanId = CLANS[activeIndex]?.id || 'unknown';
@@ -168,54 +197,25 @@ export default function App() {
     });
   }, [getDevSettings, activeIndex]);
 
-  // Load saved settings for the initial clan on mount
+  // On mount: load the active slot for the initial clan
   useEffect(() => {
-    try {
-      const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
-      const clanId = CLANS[activeIndex]?.id;
-      if (allSaved[clanId]) applyDevSettings(allSaved[clanId]);
-    } catch (e) { /* ignore parse errors */ }
+    const clanId = CLANS[0]?.id;
+    const s = getEffectiveForClan(clanId);
+    applySettings(s);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When active clan changes, DEFER loading the new clan's values
-  // until the transition finishes. During transition, the lerp in
-  // Pentagram interpolates between CLANS data directly. The sliders
-  // update only after the lerp reaches 1.0.
+  // On rotation: load the new clan's active slot AFTER the transition
   useEffect(() => {
     const timer = setTimeout(() => {
       const clanId = CLANS[activeIndex]?.id;
-      let saved = null;
-      try {
-        const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
-        saved = allSaved[clanId] || null;
-      } catch (e) { /* ignore */ }
-
-      if (saved) {
-        applyDevSettings(saved);
-      } else {
-        const lighting = CLANS[activeIndex]?.lighting;
-        if (!lighting) return;
-        const spot = lighting.spots?.[0] || {};
-        setDevLightScale(lighting.lightScale ?? 1.0);
-        setDevNormalScale(lighting.normalScale ?? 1.5);
-        setDevRoughness(lighting.roughness ?? 0.4);
-        setDevSpotX(spot.x ?? -0.5);
-        setDevSpotY(spot.y ?? 1.0);
-        setDevSpotZ(spot.z ?? 1.5);
-        setDevSpotIntensity(spot.intensity ?? 3.0);
-        setDevSpotAngle(spot.angle ?? 0.3);
-        setDevSpotPenumbra(spot.penumbra ?? 0.5);
-        setDevSpotTargetX(spot.targetX ?? 0);
-        setDevSpotTargetY(spot.targetY ?? 0.5);
-        if (spot.color) setDevSpotColor(spot.color);
-        const tint = lighting.tint || {};
-        if (tint.color) setDevTintColor(tint.color);
-        setDevTintOpacity(tint.opacity ?? 0);
-      }
-    }, 460); // slightly after the 420ms transition
+      const s = getEffectiveForClan(clanId);
+      applySettings(s);
+      const store = readStorage();
+      setActiveSlot(store[clanId]?.active || null);
+    }, 460);
     return () => clearTimeout(timer);
-  }, [activeIndex, applyDevSettings]);
+  }, [activeIndex, getEffectiveForClan, applySettings, readStorage]);
 
   const rotate = useCallback((direction) => {
     if (transitioning) return;
@@ -282,7 +282,6 @@ export default function App() {
         devSpotColor={devSpotColor} onSpotColor={setDevSpotColor}
         devTintColor={devTintColor} onTintColor={setDevTintColor}
         devTintOpacity={devTintOpacity} onTintOpacity={setDevTintOpacity}
-        onSave={handleSave}
         onCopy={handleCopy}
         activeSlot={activeSlot}
         onSaveSlot={saveToSlot}
