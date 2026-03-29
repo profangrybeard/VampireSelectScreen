@@ -215,16 +215,16 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // On rotation: load the new clan's active slot AFTER the transition
+  // On rotation: load the new clan's settings IMMEDIATELY so the dev
+  // sliders already hold the target values by the time the Pentagram
+  // lerp reaches 1. The old approach (setTimeout 460ms) caused a flash
+  // because lerpT hit 1 before dev state caught up.
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const clanId = CLANS[activeIndex]?.id;
-      const s = getEffectiveForClan(clanId);
-      applySettings(s);
-      const store = readStorage();
-      setActiveSlot(store[clanId]?.active || null);
-    }, 460);
-    return () => clearTimeout(timer);
+    const clanId = CLANS[activeIndex]?.id;
+    const s = getEffectiveForClan(clanId);
+    applySettings(s);
+    const store = readStorage();
+    setActiveSlot(store[clanId]?.active || null);
   }, [activeIndex, getEffectiveForClan, applySettings, readStorage]);
 
   const rotate = useCallback((direction) => {
