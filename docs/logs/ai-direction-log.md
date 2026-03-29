@@ -60,6 +60,11 @@
 **Produced:** New Gangrel_BC.png and Gangrel_N.png swapped into `src/silhouettes/art/`. Same pipeline — SilhouetteLoader auto-detects, zero code changes.
 **Decision:** Art swap only. Build, deploy, verify under Three.js lighting on live page.
 
+## Entry 12 — 2026-03-29
+**Asked:** Line weights vary across clan sketches (Nosferatu fine crosshatch, Malkavian heavy ink, Gangrel bold lines). Need a shader to unify them.
+**Produced:** Ink normalization shader injected via `onBeforeCompile` on MeshStandardMaterial. Converts diffuse RGB to luminance, runs through `smoothstep` threshold to force consistent line weight. Two uniforms: `uLineWeight` (threshold center) and `uLineSmooth` (transition width). Alpha preserved — figure shape untouched. Dev sliders added to Texture panel ("INK" section). Values persist through save/load/copy pipeline.
+**Decision:** Shader approach keeps MeshStandardMaterial lighting intact. Tunable per-clan — each sketch can be dialed to match. Default 0.50 weight / 0.15 smooth as starting point.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*

@@ -68,6 +68,8 @@ export default function DebugGrid({
   devSpotColor = '#c8bfb0', onSpotColor,
   devTintColor = '#2d4a1e', onTintColor,
   devTintOpacity = 0.0, onTintOpacity,
+  devLineWeight = 0.5, onLineWeight,
+  devLineSmooth = 0.15, onLineSmooth,
   onCopy,
   activeSlot, onSaveSlot, onLoadSlot, getSlotPreview,
 }) {
@@ -273,6 +275,21 @@ export default function DebugGrid({
             <input type="range" min="0" max="1" step="0.05"
               value={devRoughness}
               onChange={(e) => onRoughness?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div className="dev-panel__sep">INK</div>
+          <label>
+            <span>Weight {devLineWeight.toFixed(2)}</span>
+            <input type="range" min="0.05" max="0.95" step="0.02"
+              value={devLineWeight}
+              onChange={(e) => onLineWeight?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Smooth {devLineSmooth.toFixed(2)}</span>
+            <input type="range" min="0.01" max="0.4" step="0.01"
+              value={devLineSmooth}
+              onChange={(e) => onLineSmooth?.(parseFloat(e.target.value))}
             />
           </label>
           <div className="dev-panel__sep">ADDITIVE TINT</div>

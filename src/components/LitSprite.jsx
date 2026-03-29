@@ -28,6 +28,8 @@ export default function LitSprite({
   spotActive = false,
   spotPos = {},
   tint = {},
+  lineWeight = 0.5,
+  lineSmooth = 0.15,
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
@@ -55,6 +57,15 @@ export default function LitSprite({
 
     // --- CHARACTER PLANE ---
     const geometry = new THREE.PlaneGeometry(1, 2);
+    // --- LINE WEIGHT UNIFORMS ---
+    // Shared uniforms for the ink normalization shader.
+    // lineWeight: threshold center (0 = only darkest ink, 1 = everything becomes ink)
+    // lineSmooth: transition width (smaller = harder edge, larger = softer falloff)
+    const inkUniforms = {
+      uLineWeight: { value: lineWeight },
+      uLineSmooth: { value: lineSmooth },
+    };
+
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(baseColor),
       transparent: true,
@@ -65,6 +76,33 @@ export default function LitSprite({
       emissive: new THREE.Color(0x060606),
       emissiveIntensity: 1.0,
     });
+
+    // --- INK NORMALIZATION SHADER ---
+    // Injects into MeshStandardMaterial's fragment shader after the
+    // diffuse map sample. Converts RGB to luminance, runs through a
+    // smoothstep threshold to normalize line weight across all sketches.
+    // Alpha channel is preserved — figure shape stays intact.
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.uLineWeight = inkUniforms.uLineWeight;
+      shader.uniforms.uLineSmooth = inkUniforms.uLineSmooth;
+
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <common>',
+        `#include <common>
+uniform float uLineWeight;
+uniform float uLineSmooth;`
+      );
+
+      // After the map fragment samples diffuseColor, normalize ink lines.
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <map_fragment>',
+        `#include <map_fragment>
+// --- ink normalization ---
+float lum = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114));
+float ink = 1.0 - smoothstep(uLineWeight - uLineSmooth, uLineWeight + uLineSmooth, lum);
+diffuseColor.rgb = vec3(ink * 0.12);`
+      );
+    };
 
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
@@ -146,6 +184,7 @@ export default function LitSprite({
       pointLight, ambientLight, spotLights,
       material, geometry, mesh,
       tintMaterial, tintMesh,
+      inkUniforms,
       render,
     };
 
@@ -168,7 +207,7 @@ export default function LitSprite({
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, spotLights, material, tintMaterial, render } = state;
+    const { pointLight, ambientLight, spotLights, material, tintMaterial, inkUniforms, render } = state;
 
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
@@ -203,9 +242,13 @@ export default function LitSprite({
     if (tint.color) tintMaterial.color.set(tint.color);
     tintMaterial.opacity = tint.opacity ?? 0;
 
+    // Ink normalization uniforms
+    inkUniforms.uLineWeight.value = lineWeight;
+    inkUniforms.uLineSmooth.value = lineSmooth;
+
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth]);
 
   return (
     <canvas

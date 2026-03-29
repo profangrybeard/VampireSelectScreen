@@ -116,7 +116,7 @@ function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
-export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {} }) {
+export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15 }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -247,6 +247,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           lightScale: saved.lightScale ?? 1.0,
           tint: saved.tint || { color: '#000000', opacity: 0 },
           spots: [saved.spot || {}],
+          lineWeight: saved.lineWeight ?? 0.5,
+          lineSmooth: saved.lineSmooth ?? 0.15,
         };
       }
     } catch (e) { /* ignore */ }
@@ -272,6 +274,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
     color: lerpColor(prevTint.color || '#000000', activeTint.color || '#000000', lerpT),
     opacity: lerp(prevTint.opacity ?? 0, activeTint.opacity ?? 0, lerpT),
   };
+  const lerpedLineWeight = lerpT >= 1 ? devLineWeight : lerp(prevEffective.lineWeight ?? 0.5, activeEffective.lineWeight ?? 0.5, lerpT);
+  const lerpedLineSmooth = lerpT >= 1 ? devLineSmooth : lerp(prevEffective.lineSmooth ?? 0.15, activeEffective.lineSmooth ?? 0.15, lerpT);
 
   return (
     <>
@@ -603,6 +607,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               spotActive={i === activeIndex}
               spotPos={{ spots: [{ ...lerpedSpotConfig }] }}
               tint={i === activeIndex ? lerpedTint : (CLANS[i]?.lighting?.tint || { color: '#000000', opacity: 0 })}
+              lineWeight={i === activeIndex ? lerpedLineWeight : (CLANS[i]?.lighting?.lineWeight ?? 0.5)}
+              lineSmooth={i === activeIndex ? lerpedLineSmooth : (CLANS[i]?.lighting?.lineSmooth ?? 0.15)}
             />
           </div>
         );

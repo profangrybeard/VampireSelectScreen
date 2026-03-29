@@ -88,6 +88,10 @@ export default function App() {
   const [devTintColor, setDevTintColor] = useState('#2d4a1e');
   const [devTintOpacity, setDevTintOpacity] = useState(0.0);
 
+  // Ink normalization controls
+  const [devLineWeight, setDevLineWeight] = useState(0.5);
+  const [devLineSmooth, setDevLineSmooth] = useState(0.15);
+
   // === PERSISTENCE — ONE SOURCE OF TRUTH ===
   // Single localStorage key: vss-settings
   // Format: { nosferatu: { slots: { A: {...}, B: {...}, C: {...} }, active: "A" }, ... }
@@ -108,7 +112,9 @@ export default function App() {
     roughness: devRoughness,
     spot: { x: devSpotX, y: devSpotY, z: devSpotZ, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra, targetX: devSpotTargetX, targetY: devSpotTargetY, color: devSpotColor },
     tint: { color: devTintColor, opacity: devTintOpacity },
-  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity]);
+    lineWeight: devLineWeight,
+    lineSmooth: devLineSmooth,
+  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity, devLineWeight, devLineSmooth]);
 
   const applySettings = useCallback((s) => {
     if (!s) return;
@@ -130,6 +136,8 @@ export default function App() {
       if (s.tint.color != null) setDevTintColor(s.tint.color);
       if (s.tint.opacity != null) setDevTintOpacity(s.tint.opacity);
     }
+    if (s.lineWeight != null) setDevLineWeight(s.lineWeight);
+    if (s.lineSmooth != null) setDevLineSmooth(s.lineSmooth);
   }, []);
 
   // Get the effective settings for a clan: active slot → CLANS fallback
@@ -149,6 +157,8 @@ export default function App() {
       roughness: lighting.roughness ?? 0.4,
       spot: { x: spot.x ?? -0.5, y: spot.y ?? 1.0, z: spot.z ?? 1.5, intensity: spot.intensity ?? 3.0, angle: spot.angle ?? 0.3, penumbra: spot.penumbra ?? 0.5, targetX: spot.targetX ?? 0, targetY: spot.targetY ?? 0.5, color: spot.color || '#c8bfb0' },
       tint: lighting.tint || { color: '#000000', opacity: 0 },
+      lineWeight: lighting.lineWeight ?? 0.5,
+      lineSmooth: lighting.lineSmooth ?? 0.15,
     };
   }, [readStorage]);
 
@@ -254,6 +264,8 @@ export default function App() {
         devRoughness={devRoughness}
         devSpot={{ x: devSpotX, y: devSpotY, z: devSpotZ, targetX: devSpotTargetX, targetY: devSpotTargetY, intensity: devSpotIntensity, angle: devSpotAngle, penumbra: devSpotPenumbra, color: devSpotColor }}
         devTint={{ color: devTintColor, opacity: devTintOpacity }}
+        devLineWeight={devLineWeight}
+        devLineSmooth={devLineSmooth}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -282,6 +294,8 @@ export default function App() {
         devSpotColor={devSpotColor} onSpotColor={setDevSpotColor}
         devTintColor={devTintColor} onTintColor={setDevTintColor}
         devTintOpacity={devTintOpacity} onTintOpacity={setDevTintOpacity}
+        devLineWeight={devLineWeight} onLineWeight={setDevLineWeight}
+        devLineSmooth={devLineSmooth} onLineSmooth={setDevLineSmooth}
         onCopy={handleCopy}
         activeSlot={activeSlot}
         onSaveSlot={saveToSlot}
