@@ -55,6 +55,11 @@
 **Produced:** Malkavian renders through the same Three.js pipeline as Nosferatu. Auto-detected by SilhouetteLoader. Two characters now proven in the pipeline.
 **Decision:** Checkpoint. Two clans rendering with normal map lighting, spotlight, and volumetric cone. Pipeline is repeatable — art drop-in requires zero code changes.
 
+## Entry 11 — 2026-03-29
+**Asked:** Updated Gangrel diffuse and normal map dropped via Discord. Replace existing art.
+**Produced:** New Gangrel_BC.png and Gangrel_N.png swapped into `src/silhouettes/art/`. Same pipeline — SilhouetteLoader auto-detects, zero code changes.
+**Decision:** Art swap only. Build, deploy, verify under Three.js lighting on live page.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
