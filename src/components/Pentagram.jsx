@@ -363,6 +363,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
       {/* Candles — screen-space, standing vertical.
           Positioned at tracked floor anchors. Parallax from 3D projection.
           Z-index from Y position so they overlap naturally. */}
+      {/* Compute candle flame colors from the active tint */}
       {candlePositions.length === CANDLES.length && CANDLES.map((candle, i) => {
         const pos = candlePositions[i];
         if (!pos) return null;
@@ -405,9 +406,9 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                   </feMerge>
                 </filter>
                 <radialGradient id={`fgrad-${candle.id}`} cx="50%" cy="40%" r="50%">
-                  <stop offset="0%" stopColor="#ddd8cc" />
-                  <stop offset="60%" stopColor="#b0a898" />
-                  <stop offset="100%" stopColor="#887860" />
+                  <stop offset="0%" stopColor={lerpColor('#ddd8cc', lerpedTint.color || '#ddd8cc', lerpedTint.opacity ?? 0)} />
+                  <stop offset="60%" stopColor={lerpColor('#b0a898', lerpedTint.color || '#b0a898', lerpedTint.opacity ?? 0)} />
+                  <stop offset="100%" stopColor={lerpColor('#887860', lerpedTint.color || '#887860', lerpedTint.opacity ?? 0)} />
                 </radialGradient>
               </defs>
 
