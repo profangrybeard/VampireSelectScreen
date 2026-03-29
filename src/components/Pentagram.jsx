@@ -232,21 +232,41 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
     return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(180,170,155,${finalAlpha.toFixed(2)}))`;
   }
 
+  // Get effective lighting for a clan — checks localStorage first,
+  // falls back to CLANS defaults.
+  function getEffectiveLighting(clanIndex) {
+    const clanId = CLANS[clanIndex]?.id;
+    try {
+      const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
+      const saved = allSaved[clanId];
+      if (saved) {
+        return {
+          normalScale: saved.normalScale ?? 1.5,
+          roughness: saved.roughness ?? 0.4,
+          lightScale: saved.lightScale ?? 1.0,
+          tint: saved.tint || { color: '#000000', opacity: 0 },
+          spots: [saved.spot || {}],
+        };
+      }
+    } catch (e) { /* ignore */ }
+    return CLANS[clanIndex]?.lighting || {};
+  }
+
   // Compute lerped spotlight config between prev and active clan.
-  // During transition (lerpT < 1): interpolate from prev to active.
+  // During transition (lerpT < 1): interpolate using effective configs.
   // At rest (lerpT >= 1): use dev slider overrides for live tuning.
-  const prevSpot = CLANS[prevActiveIndex]?.lighting?.spots?.[0] || {};
-  const activeSpot = CLANS[activeIndex]?.lighting?.spots?.[0] || {};
+  const prevEffective = getEffectiveLighting(prevActiveIndex);
+  const activeEffective = getEffectiveLighting(activeIndex);
+
+  const prevSpot = prevEffective.spots?.[0] || {};
+  const activeSpot = activeEffective.spots?.[0] || {};
   const lerpedSpotConfig = lerpT >= 1 ? devSpot : lerpSpot(prevSpot, activeSpot, lerpT);
 
-  // Lerped texture params (normal scale, roughness, tint) between clans
-  const prevLighting = CLANS[prevActiveIndex]?.lighting || {};
-  const activeLighting = CLANS[activeIndex]?.lighting || {};
-  const lerpedNormalScale = lerpT >= 1 ? devNormalScale : lerp(prevLighting.normalScale ?? 1.5, activeLighting.normalScale ?? 1.5, lerpT);
-  const lerpedRoughness = lerpT >= 1 ? devRoughness : lerp(prevLighting.roughness ?? 0.4, activeLighting.roughness ?? 0.4, lerpT);
-  const lerpedLightScale = lerpT >= 1 ? devLightScale : lerp(prevLighting.lightScale ?? 1.0, activeLighting.lightScale ?? 1.0, lerpT);
-  const prevTint = prevLighting.tint || {};
-  const activeTint = activeLighting.tint || {};
+  const lerpedNormalScale = lerpT >= 1 ? devNormalScale : lerp(prevEffective.normalScale ?? 1.5, activeEffective.normalScale ?? 1.5, lerpT);
+  const lerpedRoughness = lerpT >= 1 ? devRoughness : lerp(prevEffective.roughness ?? 0.4, activeEffective.roughness ?? 0.4, lerpT);
+  const lerpedLightScale = lerpT >= 1 ? devLightScale : lerp(prevEffective.lightScale ?? 1.0, activeEffective.lightScale ?? 1.0, lerpT);
+  const prevTint = prevEffective.tint || {};
+  const activeTint = activeEffective.tint || {};
   const lerpedTint = lerpT >= 1 ? devTint : {
     color: lerpColor(prevTint.color || '#000000', activeTint.color || '#000000', lerpT),
     opacity: lerp(prevTint.opacity ?? 0, activeTint.opacity ?? 0, lerpT),
@@ -399,16 +419,16 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               {/* Flame glow filter */}
               <defs>
                 <filter id={`fg-${candle.id}`} x="-100%" y="-100%" width="300%" height="300%">
-                  <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
                 <radialGradient id={`fgrad-${candle.id}`} cx="50%" cy="40%" r="50%">
-                  <stop offset="0%" stopColor={lerpColor('#ddd8cc', lerpedTint.color || '#ddd8cc', lerpedTint.opacity ?? 0)} />
-                  <stop offset="60%" stopColor={lerpColor('#b0a898', lerpedTint.color || '#b0a898', lerpedTint.opacity ?? 0)} />
-                  <stop offset="100%" stopColor={lerpColor('#887860', lerpedTint.color || '#887860', lerpedTint.opacity ?? 0)} />
+                  <stop offset="0%" stopColor={lerpColor('#fff8e8', lerpedTint.color || '#fff8e8', lerpedTint.opacity ?? 0)} />
+                  <stop offset="50%" stopColor={lerpColor('#ddd0b8', lerpedTint.color || '#ddd0b8', lerpedTint.opacity ?? 0)} />
+                  <stop offset="100%" stopColor={lerpColor('#aa9470', lerpedTint.color || '#aa9470', lerpedTint.opacity ?? 0)} />
                 </radialGradient>
               </defs>
 
@@ -436,7 +456,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                   className="candle-flame"
                   d={`M${candle.width / 2} ${candle.flameH} Q${candle.width / 2 - 2.5} ${candle.flameH * 0.5} ${candle.width / 2} 0 Q${candle.width / 2 + 2.5} ${candle.flameH * 0.5} ${candle.width / 2} ${candle.flameH} Z`}
                   fill={`url(#fgrad-${candle.id})`}
-                  opacity="0.85"
+                  opacity="1"
                 />
               </g>
             </svg>

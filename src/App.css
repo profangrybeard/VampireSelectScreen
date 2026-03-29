@@ -416,8 +416,10 @@
   position: absolute;
   bottom: 12px;
   left: 52px;
+  right: 12px;
   z-index: 200;
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   animation: debug-flyout 0.2s ease-out;
 }

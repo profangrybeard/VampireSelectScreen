@@ -178,39 +178,43 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When active clan changes, load saved values (localStorage) first,
-  // then fall back to clans.js defaults if no saved values exist.
+  // When active clan changes, DEFER loading the new clan's values
+  // until the transition finishes. During transition, the lerp in
+  // Pentagram interpolates between CLANS data directly. The sliders
+  // update only after the lerp reaches 1.0.
   useEffect(() => {
-    const clanId = CLANS[activeIndex]?.id;
-    let saved = null;
-    try {
-      const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
-      saved = allSaved[clanId] || null;
-    } catch (e) { /* ignore */ }
+    const timer = setTimeout(() => {
+      const clanId = CLANS[activeIndex]?.id;
+      let saved = null;
+      try {
+        const allSaved = JSON.parse(localStorage.getItem('vss-dev-settings') || '{}');
+        saved = allSaved[clanId] || null;
+      } catch (e) { /* ignore */ }
 
-    if (saved) {
-      applyDevSettings(saved);
-    } else {
-      // Fall back to clans.js defaults
-      const lighting = CLANS[activeIndex]?.lighting;
-      if (!lighting) return;
-      const spot = lighting.spots?.[0] || {};
-      setDevLightScale(lighting.lightScale ?? 1.0);
-      setDevNormalScale(lighting.normalScale ?? 1.5);
-      setDevRoughness(lighting.roughness ?? 0.4);
-      setDevSpotX(spot.x ?? -0.5);
-      setDevSpotY(spot.y ?? 1.0);
-      setDevSpotZ(spot.z ?? 1.5);
-      setDevSpotIntensity(spot.intensity ?? 3.0);
-      setDevSpotAngle(spot.angle ?? 0.3);
-      setDevSpotPenumbra(spot.penumbra ?? 0.5);
-      setDevSpotTargetX(spot.targetX ?? 0);
-      setDevSpotTargetY(spot.targetY ?? 0.5);
-      if (spot.color) setDevSpotColor(spot.color);
-      const tint = lighting.tint || {};
-      if (tint.color) setDevTintColor(tint.color);
-      setDevTintOpacity(tint.opacity ?? 0);
-    }
+      if (saved) {
+        applyDevSettings(saved);
+      } else {
+        const lighting = CLANS[activeIndex]?.lighting;
+        if (!lighting) return;
+        const spot = lighting.spots?.[0] || {};
+        setDevLightScale(lighting.lightScale ?? 1.0);
+        setDevNormalScale(lighting.normalScale ?? 1.5);
+        setDevRoughness(lighting.roughness ?? 0.4);
+        setDevSpotX(spot.x ?? -0.5);
+        setDevSpotY(spot.y ?? 1.0);
+        setDevSpotZ(spot.z ?? 1.5);
+        setDevSpotIntensity(spot.intensity ?? 3.0);
+        setDevSpotAngle(spot.angle ?? 0.3);
+        setDevSpotPenumbra(spot.penumbra ?? 0.5);
+        setDevSpotTargetX(spot.targetX ?? 0);
+        setDevSpotTargetY(spot.targetY ?? 0.5);
+        if (spot.color) setDevSpotColor(spot.color);
+        const tint = lighting.tint || {};
+        if (tint.color) setDevTintColor(tint.color);
+        setDevTintOpacity(tint.opacity ?? 0);
+      }
+    }, 460); // slightly after the 420ms transition
+    return () => clearTimeout(timer);
   }, [activeIndex, applyDevSettings]);
 
   const rotate = useCallback((direction) => {
