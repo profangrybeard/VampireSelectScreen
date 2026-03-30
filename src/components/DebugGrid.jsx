@@ -70,6 +70,8 @@ export default function DebugGrid({
   devTintOpacity = 0.0, onTintOpacity,
   devLineWeight = 0.5, onLineWeight,
   devLineSmooth = 0.15, onLineSmooth,
+  devRimDarkness = 0.0, onRimDarkness,
+  devRimWidth = 0.5, onRimWidth,
   onCopy,
   activeSlot, onSaveSlot, onLoadSlot, getSlotPreview,
 }) {
@@ -290,6 +292,21 @@ export default function DebugGrid({
             <input type="range" min="0.01" max="0.4" step="0.01"
               value={devLineSmooth}
               onChange={(e) => onLineSmooth?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div className="dev-panel__sep">DARK RIM</div>
+          <label>
+            <span>Darkness {devRimDarkness.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.02"
+              value={devRimDarkness}
+              onChange={(e) => onRimDarkness?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>Width {devRimWidth.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.02"
+              value={devRimWidth}
+              onChange={(e) => onRimWidth?.(parseFloat(e.target.value))}
             />
           </label>
           <div className="dev-panel__sep">SOFT-LIGHT TINT</div>

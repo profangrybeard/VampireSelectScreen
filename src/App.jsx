@@ -92,6 +92,10 @@ export default function App() {
   const [devLineWeight, setDevLineWeight] = useState(0.5);
   const [devLineSmooth, setDevLineSmooth] = useState(0.15);
 
+  // Dark inner rim controls
+  const [devRimDarkness, setDevRimDarkness] = useState(0.0);
+  const [devRimWidth, setDevRimWidth] = useState(0.5);
+
   // === PERSISTENCE — ONE SOURCE OF TRUTH ===
   // Single localStorage key: vss-settings
   // Format: { nosferatu: { slots: { A: {...}, B: {...}, C: {...} }, active: "A" }, ... }
@@ -114,7 +118,9 @@ export default function App() {
     tint: { color: devTintColor, opacity: devTintOpacity },
     lineWeight: devLineWeight,
     lineSmooth: devLineSmooth,
-  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity, devLineWeight, devLineSmooth]);
+    rimDarkness: devRimDarkness,
+    rimWidth: devRimWidth,
+  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity, devLineWeight, devLineSmooth, devRimDarkness, devRimWidth]);
 
   const applySettings = useCallback((s) => {
     if (!s) return;
@@ -138,6 +144,8 @@ export default function App() {
     }
     if (s.lineWeight != null) setDevLineWeight(s.lineWeight);
     if (s.lineSmooth != null) setDevLineSmooth(s.lineSmooth);
+    if (s.rimDarkness != null) setDevRimDarkness(s.rimDarkness);
+    if (s.rimWidth != null) setDevRimWidth(s.rimWidth);
   }, []);
 
   // Get the effective settings for a clan: active slot → CLANS fallback
@@ -266,6 +274,8 @@ export default function App() {
         devTint={{ color: devTintColor, opacity: devTintOpacity }}
         devLineWeight={devLineWeight}
         devLineSmooth={devLineSmooth}
+        devRimDarkness={devRimDarkness}
+        devRimWidth={devRimWidth}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -296,6 +306,8 @@ export default function App() {
         devTintOpacity={devTintOpacity} onTintOpacity={setDevTintOpacity}
         devLineWeight={devLineWeight} onLineWeight={setDevLineWeight}
         devLineSmooth={devLineSmooth} onLineSmooth={setDevLineSmooth}
+        devRimDarkness={devRimDarkness} onRimDarkness={setDevRimDarkness}
+        devRimWidth={devRimWidth} onRimWidth={setDevRimWidth}
         onCopy={handleCopy}
         activeSlot={activeSlot}
         onSaveSlot={saveToSlot}

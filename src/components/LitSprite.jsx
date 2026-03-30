@@ -30,6 +30,8 @@ export default function LitSprite({
   tint = {},
   lineWeight = 0.5,
   lineSmooth = 0.15,
+  rimDarkness = 0.0,
+  rimWidth = 0.5,
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
@@ -88,12 +90,18 @@ export default function LitSprite({
       uTintColor: { value: new THREE.Color(0x000000) },
       uTintOpacity: { value: 0.0 },
     };
+    const rimUniforms = {
+      uRimDarkness: { value: rimDarkness },
+      uRimWidth: { value: rimWidth },
+    };
 
     material.onBeforeCompile = (shader) => {
       shader.uniforms.uLineWeight = inkUniforms.uLineWeight;
       shader.uniforms.uLineSmooth = inkUniforms.uLineSmooth;
       shader.uniforms.uTintColor = tintUniforms.uTintColor;
       shader.uniforms.uTintOpacity = tintUniforms.uTintOpacity;
+      shader.uniforms.uRimDarkness = rimUniforms.uRimDarkness;
+      shader.uniforms.uRimWidth = rimUniforms.uRimWidth;
 
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <common>',
@@ -102,6 +110,8 @@ uniform float uLineWeight;
 uniform float uLineSmooth;
 uniform vec3 uTintColor;
 uniform float uTintOpacity;
+uniform float uRimDarkness;
+uniform float uRimWidth;
 
 // Soft-light blend per channel (Photoshop formula).
 // Preserves darks/lights, shifts midtones toward tint color.
@@ -124,11 +134,26 @@ float ink = 1.0 - smoothstep(uLineWeight - uLineSmooth, uLineWeight + uLineSmoot
 diffuseColor.rgb = vec3(ink * 0.12);`
       );
 
-      // After all lighting is computed, apply tint via soft-light blend.
+      // After all lighting is computed, apply rim darkening + tint.
       // gl_FragColor.rgb already has the fully lit result at this point.
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <dithering_fragment>',
         `#include <dithering_fragment>
+// --- dark inner rim (cel-shader edge) ---
+// Uses the normal map Z component: at form edges, normals face
+// sideways (low Z). We darken those pixels to create a dark
+// inner outline that pairs with the existing outer glow.
+#ifdef USE_NORMALMAP
+  // Re-read the normal map to get the raw tangent-space normal.
+  // normal_uv is already defined by MeshStandardMaterial.
+  vec3 rimNormal = texture2D(normalMap, vNormalMapUv).xyz * 2.0 - 1.0;
+  float facing = clamp(rimNormal.z, 0.0, 1.0);
+  // rimWidth controls how far in the darkening extends (pow curve).
+  // Higher width = narrower rim (only extreme edges).
+  float rimFactor = 1.0 - pow(facing, mix(0.3, 3.0, uRimWidth));
+  gl_FragColor.rgb *= mix(1.0, 1.0 - rimFactor, uRimDarkness);
+#endif
+
 // --- tint via soft-light blend ---
 vec3 tinted = blendSoftLight(gl_FragColor.rgb, uTintColor);
 gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
@@ -194,7 +219,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
       renderer, scene, camera,
       pointLight, ambientLight, spotLights,
       material, geometry, mesh,
-      tintUniforms, inkUniforms,
+      tintUniforms, inkUniforms, rimUniforms,
       render,
     };
 
@@ -215,7 +240,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, spotLights, material, tintUniforms, inkUniforms, render } = state;
+    const { pointLight, ambientLight, spotLights, material, tintUniforms, inkUniforms, rimUniforms, render } = state;
 
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
@@ -254,9 +279,13 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     inkUniforms.uLineWeight.value = lineWeight;
     inkUniforms.uLineSmooth.value = lineSmooth;
 
+    // Dark inner rim
+    rimUniforms.uRimDarkness.value = rimDarkness;
+    rimUniforms.uRimWidth.value = rimWidth;
+
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth]);
 
   return (
     <canvas
