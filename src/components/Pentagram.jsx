@@ -288,7 +288,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           style={{
             left: `${floorLightPos.x}%`,
             top: `${floorLightPos.y}%`,
-            opacity: transitioning ? 0.08 : 0.35,
+            opacity: transitioning ? 0.15 : 0.55,
           }}
         />
       )}
@@ -310,17 +310,17 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 The pentagram glows from within, magically imbued. */}
             <defs>
               <radialGradient id="pentagram-glow-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#666" />
-                <stop offset="40%" stopColor="#444" />
-                <stop offset="100%" stopColor="#222" />
+                <stop offset="0%" stopColor="#888" />
+                <stop offset="40%" stopColor="#555" />
+                <stop offset="100%" stopColor="#2a2a2a" />
               </radialGradient>
               <radialGradient id="pentagram-star-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#888" />
-                <stop offset="35%" stopColor="#555" />
-                <stop offset="100%" stopColor="#333" />
+                <stop offset="0%" stopColor="#aaa" />
+                <stop offset="35%" stopColor="#666" />
+                <stop offset="100%" stopColor="#383838" />
               </radialGradient>
               <radialGradient id="pentagram-fill-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(200,200,200,0.06)" />
+                <stop offset="0%" stopColor="rgba(220,215,200,0.1)" />
                 <stop offset="100%" stopColor="rgba(200,200,200,0)" />
               </radialGradient>
             </defs>
@@ -400,8 +400,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         const zIndex = 2 + Math.round((pos.y / 100) * 2);
         // Scale candles slightly by depth — further = smaller
         const depthScale = 0.7 + (pos.y / 100) * 0.4;
-        const w = candle.width * depthScale * 0.6;
-        const h = (candle.height + candle.flameH) * depthScale * 0.6;
+        const w = candle.width * depthScale * 0.7;
+        const h = (candle.height + candle.flameH * 1.4) * depthScale * 0.7;
 
         return (
           <div
@@ -417,30 +417,31 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
             }}
           >
             <svg
-              viewBox={`0 0 ${candle.width} ${candle.height + candle.flameH}`}
+              viewBox={`0 0 ${candle.width} ${candle.height + candle.flameH * 1.4}`}
               preserveAspectRatio="xMidYMax meet"
               xmlns="http://www.w3.org/2000/svg"
             >
               {/* Flame glow filter */}
               <defs>
-                <filter id={`fg-${candle.id}`} x="-100%" y="-100%" width="300%" height="300%">
-                  <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
+                <filter id={`fg-${candle.id}`} x="-150%" y="-150%" width="400%" height="400%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
                   <feMerge>
+                    <feMergeNode in="blur" />
                     <feMergeNode in="blur" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
-                <radialGradient id={`fgrad-${candle.id}`} cx="50%" cy="40%" r="50%">
-                  <stop offset="0%" stopColor={lerpColor('#fff8e8', lerpedTint.color || '#fff8e8', lerpedTint.opacity ?? 0)} />
-                  <stop offset="50%" stopColor={lerpColor('#ddd0b8', lerpedTint.color || '#ddd0b8', lerpedTint.opacity ?? 0)} />
-                  <stop offset="100%" stopColor={lerpColor('#aa9470', lerpedTint.color || '#aa9470', lerpedTint.opacity ?? 0)} />
+                <radialGradient id={`fgrad-${candle.id}`} cx="50%" cy="35%" r="55%">
+                  <stop offset="0%" stopColor={lerpColor('#ffffff', lerpedTint.color || '#ffffff', lerpedTint.opacity ?? 0)} />
+                  <stop offset="40%" stopColor={lerpColor('#fff0d0', lerpedTint.color || '#fff0d0', lerpedTint.opacity ?? 0)} />
+                  <stop offset="100%" stopColor={lerpColor('#cc9850', lerpedTint.color || '#cc9850', lerpedTint.opacity ?? 0)} />
                 </radialGradient>
               </defs>
 
               {/* Candle body */}
               <rect
                 x={0}
-                y={candle.flameH}
+                y={candle.flameH * 1.4}
                 width={candle.width}
                 height={candle.height}
                 rx={1}
@@ -449,17 +450,17 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               {/* Wax top */}
               <ellipse
                 cx={candle.width / 2}
-                cy={candle.flameH}
+                cy={candle.flameH * 1.4}
                 rx={candle.width / 2 + 0.5}
                 ry={candle.width * 0.2}
                 fill="#222018"
               />
 
-              {/* Flame */}
+              {/* Flame — taller, wider, brighter */}
               <g filter={`url(#fg-${candle.id})`}>
                 <path
                   className="candle-flame"
-                  d={`M${candle.width / 2} ${candle.flameH} Q${candle.width / 2 - 2.5} ${candle.flameH * 0.5} ${candle.width / 2} 0 Q${candle.width / 2 + 2.5} ${candle.flameH * 0.5} ${candle.width / 2} ${candle.flameH} Z`}
+                  d={`M${candle.width / 2} ${candle.flameH * 1.4} Q${candle.width / 2 - 3.5} ${candle.flameH * 0.65} ${candle.width / 2} 0 Q${candle.width / 2 + 3.5} ${candle.flameH * 0.65} ${candle.width / 2} ${candle.flameH * 1.4} Z`}
                   fill={`url(#fgrad-${candle.id})`}
                   opacity="1"
                 />

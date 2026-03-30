@@ -268,8 +268,8 @@
   transform: translate(-50%, -50%);
   background: radial-gradient(
     ellipse at center,
-    rgba(200, 200, 200, 0.15) 0%,
-    rgba(200, 200, 200, 0.05) 40%,
+    rgba(220, 215, 200, 0.3) 0%,
+    rgba(210, 205, 190, 0.12) 40%,
     transparent 70%
   );
   z-index: 3;
@@ -348,10 +348,10 @@
 .candle-flame:nth-child(8) { animation-delay: -0.2s; animation-duration: 1.7s; }
 
 @keyframes flame-flicker {
-  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.85; }
-  25% { transform: scaleX(0.9) scaleY(1.05); opacity: 0.9; }
-  50% { transform: scaleX(1.05) scaleY(0.95); opacity: 0.8; }
-  75% { transform: scaleX(0.95) scaleY(1.03); opacity: 0.88; }
+  0%, 100% { transform: scaleX(1) scaleY(1); opacity: 0.95; }
+  25% { transform: scaleX(0.92) scaleY(1.08); opacity: 1; }
+  50% { transform: scaleX(1.06) scaleY(0.94); opacity: 0.88; }
+  75% { transform: scaleX(0.94) scaleY(1.05); opacity: 0.96; }
 }
 
 /* ---- Candle smoke wisps ---- */
