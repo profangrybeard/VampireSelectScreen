@@ -70,6 +70,11 @@
 **Produced:** Brujah diffuse (`brujah.png`) and normal map (`brujah-normal.png`) copied into `src/silhouettes/art/`. Same drop-in pipeline — SilhouetteLoader auto-detects, zero code changes. Posture nails the archetype: wide stance, squared shoulders, anarchy symbol in hand.
 **Decision:** Art swap only. Brujah now upgrades from SVG fallback to Three.js lit rendering automatically.
 
+## Entry 14 — 2026-03-29
+**Asked:** Add wispy incense-like smoke trails rising from candles — animating upward, shrinking as they rise, swaying with wind. Needed now as a compositional element to pop the front character off the midground, not just juice.
+**Produced:** 3 CSS-animated smoke wisps per candle (36 total). Each wisp is a small blurred circle that rises, sways laterally, fades out, and shrinks. Staggered durations (3.2–4.0s) and negative delays so they don't pulse in sync. Monochrome grey — Pass 1 safe. Pure CSS, no JS animation overhead.
+**Decision:** Accepted Pass 5 element early because it serves a compositional purpose (depth separation), not just decoration. The smoke creates a visual layer between candles and the front silhouette.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*

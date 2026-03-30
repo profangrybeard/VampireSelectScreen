@@ -354,6 +354,70 @@
   75% { transform: scaleX(0.95) scaleY(1.03); opacity: 0.88; }
 }
 
+/* ---- Candle smoke wisps ---- */
+/* Wispy incense trails rising from each candle flame.
+   Each wisp is a small blurred circle that drifts upward,
+   sways laterally, fades out, and shrinks as it rises.
+   3 wisps per candle with staggered timing for organic feel. */
+.candle-smoke {
+  position: absolute;
+  bottom: 85%;
+  left: 50%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(180, 175, 165, 0.35);
+  filter: blur(1.5px);
+  pointer-events: none;
+  opacity: 0;
+  animation: smoke-rise var(--smoke-dur, 3.5s) ease-out infinite;
+  animation-delay: var(--smoke-delay, 0s);
+}
+
+.candle-smoke--0 {
+  --smoke-dur: 3.2s;
+  --smoke-delay: 0s;
+  --smoke-sway: 4px;
+}
+.candle-smoke--1 {
+  --smoke-dur: 4.0s;
+  --smoke-delay: -1.3s;
+  --smoke-sway: -5px;
+  width: 2.5px;
+  height: 2.5px;
+}
+.candle-smoke--2 {
+  --smoke-dur: 3.6s;
+  --smoke-delay: -2.4s;
+  --smoke-sway: 3px;
+  width: 2px;
+  height: 2px;
+  background: rgba(180, 175, 165, 0.25);
+}
+
+@keyframes smoke-rise {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 0) scale(1);
+  }
+  8% {
+    opacity: 0.4;
+    transform: translate(-50%, -2px) scale(1.1);
+  }
+  30% {
+    opacity: 0.3;
+    transform: translate(calc(-50% + var(--smoke-sway, 4px) * 0.6), -10px) scale(1.3);
+  }
+  60% {
+    opacity: 0.15;
+    transform: translate(calc(-50% + var(--smoke-sway, 4px)), -22px) scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--smoke-sway, 4px) * 0.5), -36px) scale(0.3);
+  }
+}
+
 /* ---- Build hash below debug menu ---- */
 .debug-build {
   position: absolute;

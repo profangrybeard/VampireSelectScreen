@@ -465,6 +465,19 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 />
               </g>
             </svg>
+            {/* Smoke wisps — rising incense trails from each candle.
+                3 wisps per candle, staggered delays, CSS-animated.
+                Grey only (monochrome safe). Compositional element to
+                add atmosphere and help pop the front character. */}
+            {[0, 1, 2].map((wi) => (
+              <div
+                key={`smoke-${candle.id}-${wi}`}
+                className={`candle-smoke candle-smoke--${wi}`}
+                style={{
+                  '--smoke-seed': ((i * 3 + wi) * 137.5) % 360,
+                }}
+              />
+            ))}
           </div>
         );
       })}
