@@ -528,6 +528,11 @@
   padding: 8px 12px;
 }
 
+.debug-slot--empty {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
 .debug-slot--active {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.3);
