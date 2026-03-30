@@ -450,24 +450,31 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                   <stop offset="40%" stopColor={lerpColor('#fff0d0', lerpedTint.color || '#fff0d0', lerpedTint.opacity ?? 0)} />
                   <stop offset="100%" stopColor={lerpColor('#cc9850', lerpedTint.color || '#cc9850', lerpedTint.opacity ?? 0)} />
                 </radialGradient>
+                {/* Wax body gradient — dark at base, lit near flame */}
+                <linearGradient id={`wax-${candle.id}`} x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stopColor="#1a1816" />
+                  <stop offset="40%" stopColor="#3a3530" />
+                  <stop offset="85%" stopColor="#706858" />
+                  <stop offset="100%" stopColor="#8a8070" />
+                </linearGradient>
               </defs>
 
-              {/* Candle body — waxy off-white columns */}
+              {/* Candle body — dark base fading to lit wax near flame */}
               <rect
                 x={0}
                 y={candle.flameH * 1.4}
                 width={candle.width}
                 height={candle.height}
                 rx={1}
-                fill="#b8b0a0"
+                fill={`url(#wax-${candle.id})`}
               />
-              {/* Wax top — slightly brighter to catch light */}
+              {/* Wax top — warm but subdued, catches flame light */}
               <ellipse
                 cx={candle.width / 2}
                 cy={candle.flameH * 1.4}
                 rx={candle.width / 2 + 0.5}
                 ry={candle.width * 0.2}
-                fill="#cdc5b5"
+                fill="#8a8070"
               />
 
               {/* Flame — taller, wider, brighter */}
