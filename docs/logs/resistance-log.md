@@ -223,4 +223,72 @@ Each resistance moment follows this structure:
 
 ---
 
+### R-012 — Brujah Source Art Had No Alpha Transparency (2026-03-29)
+
+**Lead-Up:** New Brujah diffuse and normal map PNGs were dropped via Discord from Gemini image generation. The files were RGBA format (color type 6 in the PNG header), which would normally indicate transparency support.
+
+**AI Direction:** The AI copied the files directly into the art pipeline assuming they were ready — the PNG header said RGBA, so they should have alpha. The first deploy rendered the Brujah with a solid black rectangle behind the figure.
+
+**The Pushback:** The user caught it immediately: "I thought there was an alpha channel on the bruja assets. They are rendering with the bg." The AI investigated and found: 100% of pixels were fully opaque (alpha=255). The black background was baked into the RGB channels. The RGBA header was technically correct but practically useless — the alpha channel existed but was uniformly opaque.
+
+**Resolution:** Wrote a Node.js script using pngjs to strip the background: any pixel with R, G, and B all ≤ 15 was set to fully transparent. Applied the same mask to the normal map. Result: 67.4% of pixels became transparent, similar to Gangrel's 47% (Brujah figure is narrower).
+
+**Result:** Clean transparency on both diffuse and normal. Second art drop later provided a proper normal map with alpha baked in from the source.
+
+**Iteration Feedback:** "RGBA format" does not mean "has transparency." Always verify actual alpha values before deploying art assets, especially from AI image generators. Gemini produced a technically valid RGBA PNG where every pixel was opaque — the format metadata lied about the content. The threshold-based strip worked but is lossy; proper transparency from the source tool is always preferable. The second normal map delivery proved this — it came with real alpha and needed zero processing.
+
+---
+
+### R-013 — Pass Pipeline Override: Smoke as Compositional Element (2026-03-29)
+
+**Lead-Up:** The user requested wispy incense smoke trails from candles. The AI flagged that smoke/particle effects are scoped to Pass 5 in the pipeline, and the project is on Pass 1.
+
+**AI Direction:** The AI asked whether to proceed now or hold for Pass 5, citing the pipeline rules from the design intent and CLAUDE.md.
+
+**The Pushback:** "We need them now, yes they are juice but I need them now as a compositional element to help pop our main character off the mid ground." The user reframed the smoke from "particle effect" (Pass 5) to "compositional tool" (any pass) — it serves depth separation, not decoration.
+
+**Resolution:** Built the smoke trails immediately. 3 CSS-animated wisps per candle, monochrome grey, pure CSS keyframes. The pipeline override was justified by compositional need.
+
+**Result:** The smoke creates a visible atmospheric layer between the candle cluster and the front silhouette. It reads as depth, not as effects.
+
+**Iteration Feedback:** The pass pipeline is a discipline tool, not a prison. The rule "don't add particles in Pass 1" exists to prevent decoration before composition is solved. But when a particle-like element IS the composition solution — when it separates foreground from midground — the pipeline spirit says "yes" even though the pipeline letter says "wait." The AI was right to flag the tension. The user was right to override it. The lesson: rules serve goals. When the rule and the goal conflict, the goal wins — but you should still name the tension so the decision is conscious, not accidental. This is a classroom moment: knowing when to break your own rules is part of the process.
+
+---
+
+### R-014 — Additive Tint Dead Zone and Normal Crush (2026-03-30)
+
+**Lead-Up:** The tint system used a separate MeshBasicMaterial plane with Three.js AdditiveBlending, positioned in front of the character. The user tested it across the 0-1 opacity range and reported it felt broken.
+
+**AI Direction:** The AI had implemented the simplest possible tint: a flat color plane with additive blending. This was architecturally convenient (separate geometry, no shader modification) but produced two compounding problems:
+
+1. **Dead zone below 0.5:** Additive blending adds the tint color to the underlying pixels. The character is mostly dark (ink on near-black). Adding small values to near-black produces... slightly-less-black. The human eye can't distinguish the difference until the added values are large enough to register — hence the slider feeling "off" in the lower half.
+
+2. **Normal crush:** The tint plane was MeshBasicMaterial — no lighting calculations, no normal map, no shadows. It rendered as a flat uniform color. At higher opacity, this flat color washed over the normal map detail from the character below, destroying the surface information that makes the lighting work.
+
+**The Pushback:** "The slider for color overlay feels strange as if it's off below .5 and then ramps up to one. Plus it crushes normals. Can we investigate different color modes or blend methods that preserve normal lighting in dark scenes but gives us some hue to work with?"
+
+**Resolution:** Removed the tint plane entirely. Injected a soft-light blend (Photoshop formula) directly into the character's MeshStandardMaterial fragment shader, running post-lighting via `#include <dithering_fragment>` replacement. The tint now operates on the fully lit result — it sees the normal map detail, the spotlight highlights, the shadow falloff. Soft-light preserves darks and lights while shifting midtones toward the tint color. Two uniforms (uTintColor, uTintOpacity) replaced an entire mesh.
+
+**Result:** Linear slider response across the full 0-1 range. Normal detail preserved at all opacity levels. Color reads even at low values because soft-light doesn't fight the dark base — it shifts hue without requiring brightness.
+
+**Iteration Feedback:** The "simple" solution (separate additive plane) was simple to implement but wrong for the use case. Dark scenes + additive blending = dead zone. Flat overlay + normal-mapped character = detail destruction. The right solution required understanding both the math (how additive blending interacts with low-value pixels) and the pipeline (where in the shader chain tint should be applied — post-lighting, not pre-lighting or parallel). The AI evaluated multiply (too dark), overlay (blown highlights), and screen (similar dead zone) before landing on soft-light as the best match for low-key scenes. Blend mode selection is a design decision, not just a technical one.
+
+---
+
+### R-015 — Candle Wax: Visible but Not Integrated (2026-03-30)
+
+**Lead-Up:** After the candle wax was changed from near-black to waxy off-white (#b8b0a0), the candles became visible but created a new problem — they were now the brightest elements in the frame, brighter than the characters.
+
+**AI Direction:** The AI's first pass solved visibility (dark → light) without considering scene integration. The flat off-white fill had no relationship to the lighting in the scene. Every candle was uniformly bright regardless of its position relative to light sources. They looked "self-lit" — as if the wax was emitting light rather than being lit by the flame above.
+
+**The Pushback:** "The candles are now visible but they are also not being impacted by the light in the room, they feel self lit. I need them to gradate from the bottom to the top dark to light. I need them to blend into the scene and not be the hottest thing in the frame." The user included a screenshot showing the candles popping against the dark scene.
+
+**Resolution:** Replaced the flat fill with a vertical linearGradient per candle: near-black at the base (#1a1816, matching the floor shadow) → warm darks (#3a3530 at 40%) → muted wax (#706858 at 85%) → subdued top (#8a8070 at 100%). Wax top ellipse toned down to match. The gradient simulates the flame as the light source for its own candle body — dark base = floor shadow zone, light top = flame-lit zone.
+
+**Result:** Candles are visible but subordinate. They read as objects IN the scene, not objects PASTED ONTO the scene. The flame is the brightest point; the wax falls off below it; the base disappears into the floor. Hierarchy: characters > flames > wax > floor.
+
+**Iteration Feedback:** Visibility is not integration. Making something visible (bright fill) and making it belong in the scene (responding to lighting) are separate problems. The first pass solved visibility. The second pass solved integration. A better first pass would have asked: "what in this scene is lighting this object?" and worked backward from there. The gradient answer is obvious once you ask "the flame is above the wax, so the top is lit and the bottom is in shadow" — but the AI went straight to "make it lighter" without asking what light source would be illuminating it. Scene-aware thinking > value adjustment.
+
+---
+
 *This is a living document. Entries are raw and chronological. The README gets the curated version.*

@@ -80,6 +80,26 @@
 **Produced:** Replaced the separate additive tint plane (MeshBasicMaterial with AdditiveBlending) with a soft-light blend injected directly into the character's MeshStandardMaterial fragment shader. The blend runs post-lighting via `#include <dithering_fragment>` replacement, so it operates on the fully lit result. Soft-light (Photoshop formula) preserves darks and lights while shifting midtones toward the tint color. Removed the tint plane geometry entirely — tint is now two uniforms (uTintColor, uTintOpacity) on the character material.
 **Decision:** Soft-light blend chosen over alternatives: additive was the problem (dead zone + normal crush), multiply would darken too aggressively in an already dark scene, overlay would blow out highlights. Soft-light is the gentlest option that still reads as color in low-key lighting. The slider should now respond linearly across the full 0-1 range.
 
+## Entry 16 — 2026-03-30
+**Asked:** Candles feel weak — tips too small, light on the floor too dim. Punch them up.
+**Produced:** Flame tips scaled 40% taller with wider Bézier control points. Gradient shifted from warm grey core to near-white (#ffffff) → warm gold (#fff0d0) → amber edge (#cc9850). Blur filter doubled (extra feMergeNode) for stronger glow halo, filter region expanded to 400%. Floor glow radial gradient opacity nearly doubled (0.35→0.55 active, 0.08→0.15 transitioning). Pentagram line gradients brightened at center. Flame flicker animation base opacity raised from 0.85 to 0.95.
+**Decision:** All changes together. The candles are the only practical light source in the scene — they need to read as such.
+
+## Entry 17 — 2026-03-30
+**Asked:** Candle wax shafts are invisible — so dark they capture nothing. Need them visible as waxy white columns. Also need circles drawn on the floor around each candle to anchor them visually.
+**Produced:** First pass: changed candle body fill from near-black (#1a1816) to waxy off-white (#b8b0a0), wax top to #cdc5b5. Added 12 subtle ring circles on the pentagram floor SVG at each candle anchor position (stroke rgba(180,175,160,0.2), strokeWidth 0.5). Rings tilt with the floor plane automatically since they're inside the pentagram SVG.
+**Decision:** Visibility first — make them readable, then refine integration. The floor circles anchor the candles to the ground plane, solving the "floating in space" problem.
+
+## Entry 18 — 2026-03-30
+**Asked:** Updated Brujah normal map dropped via Discord — cleaner version with proper alpha transparency baked in.
+**Produced:** Replaced `brujah-normal.png` (was 1440x2880 with stripped black bg) with new 800x1600 RGBA normal map that had transparency from the source. No processing needed.
+**Decision:** Art swap only. Cleaner source = better result.
+
+## Entry 19 — 2026-03-30
+**Asked:** Candle wax columns are visible now but feel self-lit — they don't respond to the room lighting. Need them to gradate dark at the base to light at the top. They shouldn't be the hottest thing in the frame.
+**Produced:** Replaced flat fill with per-candle SVG linearGradient: #1a1816 (base, near-black) → #3a3530 (40%) → #706858 (85%) → #8a8070 (top, muted warm). Wax top toned down from #cdc5b5 to #8a8070 to match gradient endpoint. The candles now darken into the floor shadow and only show wax color where the flame light would catch them.
+**Decision:** The gradient sells the illusion that the flame is the light source for the wax itself. Bottom of candle = floor shadow zone. Top of candle = flame-lit zone. The candles are no longer competing with the characters for attention.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
