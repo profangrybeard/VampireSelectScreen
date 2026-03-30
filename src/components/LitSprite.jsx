@@ -77,20 +77,41 @@ export default function LitSprite({
       emissiveIntensity: 1.0,
     });
 
-    // --- INK NORMALIZATION SHADER ---
-    // Injects into MeshStandardMaterial's fragment shader after the
-    // diffuse map sample. Converts RGB to luminance, runs through a
-    // smoothstep threshold to normalize line weight across all sketches.
-    // Alpha channel is preserved — figure shape stays intact.
+    // --- INK NORMALIZATION + TINT SHADER ---
+    // Injects into MeshStandardMaterial's fragment shader.
+    // Pre-lighting: normalizes ink line weight across sketches.
+    // Post-lighting: applies tint color via soft-light blend so
+    // the hue rides on top of normal-map lighting detail instead
+    // of crushing it. The blend function preserves darks and lights
+    // while shifting the midtones toward the tint color.
+    const tintUniforms = {
+      uTintColor: { value: new THREE.Color(0x000000) },
+      uTintOpacity: { value: 0.0 },
+    };
+
     material.onBeforeCompile = (shader) => {
       shader.uniforms.uLineWeight = inkUniforms.uLineWeight;
       shader.uniforms.uLineSmooth = inkUniforms.uLineSmooth;
+      shader.uniforms.uTintColor = tintUniforms.uTintColor;
+      shader.uniforms.uTintOpacity = tintUniforms.uTintOpacity;
 
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <common>',
         `#include <common>
 uniform float uLineWeight;
-uniform float uLineSmooth;`
+uniform float uLineSmooth;
+uniform vec3 uTintColor;
+uniform float uTintOpacity;
+
+// Soft-light blend per channel (Photoshop formula).
+// Preserves darks/lights, shifts midtones toward tint color.
+vec3 blendSoftLight(vec3 base, vec3 blend) {
+  return mix(
+    2.0 * base * blend + base * base * (1.0 - 2.0 * blend),
+    sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),
+    step(0.5, blend)
+  );
+}`
       );
 
       // After the map fragment samples diffuseColor, normalize ink lines.
@@ -102,27 +123,23 @@ float lum = dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114));
 float ink = 1.0 - smoothstep(uLineWeight - uLineSmooth, uLineWeight + uLineSmooth, lum);
 diffuseColor.rgb = vec3(ink * 0.12);`
       );
+
+      // After all lighting is computed, apply tint via soft-light blend.
+      // gl_FragColor.rgb already has the fully lit result at this point.
+      shader.fragmentShader = shader.fragmentShader.replace(
+        '#include <dithering_fragment>',
+        `#include <dithering_fragment>
+// --- tint via soft-light blend ---
+vec3 tinted = blendSoftLight(gl_FragColor.rgb, uTintColor);
+gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
+      );
     };
 
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    // --- ADDITIVE TINT LAYER ---
-    // A plane in front of the character with additive blending.
-    // Uses the diffuse alpha as its own alpha so the tint only
-    // appears on the figure, not the background.
-    const tintGeometry = new THREE.PlaneGeometry(1, 2);
-    const tintMaterial = new THREE.MeshBasicMaterial({
-      color: new THREE.Color(0x2d4a1e),
-      transparent: true,
-      opacity: 0,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-    });
-    const tintMesh = new THREE.Mesh(tintGeometry, tintMaterial);
-    tintMesh.position.z = 0.01; // just in front of character
-    tintMesh.renderOrder = 1;
-    scene.add(tintMesh);
+    // Tint is now handled inside the character shader (soft-light blend).
+    // No separate geometry needed — tint uniforms live on the material.
 
     // --- LIGHTS ---
     const pointLight = new THREE.PointLight(0xc8bfb0, lightIntensity, 8, 1.0);
@@ -159,12 +176,6 @@ diffuseColor.rgb = vec3(ink * 0.12);`
       tex.magFilter = THREE.LinearFilter;
       material.map = tex;
       material.needsUpdate = true;
-      // Share the texture with the tint layer — its alpha channel
-      // masks the tint to the figure shape. With additive blending,
-      // only the tint color matters (dark diffuse pixels add ~nothing).
-      tintMaterial.map = tex;
-      tintMaterial.alphaTest = 0.5;
-      tintMaterial.needsUpdate = true;
       render();
     });
 
@@ -183,8 +194,7 @@ diffuseColor.rgb = vec3(ink * 0.12);`
       renderer, scene, camera,
       pointLight, ambientLight, spotLights,
       material, geometry, mesh,
-      tintMaterial, tintMesh,
-      inkUniforms,
+      tintUniforms, inkUniforms,
       render,
     };
 
@@ -192,8 +202,6 @@ diffuseColor.rgb = vec3(ink * 0.12);`
 
     return () => {
       geometry.dispose();
-      tintGeometry.dispose();
-      tintMaterial.dispose();
       material.dispose();
       if (material.map) material.map.dispose();
       if (material.normalMap) material.normalMap.dispose();
@@ -207,7 +215,7 @@ diffuseColor.rgb = vec3(ink * 0.12);`
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, spotLights, material, tintMaterial, inkUniforms, render } = state;
+    const { pointLight, ambientLight, spotLights, material, tintUniforms, inkUniforms, render } = state;
 
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
@@ -238,9 +246,9 @@ diffuseColor.rgb = vec3(ink * 0.12);`
       material.normalScale.set(normalScale, normalScale);
     }
 
-    // Additive tint layer
-    if (tint.color) tintMaterial.color.set(tint.color);
-    tintMaterial.opacity = tint.opacity ?? 0;
+    // Tint — soft-light blend in shader
+    if (tint.color) tintUniforms.uTintColor.value.set(tint.color);
+    tintUniforms.uTintOpacity.value = tint.opacity ?? 0;
 
     // Ink normalization uniforms
     inkUniforms.uLineWeight.value = lineWeight;

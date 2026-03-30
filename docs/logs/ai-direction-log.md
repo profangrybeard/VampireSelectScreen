@@ -75,6 +75,11 @@
 **Produced:** 3 CSS-animated smoke wisps per candle (36 total). Each wisp is a small blurred circle that rises, sways laterally, fades out, and shrinks. Staggered durations (3.2–4.0s) and negative delays so they don't pulse in sync. Monochrome grey — Pass 1 safe. Pure CSS, no JS animation overhead.
 **Decision:** Accepted Pass 5 element early because it serves a compositional purpose (depth separation), not just decoration. The smoke creates a visual layer between candles and the front silhouette.
 
+## Entry 15 — 2026-03-30
+**Asked:** Color overlay slider feels dead below 0.5 then ramps hard to 1. It also crushes normals — the tint flattens all the normal map lighting detail. Investigate different color modes or blend methods that preserve normal lighting but give usable hue.
+**Produced:** Replaced the separate additive tint plane (MeshBasicMaterial with AdditiveBlending) with a soft-light blend injected directly into the character's MeshStandardMaterial fragment shader. The blend runs post-lighting via `#include <dithering_fragment>` replacement, so it operates on the fully lit result. Soft-light (Photoshop formula) preserves darks and lights while shifting midtones toward the tint color. Removed the tint plane geometry entirely — tint is now two uniforms (uTintColor, uTintOpacity) on the character material.
+**Decision:** Soft-light blend chosen over alternatives: additive was the problem (dead zone + normal crush), multiply would darken too aggressively in an already dark scene, overlay would blow out highlights. Soft-light is the gentlest option that still reads as color in low-key lighting. The slider should now respond linearly across the full 0-1 range.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*

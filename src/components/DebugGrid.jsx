@@ -292,7 +292,7 @@ export default function DebugGrid({
               onChange={(e) => onLineSmooth?.(parseFloat(e.target.value))}
             />
           </label>
-          <div className="dev-panel__sep">ADDITIVE TINT</div>
+          <div className="dev-panel__sep">SOFT-LIGHT TINT</div>
           <label>
             <span>Color</span>
             <input type="color"
