@@ -65,6 +65,11 @@
 **Produced:** Ink normalization shader injected via `onBeforeCompile` on MeshStandardMaterial. Converts diffuse RGB to luminance, runs through `smoothstep` threshold to force consistent line weight. Two uniforms: `uLineWeight` (threshold center) and `uLineSmooth` (transition width). Alpha preserved — figure shape untouched. Dev sliders added to Texture panel ("INK" section). Values persist through save/load/copy pipeline.
 **Decision:** Shader approach keeps MeshStandardMaterial lighting intact. Tunable per-clan — each sketch can be dialed to match. Default 0.50 weight / 0.15 smooth as starting point.
 
+## Entry 13 — 2026-03-29
+**Asked:** New Brujah diffuse and normal map dropped in Discord. Wire them into the project.
+**Produced:** Brujah diffuse (`brujah.png`) and normal map (`brujah-normal.png`) copied into `src/silhouettes/art/`. Same drop-in pipeline — SilhouetteLoader auto-detects, zero code changes. Posture nails the archetype: wide stance, squared shoulders, anarchy symbol in hand.
+**Decision:** Art swap only. Brujah now upgrades from SVG fallback to Three.js lit rendering automatically.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
