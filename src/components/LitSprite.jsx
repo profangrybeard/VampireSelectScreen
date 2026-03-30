@@ -75,7 +75,7 @@ export default function LitSprite({
       side: THREE.FrontSide,
       roughness: roughness,
       metalness: 0.0,
-      emissive: new THREE.Color(0x060606),
+      emissive: new THREE.Color(0x020202),
       emissiveIntensity: 1.0,
     });
 

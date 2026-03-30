@@ -216,7 +216,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
     // The reference: razor-thin edge catch, not a soft halo.
     const dist = 1 + depthNorm * 1.5;   // front: 2.5px, back: 1px
     const blur = 1 + depthNorm * 2;     // front: 3px, back: 1px — crisp edge
-    const alpha = 0.08 + depthNorm * 0.37; // front: 0.45, flanking: ~0.25, back: 0.08
+    const alpha = 0.06 + depthNorm * 0.34; // front: 0.40, flanking: ~0.18, back: 0.06
 
     // Dim during transition — light is "resetting" between clans
     const dimFactor = transitioning ? 0.3 : 1;
@@ -592,12 +592,13 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         const depthNorm = Math.max(0, Math.min(1, (pos.y - 58) / 27));
         // Scale: front = 1.4, back = 0.625 (perspective depth, front exaggerated)
         const silScale = 0.625 + depthNorm * 0.775;
-        // Brightness curve: front 75%, flanking ~28%, far back 15%.
-        // Flanking characters (mid-depth) get a bump so they frame the
-        // front character as dark compositional bookends.
+        // Brightness curve: aggressive contrast.
+        // Front character: strong value range for key light to carve.
+        // Background figures: crushed into near-black silhouettes —
+        // barely visible, no internal lighting competing with main char.
         const brightness = i === activeIndex
-          ? 0.18 + depthNorm * 0.57
-          : 0.15 + depthNorm * 0.2 + Math.pow(depthNorm, 0.5) * 0.12;
+          ? 0.20 + depthNorm * 0.60
+          : 0.04 + depthNorm * 0.08;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
@@ -616,9 +617,12 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           z: 0.8 + depthNorm * 0.4,
         } : { x: 0, y: -1, z: 0.5 };
 
-        // Light intensity scales with depth — front character gets more
-        // devLightScale multiplies the base intensity for live tuning
-        const lightIntensity = (0.5 + depthNorm * 1.5) * lerpedLightScale;
+        // Light intensity: front character gets strong fill for the key
+        // light to carve against. Background figures get near-zero —
+        // they should be true silhouettes, no specular or normal detail.
+        const lightIntensity = i === activeIndex
+          ? (0.8 + depthNorm * 2.0) * lerpedLightScale
+          : 0.15 * lerpedLightScale;
 
         return (
           <div
