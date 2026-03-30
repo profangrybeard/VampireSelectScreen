@@ -347,6 +347,20 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               fill="none"
             />
 
+            {/* Candle floor circles — visible rings on the pentagram plane
+                that anchor each candle visually to the ground. */}
+            {CANDLES.map((c) => (
+              <circle
+                key={`ring-${c.id}`}
+                cx={CX + c.dx}
+                cy={CY + c.dy}
+                r={c.width * 0.8}
+                fill="none"
+                stroke="rgba(180,175,160,0.2)"
+                strokeWidth="0.5"
+              />
+            ))}
+
             {/* Candle anchor dots — invisible, on the floor near center.
                 Each candle tracks its anchor via rAF for parallax. */}
             {CANDLES.map((c, i) => (
@@ -438,22 +452,22 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 </radialGradient>
               </defs>
 
-              {/* Candle body */}
+              {/* Candle body — waxy off-white columns */}
               <rect
                 x={0}
                 y={candle.flameH * 1.4}
                 width={candle.width}
                 height={candle.height}
                 rx={1}
-                fill="#1a1816"
+                fill="#b8b0a0"
               />
-              {/* Wax top */}
+              {/* Wax top — slightly brighter to catch light */}
               <ellipse
                 cx={candle.width / 2}
                 cy={candle.flameH * 1.4}
                 rx={candle.width / 2 + 0.5}
                 ry={candle.width * 0.2}
-                fill="#222018"
+                fill="#cdc5b5"
               />
 
               {/* Flame — taller, wider, brighter */}
