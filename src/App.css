@@ -672,52 +672,13 @@
   pointer-events: none;
 }
 
-/* ==== BITE TRANSITION ==== */
-
-/* Fang overlay — positioned above everything, drifts down during hold */
-.bite-fangs {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.bite-fangs__img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  /* Image has black bg — blends naturally with dark scene */
-}
-
-/* During snap: fast transition for the bite */
-.bite-fangs--snap {
-  transition: transform 150ms ease-in;
-}
-
-/* Crush to black after bite */
-.bite-blackout {
-  position: absolute;
-  inset: 0;
-  z-index: 51;
-  pointer-events: none;
-  background: #000;
-  opacity: 0;
-  transition: opacity 500ms ease-in;
-}
-
-/* Fade title and dots during bite/trailer */
-.screen--biting .clan-title,
+/* Fade title and dots during trailer */
 .screen--trailer .clan-title {
   opacity: 0;
   transition: opacity 300ms ease;
   pointer-events: none;
 }
 
-.screen--biting .indicator-dots,
 .screen--trailer .indicator-dots {
   opacity: 0;
   transition: opacity 200ms ease;
@@ -827,10 +788,8 @@
 
 /* ==== Phase-based tap zone gating ==== */
 .screen--holding .tap-zone,
-.screen--biting .tap-zone,
 .screen--trailer .tap-zone,
 .screen--holding .swipe-zone,
-.screen--biting .swipe-zone,
 .screen--trailer .swipe-zone {
   pointer-events: none;
 }

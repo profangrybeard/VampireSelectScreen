@@ -15,7 +15,6 @@ import IndicatorDots from './components/IndicatorDots.jsx';
 import Pentagram from './components/Pentagram.jsx';
 import DebugGrid from './components/DebugGrid.jsx';
 import EmbraceHold from './components/EmbraceHold.jsx';
-import BiteTransition from './components/BiteTransition.jsx';
 import TrailerEmbed from './components/TrailerEmbed.jsx';
 
 // Swipe detection for the center card area.
@@ -315,16 +314,12 @@ export default function App() {
 
   const handleHoldComplete = useCallback(() => {
     setSelectedClanIndex(activeIndex);
-    setSelectionPhase('biting');
+    setHoldProgress(0);
+    setSelectionPhase('trailer');
   }, [activeIndex]);
 
   const handleHoldCancel = useCallback(() => {
     setSelectionPhase('browse');
-    setHoldProgress(0);
-  }, []);
-
-  const handleBiteComplete = useCallback(() => {
-    setSelectionPhase('trailer');
     setHoldProgress(0);
   }, []);
 
@@ -342,7 +337,6 @@ export default function App() {
   const screenClass = [
     'screen',
     selectionPhase === 'holding' && 'screen--holding',
-    selectionPhase === 'biting' && 'screen--biting',
     (selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
   ].filter(Boolean).join(' ');
 
@@ -435,13 +429,6 @@ export default function App() {
         onHoldCancel={handleHoldCancel}
       />
 
-      {/* Bite transition — fangs drift down during hold, snap shut on complete */}
-      <BiteTransition
-        holdProgress={holdProgress}
-        biting={selectionPhase === 'biting'}
-        onComplete={handleBiteComplete}
-      />
-
       {/* Trailer — vertically cropped YouTube embed */}
       <TrailerEmbed
         visible={selectionPhase === 'trailer'}
@@ -450,7 +437,7 @@ export default function App() {
 
       {/* Return fade — black overlay for reverse transition */}
       {selectionPhase === 'returning' && (
-        <div className="bite-blackout" style={{ opacity: 1, transition: 'opacity 600ms ease-out' }} />
+        <div style={{ position: 'absolute', inset: 0, zIndex: 51, background: '#000', opacity: 1, transition: 'opacity 600ms ease-out', pointerEvents: 'none' }} />
       )}
     </div>
   );
