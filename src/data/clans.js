@@ -112,8 +112,8 @@ const CLANS = [
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        // Key: neutral white from right
-        { x: 2, y: -0.9, z: 0, targetX: 0.25, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.4, color: '#d4d0cc' },
+        // Key: cool blue from right-low
+        { x: 2, y: -0.9, z: 0, targetX: 0.25, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.4, color: '#6082e6' },
         // Rim: warm gold from behind-left
         { x: -1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#f4be62' },
       ],
