@@ -708,15 +708,17 @@
   transition: opacity 150ms ease;
 }
 
-/* Zoom effect — applied to pentagram container via --hold-progress */
-.screen--holding .pentagram-container,
-.screen--holding .silhouette-slot {
-  transition: none;
+/* Ritual stage — wraps pentagram, candles, and silhouettes so they
+   zoom as a single unit during the Embrace hold. */
+.ritual-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* Slow zoom on silhouettes during hold */
-.screen--holding .silhouette-slot[data-active="true"] {
-  /* Zoom is applied inline via style in App.jsx */
+.ritual-stage--holding {
+  transition: none;
 }
 
 /* ==== CELEBRATION OVERLAY ==== */

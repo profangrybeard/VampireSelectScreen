@@ -346,13 +346,8 @@ export default function App() {
     (selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
   ].filter(Boolean).join(' ');
 
-  // Hold zoom: scale silhouettes during hold
-  const holdZoomStyle = selectionPhase === 'holding' ? {
-    '--hold-zoom': `scale(${1 + holdProgress * 0.15}) translateY(${holdProgress * -2}%)`,
-  } : {};
-
   return (
-    <div className={screenClass} style={holdZoomStyle}>
+    <div className={screenClass}>
       {/* Indicator dots */}
       <IndicatorDots count={CLANS.length} active={activeIndex} />
 

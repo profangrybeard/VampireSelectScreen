@@ -269,8 +269,21 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   const activeAccent = CLANS[activeIndex]?.accent || '#333';
   const lerpedAccent = lerpColor(prevAccent, activeAccent, lerpT);
 
+  // Compute focal point for hold zoom — active character's upper-body area.
+  // dotPositions give us the foot position; shift up ~20% for chest.
+  const activeDot = dotPositions[activeIndex];
+  const holdFocalX = activeDot ? activeDot.x : 50;
+  const holdFocalY = activeDot ? activeDot.y - 20 : 50;
+  const holdZoom = selectionPhase === 'holding' ? 1 + holdProgress * 0.15 : 1;
+
   return (
-    <>
+    <div
+      className={`ritual-stage${selectionPhase === 'holding' ? ' ritual-stage--holding' : ''}`}
+      style={{
+        transformOrigin: `${holdFocalX}% ${holdFocalY}%`,
+        transform: holdZoom !== 1 ? `scale(${holdZoom})` : undefined,
+      }}
+    >
       {/* Floor glow — the ritual light source.
           Positioned on the pentagram floor plane, below all characters.
           All silhouettes are uplit from this point. */}
@@ -542,10 +555,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           ? (0.8 + depthNorm * 2.0) * lerpedLightScale
           : 0.6 + depthNorm * 0.4;
 
-        // Hold zoom: active silhouette scales up and shifts upward
-        const isHolding = selectionPhase === 'holding' && i === activeIndex;
-        const holdScale = isHolding ? 1 + holdProgress * 0.15 : 1;
-        const holdShiftY = isHolding ? holdProgress * -2 : 0;
+        // (Hold zoom now applied to .ritual-stage wrapper, not per-silhouette)
 
         return (
           <div
@@ -554,8 +564,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
             data-active={i === activeIndex ? 'true' : 'false'}
             style={{
               left: `${pos.x}%`,
-              top: `${pos.y + holdShiftY}%`,
-              transform: `translate(-50%, -100%) scale(${silScale * holdScale})`,
+              top: `${pos.y}%`,
+              transform: `translate(-50%, -100%) scale(${silScale})`,
               opacity,
               filter: `brightness(${brightness})`,
               zIndex,
@@ -582,6 +592,6 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           </div>
         );
       })}
-    </>
+    </div>
   );
 }
