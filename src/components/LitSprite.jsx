@@ -44,7 +44,8 @@ export default function LitSprite({
     const renderer = new THREE.WebGLRenderer({
       canvas,
       alpha: true,
-      antialias: true,
+      premultipliedAlpha: true,
+      antialias: false,  // kills the halo — AA bleeds edge pixels
       powerPreference: 'low-power',
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -70,8 +71,8 @@ export default function LitSprite({
 
     const material = new THREE.MeshStandardMaterial({
       color: new THREE.Color(baseColor),
-      transparent: true,
-      alphaTest: 0.5,
+      transparent: false,   // no blending — alphaTest handles cutout
+      alphaTest: 0.65,      // sharp cutoff — kills soft edge fringe
       side: THREE.FrontSide,
       roughness: roughness,
       metalness: 0.0,
@@ -143,15 +144,15 @@ diffuseColor.rgb = vec3(ink * 0.12);`
 // Uses the normal map Z component: at form edges, normals face
 // sideways (low Z). We darken those pixels to create a dark
 // inner outline that pairs with the existing outer glow.
+// Guarded by alpha to avoid artifacts on edge pixels where
+// normal data may be unreliable.
 #ifdef USE_NORMALMAP
-  // Re-read the normal map to get the raw tangent-space normal.
-  // normal_uv is already defined by MeshStandardMaterial.
   vec3 rimNormal = texture2D(normalMap, vNormalMapUv).xyz * 2.0 - 1.0;
   float facing = clamp(rimNormal.z, 0.0, 1.0);
-  // rimWidth controls how far in the darkening extends (pow curve).
-  // Higher width = narrower rim (only extreme edges).
   float rimFactor = 1.0 - pow(facing, mix(0.3, 3.0, uRimWidth));
-  gl_FragColor.rgb *= mix(1.0, 1.0 - rimFactor, uRimDarkness);
+  // Fade rim out near alpha edges to prevent halo artifacts
+  float edgeMask = smoothstep(0.65, 0.85, gl_FragColor.a);
+  gl_FragColor.rgb *= mix(1.0, 1.0 - rimFactor, uRimDarkness * edgeMask);
 #endif
 
 // --- tint via soft-light blend ---
