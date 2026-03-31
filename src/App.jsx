@@ -14,6 +14,9 @@ import StatsPanel from './components/StatsPanel.jsx';
 import IndicatorDots from './components/IndicatorDots.jsx';
 import Pentagram from './components/Pentagram.jsx';
 import DebugGrid from './components/DebugGrid.jsx';
+import EmbraceHold from './components/EmbraceHold.jsx';
+import CelebrationOverlay from './components/CelebrationOverlay.jsx';
+import TrailerEmbed from './components/TrailerEmbed.jsx';
 
 // Swipe detection for the center card area.
 // Inset from edges to avoid Android back gesture zones.
@@ -67,6 +70,12 @@ export default function App() {
   const [rotationDeg, setRotationDeg] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
+
+  // === EMBRACE SELECTION FLOW ===
+  const [selectionPhase, setSelectionPhase] = useState('browse');
+  // 'browse' | 'holding' | 'celebrating' | 'trailer' | 'returning'
+  const [holdProgress, setHoldProgress] = useState(0);
+  const [selectedClanIndex, setSelectedClanIndex] = useState(null);
 
   // Dev controls — tunable lighting props
   const [devLightScale, setDevLightScale] = useState(1.0);
@@ -276,7 +285,7 @@ export default function App() {
   }, [activeIndex, getEffectiveForClan, applySettings, readStorage]);
 
   const rotate = useCallback((direction) => {
-    if (transitioning) return;
+    if (transitioning || selectionPhase !== 'browse') return;
     setTransitioning(true);
     setPrevActiveIndex(activeIndex);
     setActiveIndex((prev) => {
@@ -292,10 +301,58 @@ export default function App() {
     setStatsOpen((prev) => !prev);
   }, []);
 
+  // === EMBRACE HANDLERS ===
+  const handleHoldStart = useCallback(() => {
+    if (selectionPhase !== 'browse' || transitioning) return;
+    setSelectionPhase('holding');
+    setStatsOpen(false);
+    setHoldProgress(0);
+  }, [selectionPhase, transitioning]);
+
+  const handleHoldProgress = useCallback((progress) => {
+    setHoldProgress(progress);
+  }, []);
+
+  const handleHoldComplete = useCallback(() => {
+    setSelectedClanIndex(activeIndex);
+    setSelectionPhase('celebrating');
+    setHoldProgress(0);
+  }, [activeIndex]);
+
+  const handleHoldCancel = useCallback(() => {
+    setSelectionPhase('browse');
+    setHoldProgress(0);
+  }, []);
+
+  const handleCelebrationComplete = useCallback(() => {
+    setSelectionPhase('trailer');
+  }, []);
+
+  const handleTrailerClose = useCallback(() => {
+    setSelectionPhase('returning');
+    setTimeout(() => {
+      setSelectionPhase('browse');
+      setSelectedClanIndex(null);
+    }, 600);
+  }, []);
+
   const activeClan = CLANS[activeIndex];
 
+  // Screen class drives CSS phase gating
+  const screenClass = [
+    'screen',
+    selectionPhase === 'holding' && 'screen--holding',
+    selectionPhase === 'celebrating' && 'screen--celebrating',
+    (selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
+  ].filter(Boolean).join(' ');
+
+  // Hold zoom: scale silhouettes during hold
+  const holdZoomStyle = selectionPhase === 'holding' ? {
+    '--hold-zoom': `scale(${1 + holdProgress * 0.15}) translateY(${holdProgress * -2}%)`,
+  } : {};
+
   return (
-    <div className="screen">
+    <div className={screenClass} style={holdZoomStyle}>
       {/* Indicator dots */}
       <IndicatorDots count={CLANS.length} active={activeIndex} />
 
@@ -316,6 +373,8 @@ export default function App() {
         devLineSmooth={devLineSmooth}
         devRimDarkness={devRimDarkness}
         devRimWidth={devRimWidth}
+        holdProgress={holdProgress}
+        selectionPhase={selectionPhase}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -372,6 +431,35 @@ export default function App() {
 
       {/* Swipe zone — center area, avoids Android edge gesture zones */}
       <SwipeZone onSwipeLeft={() => rotate('left')} onSwipeRight={() => rotate('right')} />
+
+      {/* Hold-to-Embrace — covers center silhouette area */}
+      <EmbraceHold
+        active={selectionPhase === 'browse' && !transitioning}
+        holdProgress={holdProgress}
+        onHoldStart={handleHoldStart}
+        onHoldProgress={handleHoldProgress}
+        onHoldComplete={handleHoldComplete}
+        onHoldCancel={handleHoldCancel}
+        accent={activeClan.accent}
+      />
+
+      {/* Celebration — white flash + supernova + blackout */}
+      <CelebrationOverlay
+        active={selectionPhase === 'celebrating'}
+        accent={activeClan.accent}
+        onComplete={handleCelebrationComplete}
+      />
+
+      {/* Trailer — vertically cropped YouTube embed */}
+      <TrailerEmbed
+        visible={selectionPhase === 'trailer'}
+        onClose={handleTrailerClose}
+      />
+
+      {/* Return fade — reuses blackout overlay for reverse transition */}
+      {selectionPhase === 'returning' && (
+        <div className="celebration-blackout celebration-blackout--active" style={{ opacity: 1, transition: 'opacity 600ms ease-out' }} />
+      )}
     </div>
   );
 }

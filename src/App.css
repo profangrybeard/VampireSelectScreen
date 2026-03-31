@@ -631,3 +631,292 @@
   height: 4px;
   accent-color: #666;
 }
+
+/* ==== EMBRACE HOLD SYSTEM ==== */
+
+/* Hold interaction zone — covers the center silhouette area.
+   Above swipe zone, below clan title. */
+.embrace-hold {
+  position: absolute;
+  top: 15%;
+  bottom: 20%;
+  left: 22%;
+  right: 22%;
+  z-index: 11;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+
+/* Commitment bar — appears during hold */
+.embrace-bar {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  text-align: center;
+  pointer-events: none;
+}
+
+.embrace-bar--visible {
+  opacity: 1;
+}
+
+.embrace-bar__track {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.embrace-bar__fill {
+  width: 100%;
+  height: 100%;
+  transform-origin: left center;
+  transform: scaleX(0);
+  border-radius: 1px;
+  transition: none;
+}
+
+.embrace-bar__label {
+  display: block;
+  margin-top: 8px;
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* Progressive vignette — darkens screen edges during hold */
+.embrace-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 50% 50% at center,
+    transparent 10%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(0, 0, 0, 0.95) 100%
+  );
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+/* Zoom effect — applied to pentagram container via --hold-progress */
+.screen--holding .pentagram-container,
+.screen--holding .silhouette-slot {
+  transition: none;
+}
+
+/* Slow zoom on silhouettes during hold */
+.screen--holding .silhouette-slot[data-active="true"] {
+  /* Zoom is applied inline via style in App.jsx */
+}
+
+/* ==== CELEBRATION OVERLAY ==== */
+
+/* White-hot flash */
+.celebration-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 55;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease-out;
+}
+
+.celebration-flash--active {
+  opacity: 0.9;
+  transition: opacity 50ms ease-in;
+}
+
+/* Pentagram supernova glow */
+.celebration-supernova {
+  position: absolute;
+  inset: 0;
+  z-index: 52;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse 60% 80% at 50% 75%,
+    var(--supernova-color, #fff) 0%,
+    color-mix(in srgb, var(--supernova-color, #fff) 60%, transparent) 30%,
+    transparent 70%
+  );
+  transition: opacity 200ms ease;
+}
+
+.celebration-supernova--active {
+  opacity: 1;
+  transition: opacity 150ms ease-in;
+}
+
+/* Crush to black */
+.celebration-blackout {
+  position: absolute;
+  inset: 0;
+  z-index: 54;
+  pointer-events: none;
+  background: #000;
+  opacity: 0;
+  transition: opacity 700ms ease-in;
+}
+
+.celebration-blackout--active {
+  opacity: 0.7;
+  transition: opacity 500ms ease-in;
+}
+
+.celebration-blackout--solid {
+  opacity: 1;
+  transition: opacity 300ms ease-in;
+}
+
+/* ==== Pentagram supernova mode ==== */
+.screen--celebrating .pentagram-perspective {
+  animation: none !important;
+  opacity: 1 !important;
+  filter: brightness(3) !important;
+  transition: filter 200ms ease-in;
+}
+
+.screen--celebrating .pentagram-svg polyline,
+.screen--celebrating .pentagram-svg polygon,
+.screen--celebrating .pentagram-svg circle {
+  stroke-width: 3;
+  opacity: 1 !important;
+  transition: stroke-width 200ms ease, opacity 200ms ease;
+}
+
+/* Fade title and dots during celebration/trailer */
+.screen--celebrating .clan-title,
+.screen--trailer .clan-title {
+  opacity: 0;
+  transition: opacity 300ms ease;
+  pointer-events: none;
+}
+
+.screen--celebrating .indicator-dots,
+.screen--trailer .indicator-dots {
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+/* ==== TRAILER EMBED ==== */
+
+.trailer-container {
+  position: absolute;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease;
+  background: #000;
+}
+
+.trailer-container--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* The iframe wrapper clips the oversized iframe */
+.trailer-iframe-wrap {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* YouTube replaces the target div with an iframe.
+   Scale to fill height at 16:9 — width overflows, center-clipped. */
+.trailer-iframe-target,
+.trailer-iframe-wrap iframe {
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* Width = height * 16/9. For 100% height container at 932px: ~1658px.
+     Use a percentage: 932/430 * 16/9 ≈ 385% of container width */
+  width: 386% !important;
+  height: 100% !important;
+  border: none !important;
+}
+
+/* Feather gradients at top/bottom to soften the crop */
+.trailer-feather {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 12%;
+  z-index: 46;
+  pointer-events: none;
+}
+
+.trailer-feather--top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+}
+
+.trailer-feather--bottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+}
+
+/* Trailer controls */
+.trailer-controls {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  z-index: 47;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.trailer-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  border-radius: 4px;
+  pointer-events: auto;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.trailer-btn--close {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+}
+
+.trailer-btn--mute {
+  font-size: 16px;
+  padding: 6px 10px;
+  line-height: 1;
+}
+
+.trailer-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* ==== Phase-based tap zone gating ==== */
+.screen--holding .tap-zone,
+.screen--celebrating .tap-zone,
+.screen--trailer .tap-zone,
+.screen--holding .swipe-zone,
+.screen--celebrating .swipe-zone,
+.screen--trailer .swipe-zone {
+  pointer-events: none;
+}

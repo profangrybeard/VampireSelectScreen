@@ -114,7 +114,7 @@ function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
-export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15, devRimDarkness = 0.0, devRimWidth = 0.5 }) {
+export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15, devRimDarkness = 0.0, devRimWidth = 0.5, holdProgress = 0, selectionPhase = 'browse' }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -542,14 +542,20 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           ? (0.8 + depthNorm * 2.0) * lerpedLightScale
           : 0.6 + depthNorm * 0.4;
 
+        // Hold zoom: active silhouette scales up and shifts upward
+        const isHolding = selectionPhase === 'holding' && i === activeIndex;
+        const holdScale = isHolding ? 1 + holdProgress * 0.15 : 1;
+        const holdShiftY = isHolding ? holdProgress * -2 : 0;
+
         return (
           <div
             key={i}
             className="silhouette-slot"
+            data-active={i === activeIndex ? 'true' : 'false'}
             style={{
               left: `${pos.x}%`,
-              top: `${pos.y}%`,
-              transform: `translate(-50%, -100%) scale(${silScale})`,
+              top: `${pos.y + holdShiftY}%`,
+              transform: `translate(-50%, -100%) scale(${silScale * holdScale})`,
               opacity,
               filter: `brightness(${brightness})`,
               zIndex,
