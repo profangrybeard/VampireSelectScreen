@@ -37,8 +37,8 @@ const CLANS = [
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        // Key: warm white with a kiss of green to integrate with scene
-        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#c8d4b8' },
+        // Key: soft green from right
+        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#9ae391' },
         // Rim: toxic green from behind-above
         { x: -1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 6.0, angle: 0.35, penumbra: 0.6, color: '#bbffad' },
       ],
@@ -55,15 +55,15 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
-      lightScale: 0.4,
+      lightScale: 0.2,
       tint: { color: '#f0fffd', opacity: 0.9 },
       rimDarkness: 0.88,
       rimWidth: 0.3,
       lineWeight: 0.95,
       lineSmooth: 0.12,
       spots: [
-        // Key: neutral white from below
-        { x: 0, y: -2, z: 1.2, targetX: -0.1, targetY: 0.5, intensity: 10, angle: 0.22, penumbra: 0.45, color: '#d4d0cc' },
+        // Key: deep indigo from right-high, razor tight beam
+        { x: 2, y: 3.8, z: 0, targetX: -0.5, targetY: -1, intensity: 10, angle: 0.05, penumbra: 0, color: '#331c87' },
         // Rim: hot orange from behind-right
         { x: 1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#ff6600' },
       ],
