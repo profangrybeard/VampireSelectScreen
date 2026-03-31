@@ -381,10 +381,10 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                   cx={x.toFixed(1)}
                   cy={y.toFixed(1)}
                   r={4}
-                  fill="#555"
+                  fill={lerpedAccent}
                   className="pentagram-anchor"
                   style={{
-                    opacity: i === activeIndex ? 0.7 : 0,
+                    opacity: i === activeIndex ? 0.8 : 0.15,
                     transition: 'opacity 500ms ease',
                   }}
                 />
@@ -519,7 +519,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         // barely visible, no internal lighting competing with main char.
         const brightness = i === activeIndex
           ? 0.20 + depthNorm * 0.60
-          : 0.04 + depthNorm * 0.08;
+          : 0.07 + depthNorm * 0.10;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
