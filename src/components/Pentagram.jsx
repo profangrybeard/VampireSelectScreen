@@ -61,19 +61,17 @@ const TILT_DEG = 80;
 // Spread in a noisy cluster so they parallax on rotation.
 // Heights are deliberately irregular — no two adjacent candles
 // should align to the same height or form visible lines.
+// Trimmed from 12 to 8 for mobile perf — kept the tallest/best spread.
+// 8 candles × 2 smoke columns = 16 animated elements (was 36).
 const CANDLES = [
   { dx: -4,  dy: -6,  height: 44, width: 9,  flameH: 16, id: 'c0' },
   { dx: 12,  dy: -10, height: 28, width: 7,  flameH: 12, id: 'c1' },
   { dx: -18, dy: -2,  height: 36, width: 8,  flameH: 15, id: 'c2' },
   { dx: 8,   dy: 2,   height: 32, width: 7,  flameH: 13, id: 'c3' },
-  { dx: -10, dy: 6,   height: 20, width: 6,  flameH: 10, id: 'c4' },
   { dx: 16,  dy: 4,   height: 24, width: 6,  flameH: 11, id: 'c5' },
-  { dx: -22, dy: 9,   height: 15, width: 5,  flameH: 8,  id: 'c6' },
-  { dx: 2,   dy: 8,   height: 18, width: 6,  flameH: 9,  id: 'c7' },
-  { dx: 20,  dy: 8,   height: 22, width: 6,  flameH: 10, id: 'c8' },
   { dx: -6,  dy: -12, height: 26, width: 7,  flameH: 11, id: 'c9' },
-  { dx: 6,   dy: 12,  height: 12, width: 5,  flameH: 7,  id: 'c10' },
-  { dx: -14, dy: 10,  height: 16, width: 5,  flameH: 8,  id: 'c11' },
+  { dx: 20,  dy: 8,   height: 22, width: 6,  flameH: 10, id: 'c8' },
+  { dx: -10, dy: 6,   height: 20, width: 6,  flameH: 10, id: 'c4' },
 ];
 
 // Lerp a single number
@@ -167,9 +165,19 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
     const TRANSITION_MS = 450; // slightly longer than the 400ms CSS transition
     const startTime = performance.now();
 
-    function tick() {
+    let lastTick = 0;
+    function tick(now) {
+      // Throttle to ~30fps (33ms) — saves half the DOM reads + renders
+      if (now - lastTick < 33) {
+        const elapsed = now - startTime;
+        if (elapsed < TRANSITION_MS) {
+          rafRef.current = requestAnimationFrame(tick);
+        }
+        return;
+      }
+      lastTick = now;
       readPositions();
-      const elapsed = performance.now() - startTime;
+      const elapsed = now - startTime;
       const t = Math.min(1, elapsed / TRANSITION_MS);
       setLerpT(easeInOut(t));
       if (elapsed < TRANSITION_MS) {
@@ -478,7 +486,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 3 wisps per candle, staggered delays, CSS-animated.
                 Grey only (monochrome safe). Compositional element to
                 add atmosphere and help pop the front character. */}
-            {[0, 1, 2].map((wi) => (
+            {[0, 1].map((wi) => (
               <div
                 key={`smoke-${candle.id}-${wi}`}
                 className={`candle-smoke candle-smoke--${wi}`}
