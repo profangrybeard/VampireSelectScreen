@@ -15,7 +15,7 @@ import IndicatorDots from './components/IndicatorDots.jsx';
 import Pentagram from './components/Pentagram.jsx';
 import DebugGrid from './components/DebugGrid.jsx';
 import EmbraceHold from './components/EmbraceHold.jsx';
-import CelebrationOverlay from './components/CelebrationOverlay.jsx';
+import BiteTransition from './components/BiteTransition.jsx';
 import TrailerEmbed from './components/TrailerEmbed.jsx';
 
 // Swipe detection for the center card area.
@@ -315,8 +315,7 @@ export default function App() {
 
   const handleHoldComplete = useCallback(() => {
     setSelectedClanIndex(activeIndex);
-    setSelectionPhase('celebrating');
-    setHoldProgress(0);
+    setSelectionPhase('biting');
   }, [activeIndex]);
 
   const handleHoldCancel = useCallback(() => {
@@ -324,8 +323,9 @@ export default function App() {
     setHoldProgress(0);
   }, []);
 
-  const handleCelebrationComplete = useCallback(() => {
+  const handleBiteComplete = useCallback(() => {
     setSelectionPhase('trailer');
+    setHoldProgress(0);
   }, []);
 
   const handleTrailerClose = useCallback(() => {
@@ -342,7 +342,7 @@ export default function App() {
   const screenClass = [
     'screen',
     selectionPhase === 'holding' && 'screen--holding',
-    selectionPhase === 'celebrating' && 'screen--celebrating',
+    selectionPhase === 'biting' && 'screen--biting',
     (selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
   ].filter(Boolean).join(' ');
 
@@ -368,8 +368,6 @@ export default function App() {
         devLineSmooth={devLineSmooth}
         devRimDarkness={devRimDarkness}
         devRimWidth={devRimWidth}
-        holdProgress={holdProgress}
-        selectionPhase={selectionPhase}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -435,14 +433,13 @@ export default function App() {
         onHoldProgress={handleHoldProgress}
         onHoldComplete={handleHoldComplete}
         onHoldCancel={handleHoldCancel}
-        accent={activeClan.accent}
       />
 
-      {/* Celebration — white flash + supernova + blackout */}
-      <CelebrationOverlay
-        active={selectionPhase === 'celebrating'}
-        accent={activeClan.accent}
-        onComplete={handleCelebrationComplete}
+      {/* Bite transition — fangs drift down during hold, snap shut on complete */}
+      <BiteTransition
+        holdProgress={holdProgress}
+        biting={selectionPhase === 'biting'}
+        onComplete={handleBiteComplete}
       />
 
       {/* Trailer — vertically cropped YouTube embed */}
@@ -451,9 +448,9 @@ export default function App() {
         onClose={handleTrailerClose}
       />
 
-      {/* Return fade — reuses blackout overlay for reverse transition */}
+      {/* Return fade — black overlay for reverse transition */}
       {selectionPhase === 'returning' && (
-        <div className="celebration-blackout celebration-blackout--active" style={{ opacity: 1, transition: 'opacity 600ms ease-out' }} />
+        <div className="bite-blackout" style={{ opacity: 1, transition: 'opacity 600ms ease-out' }} />
       )}
     </div>
   );
