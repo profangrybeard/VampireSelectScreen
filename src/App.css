@@ -692,8 +692,8 @@
    Inset 15% top/bottom to shrink ~30%, keeping end logo in frame. */
 .trailer-iframe-wrap {
   position: absolute;
-  top: 15%;
-  bottom: 15%;
+  top: 18%;
+  bottom: 18%;
   left: 0;
   right: 0;
   overflow: hidden;
