@@ -85,12 +85,14 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
-      lightScale: 1.2,
-      tint: { color: '#ffffff', opacity: 0.7 },
-      rimDarkness: 0.6,
+      lightScale: 0.7,
+      tint: { color: '#bab5c9', opacity: 0.88 },
+      rimDarkness: 0.88,
       rimWidth: 0.12,
+      lineWeight: 0.5,
+      lineSmooth: 0.15,
       spots: [
-        { x: -1.7, y: 2.5, z: 1.1, targetX: -0.1, targetY: 0.5, intensity: 8.5, angle: 0.22, penumbra: 0.45, color: '#c8bfb0' },
+        { x: 2, y: -0.9, z: 0, targetX: 0.25, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.4, color: '#f4be62' },
       ],
     },
   },
