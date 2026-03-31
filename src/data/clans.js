@@ -37,8 +37,8 @@ const CLANS = [
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        // Key: neutral white, same position/angle as tuned
-        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#d4d0cc' },
+        // Key: warm white with a kiss of green to integrate with scene
+        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#c8d4b8' },
         // Rim: toxic green from behind-above
         { x: -1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 6.0, angle: 0.35, penumbra: 0.6, color: '#bbffad' },
       ],
