@@ -255,10 +255,10 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
     pointLight.intensity = lightIntensity;
-    ambientLight.intensity = ambientIntensity * (1 - holdProgress);
+    ambientLight.intensity = ambientIntensity * (1 - Math.min(1, holdProgress * 2));
 
-    // Low fill — only on active character, off for background. Dims during hold.
-    lowFill.intensity = spotActive ? 0.8 * (1 - holdProgress) : 0;
+    // Low fill — only on active character, off for background. Dims at 2x during hold.
+    lowFill.intensity = spotActive ? 0.8 * (1 - Math.min(1, holdProgress * 2)) : 0;
 
     // Spotlights — only on active character. Up to 3 from spots array.
     const spots = (spotActive && spotPos.spots) ? spotPos.spots : [];
