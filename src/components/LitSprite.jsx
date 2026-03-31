@@ -30,6 +30,7 @@ export default function LitSprite({
   tint = {},
   lineWeight = 0.5,
   lineSmooth = 0.15,
+  holdProgress = 0,
   rimDarkness = 0.0,
   rimWidth = 0.5,
 }) {
@@ -254,10 +255,10 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
     pointLight.intensity = lightIntensity;
-    ambientLight.intensity = ambientIntensity;
+    ambientLight.intensity = ambientIntensity * (1 - holdProgress);
 
-    // Low fill — only on active character, off for background
-    lowFill.intensity = spotActive ? 0.8 : 0;
+    // Low fill — only on active character, off for background. Dims during hold.
+    lowFill.intensity = spotActive ? 0.8 * (1 - holdProgress) : 0;
 
     // Spotlights — only on active character. Up to 3 from spots array.
     const spots = (spotActive && spotPos.spots) ? spotPos.spots : [];
@@ -304,7 +305,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     }
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth, holdProgress]);
 
   return (
     <canvas
