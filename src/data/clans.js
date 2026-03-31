@@ -17,6 +17,7 @@ const CLANS = [
     archetype: "The Monster",
     disciplines: ["Obfuscate", "Potence", "Animalism"],
     humanity: 2,
+    accent: '#2d4a1e',
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -36,6 +37,7 @@ const CLANS = [
     archetype: "The Rebel",
     disciplines: ["Celerity", "Potence", "Presence"],
     humanity: 4,
+    accent: '#8b3a0f',
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -55,6 +57,7 @@ const CLANS = [
     archetype: "The Visionary",
     disciplines: ["Auspex", "Dominate", "Obfuscate"],
     humanity: 5,
+    accent: '#4a2d6b',
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -74,6 +77,7 @@ const CLANS = [
     archetype: "The Beast",
     disciplines: ["Animalism", "Fortitude", "Protean"],
     humanity: 2,
+    accent: '#5a3e1b',
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -93,6 +97,7 @@ const CLANS = [
     archetype: "The Sorcerer",
     disciplines: ["Auspex", "Dominate", "Thaumaturgy"],
     humanity: 6,
+    accent: '#6b1a1a',
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,

@@ -508,76 +508,23 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         );
       })}
 
-      {/* Ritual circle — vertical occult geometry behind the front character.
-          Clean thin lines, very low opacity. The summoning circle projecting
-          upward from the floor. Provides contrast to separate the character
-          from pure black without noise. */}
+      {/* Graphic backdrop — bold vertical shape behind front character.
+          Provides a high-contrast surface for the silhouette to pop against
+          and introduces the clan accent color. Sits between background
+          figures (z 0-4) and front character (z 10). Fades at top and
+          bottom edges via CSS mask. */}
       {dotPositions.length === 5 && (() => {
         const frontPos = dotPositions[activeIndex];
         if (!frontPos) return null;
+        const accent = CLANS[activeIndex]?.accent || '#333';
         return (
           <div
-            className="ritual-circle"
+            className="clan-backdrop"
             style={{
               left: `${frontPos.x}%`,
-              top: `${frontPos.y - 32}%`,
+              '--accent': accent,
             }}
-          >
-            <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-              {/* Outer circle */}
-              <circle cx="100" cy="100" r="95" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
-              {/* Inner circle */}
-              <circle cx="100" cy="100" r="72" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.4" />
-              {/* Inner-inner circle */}
-              <circle cx="100" cy="100" r="48" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
-              {/* Radial lines — 12 spokes */}
-              {Array.from({ length: 12 }, (_, j) => {
-                const a = (j * Math.PI * 2) / 12;
-                const x1 = 100 + 48 * Math.cos(a);
-                const y1 = 100 + 48 * Math.sin(a);
-                const x2 = 100 + 95 * Math.cos(a);
-                const y2 = 100 + 95 * Math.sin(a);
-                return (
-                  <line key={j} x1={x1} y1={y1} x2={x2} y2={y2}
-                    stroke="rgba(255,255,255,0.03)" strokeWidth="0.3" />
-                );
-              })}
-              {/* Small inner pentagram */}
-              <polygon
-                points={Array.from({ length: 5 }, (_, j) => {
-                  const a = -Math.PI / 2 + (j * 2 * Math.PI) / 5;
-                  return `${100 + 30 * Math.cos(a)},${100 + 30 * Math.sin(a)}`;
-                }).join(' ')}
-                fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3"
-              />
-              {/* Connecting star lines */}
-              {[0, 2, 4, 1, 3, 0].map((j, idx, arr) => {
-                if (idx === arr.length - 1) return null;
-                const a1 = -Math.PI / 2 + (j * 2 * Math.PI) / 5;
-                const next = arr[idx + 1];
-                const a2 = -Math.PI / 2 + (next * 2 * Math.PI) / 5;
-                return (
-                  <line key={`s${idx}`}
-                    x1={100 + 30 * Math.cos(a1)} y1={100 + 30 * Math.sin(a1)}
-                    x2={100 + 30 * Math.cos(a2)} y2={100 + 30 * Math.sin(a2)}
-                    stroke="rgba(255,255,255,0.035)" strokeWidth="0.3" />
-                );
-              })}
-              {/* Arcane tick marks on the outer ring */}
-              {Array.from({ length: 36 }, (_, j) => {
-                const a = (j * Math.PI * 2) / 36;
-                const r1 = j % 3 === 0 ? 88 : 91;
-                const x1 = 100 + r1 * Math.cos(a);
-                const y1 = 100 + r1 * Math.sin(a);
-                const x2 = 100 + 95 * Math.cos(a);
-                const y2 = 100 + 95 * Math.sin(a);
-                return (
-                  <line key={`t${j}`} x1={x1} y1={y1} x2={x2} y2={y2}
-                    stroke="rgba(255,255,255,0.04)" strokeWidth="0.2" />
-                );
-              })}
-            </svg>
-          </div>
+          />
         );
       })()}
 
