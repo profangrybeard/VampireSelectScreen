@@ -168,8 +168,16 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     // No separate geometry needed — tint uniforms live on the material.
 
     // --- LIGHTS ---
+    // Main point light — driven by candle/floor position
     const pointLight = new THREE.PointLight(0xc8bfb0, lightIntensity, 8, 1.0);
     scene.add(pointLight);
+
+    // Low fill light — rescues lower body from vanishing into black.
+    // Positioned below center, faint warm grey. Catches boots, legs,
+    // lower dress details so silhouette stays intact to the floor.
+    const lowFill = new THREE.PointLight(0x998888, 0.8, 6, 1.0);
+    lowFill.position.set(0, -0.8, 1.0);
+    scene.add(lowFill);
 
     const ambientLight = new THREE.AmbientLight(0x888888, ambientIntensity);
     scene.add(ambientLight);
@@ -218,7 +226,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
 
     stateRef.current = {
       renderer, scene, camera,
-      pointLight, ambientLight, spotLights,
+      pointLight, lowFill, ambientLight, spotLights,
       material, geometry, mesh,
       tintUniforms, inkUniforms, rimUniforms,
       render,
@@ -241,12 +249,15 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     const state = stateRef.current;
     if (!state) return;
 
-    const { pointLight, ambientLight, spotLights, material, tintUniforms, inkUniforms, rimUniforms, render } = state;
+    const { pointLight, lowFill, ambientLight, spotLights, material, tintUniforms, inkUniforms, rimUniforms, render } = state;
 
     // Point light
     pointLight.position.set(lightDir.x, lightDir.y, lightDir.z);
     pointLight.intensity = lightIntensity;
     ambientLight.intensity = ambientIntensity;
+
+    // Low fill — only on active character, off for background
+    lowFill.intensity = spotActive ? 0.8 : 0;
 
     // Spotlights — only on active character. Up to 3 from spots array.
     const spots = (spotActive && spotPos.spots) ? spotPos.spots : [];
