@@ -164,6 +164,42 @@
 4. Tried full graphic poster (hide floor elements) → too flat, lost 3D magic → restored floor elements on top of banner → final: replaced banner with clan-colored smoke columns rising from candles + pentagram circle filled with accent color. Living atmospheric color replaces static rectangle.
 **Decision:** The smoke columns are the synthesis — they carry clan color from the ritual floor upward through the frame as living atmosphere, maintaining both the 3D depth and the graphic color identity. Key+rim split preserves normal map detail while introducing clan color at the edges only.
 
+## Entry 31 — 2026-03-31
+**Asked:** Rotation lagging on mobile — not smooth. Need 30fps or better.
+**Produced:** Two-round perf pass:
+Round 1: Removed blur(8px) filter from 36 smoke columns (#1 GPU killer). Batched all getBoundingClientRect calls together before state updates. Capped background character WebGL renders at 5fps. Added will-change hints on flame/smoke elements.
+Round 2: Trimmed candles from 12 to 8. Smoke columns from 3 to 2 per candle (16 total, was 36). Throttled rAF loop to 30fps (33ms intervals). Added CSS contain on candle slots.
+**Decision:** Total animated elements during rotation cut from 52+ to 24. DOM reads per transition halved. Blur filter removal was the single biggest win — mobile GPUs can't handle blur on dozens of animated elements.
+
+## Entry 32 — 2026-03-31
+**Asked:** Floor dots should glow clan color. Background characters need more visibility.
+**Produced:** Pentagram anchor dots now fill with lerpedAccent, inactive dots visible at 15% opacity (were hidden). Background character CSS brightness bumped from 4-12% to 7-17%. Three.js light intensity for bg characters decoupled from per-clan lightScale (was being crushed by low values like Tremere's 0.3). Fixed at 0.6-1.0 depth-scaled.
+**Decision:** Background characters must be readable as characters for the carousel to have visual purpose. Their lighting is now independent of the active clan's tuning.
+
+## Entry 33 — 2026-03-31
+**Asked:** UX polish — slower transition, move title off character face, add tap signifier for details, improve text hierarchy.
+**Produced:** Rotation slowed 20% then another 15% (400ms→480ms→552ms total). Title moved from 31% back to 5% (left edge). Clan-colored pulsing dot + "Details" label added below clan name — disappears when stats open. Stats text hierarchy improved: epithet 14-18px, labels switched to Inter 700, disciplines 14-17px.
+**Decision:** Title must never overlap the character's face. The tap signifier uses clan accent color (single source) and pulses gently to draw attention without being obnoxious.
+
+## Entry 34 — 2026-03-31
+**Asked:** Pentagram lines should glow with clan color, subtly pulsing. Slow rotation 15% more. Background characters still not visible enough.
+**Produced:** Pentagram pulse animation now includes brightness (0.8→1.3) alongside opacity. Rotation slowed to 552ms. Background character light intensity fixed — no longer scaled by per-clan lightScale. Added Reset (Dflt) button to dev panel that loads clans.js source defaults into sliders and clears active slot.
+**Decision:** The Reset button completes the tuning pipeline: tweak → compare → Dflt to undo → tweak again → Copy when happy.
+
+## Entry 35 — 2026-03-31
+**Asked:** Color wheel on mobile is broken — native picker doesn't remember last color, requires navigating OS picker each time.
+**Produced:** Custom inline HSL ColorWheel component. Hue ring (drag outer) + saturation/brightness square (drag inner). Updates renderer live during drag. Saves last-used color to localStorage per field on pointer release. Replaced both spot and tint native color pickers.
+**Decision:** Mobile-first color picking. No OS picker navigation, no lost state. The wheel stays inline in the panel and remembers its position.
+
+## Entry 36 — 2026-03-31
+**Asked:** Continued lighting tuning across all clans. Nosferatu needed more green integration. Brujah, Malkavian, Gangrel all re-tuned.
+**Produced:** Updated presets via Copy→paste pipeline:
+- Nosferatu: Key to soft green (#9ae391)
+- Brujah: Key to deep indigo (#331c87), razor tight beam (0.05 angle, 0 penumbra), lightScale 0.2
+- Malkavian: Key to magenta (#ff00ff), tight penumbra 0.3, lightScale 0.9
+- Gangrel: Key to cool blue (#6082e6), contrasting warm gold rim
+**Decision:** Each clan's key light now carries intentional color — moving away from pure neutral keys toward clan-specific character lighting. The rim still provides the accent color edge.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*

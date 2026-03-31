@@ -353,4 +353,56 @@ Each resistance moment follows this structure:
 
 ---
 
+### R-019 — Mobile Performance: Death by a Thousand Cuts (2026-03-31)
+
+**Lead-Up:** The carousel rotation became laggy on mobile after adding smoke columns, clan color lerping, and the full Three.js lighting pipeline. The user reported it was no longer smooth.
+
+**AI Direction:** The AI ran a comprehensive performance audit and identified the cascade: 36 blur-filtered animated smoke elements + 19 getBoundingClientRect calls per rAF frame + 4 React state updates per frame + 5 WebGL re-renders during rotation + 40 CSS-animated elements simultaneously.
+
+**The Pushback:** "The rotation is lagging and no longer smooth on mobile. Where am I bottlenecked?" — the user identified the symptom. The AI needed to find the cause.
+
+**Resolution — Two Rounds:**
+Round 1: Removed blur(8px) from 36 smoke columns (the #1 killer). Batched DOM reads. Capped background WebGL at 5fps. Added will-change hints.
+Round 2: Cut candles 12→8, smoke columns 3→2 per candle (16 total, was 36). Throttled rAF to 30fps. Added CSS contain.
+
+User reported "80% better" after round 1, "much better" after round 2.
+
+**Result:** Smooth rotation on mobile. Total animated elements during rotation: 24 (was 52+). DOM reads per transition halved.
+
+**Iteration Feedback:** Performance death comes from accumulation, not any single feature. Each addition (smoke, color lerping, more lights) was individually reasonable. The cascade was the problem. The AI should have flagged the performance risk when adding 36 blur-filtered animated elements — `filter: blur()` on animated elements is a known mobile GPU killer. A "perf budget" mindset would have caught this at implementation time rather than after the user felt the lag.
+
+---
+
+### R-020 — Dev Panel UX: Save Slots Destroying Work (2026-03-31)
+
+**Lead-Up:** The user was trying to iterate on lighting values using the save slot system. The original UX (tap=load, double-tap=save) had been fixed to (tap=save, hold=load). But a deeper workflow problem emerged.
+
+**AI Direction:** The AI had built the slot system to replace current slider values when loading. This meant the user's in-progress tweaks were lost every time they accidentally loaded a slot.
+
+**The Pushback:** "They aren't tweakable because they don't update live. So I tweak and tap A, B, or C to see the changes which is laborious. Perhaps we now need a return to default button." The user needed a way to reset to source defaults, not just juggle between saved slots.
+
+**Resolution:** Added a "Dflt" (Reset) button that loads `clans.js` source defaults for the current clan into all sliders and clears the active slot. Also replaced the native OS color pickers with inline HSL color wheels that remember their last position via localStorage.
+
+**Result:** Complete tuning workflow: tweak live → compare → tap Dflt to reset to source → tweak again → Copy when satisfied → paste to Discord → AI locks into source.
+
+**Iteration Feedback:** The tuning pipeline has three states: source defaults, saved presets, and live tweaks. The original system only handled two (saved vs live). The Reset button closes the loop by providing a reliable way back to source. The color wheel replacement addressed a separate friction point — the native mobile color picker was stateless and required full OS navigation for every color change. Both were workflow problems, not feature problems. The AI should pay attention to how tools are *used in sequence*, not just whether individual features work.
+
+---
+
+### R-021 — Background Characters: Invisible Carousel (2026-03-31)
+
+**Lead-Up:** After the value contrast pass crushed background characters to 4-12% brightness with 0.15 Three.js light intensity, the user reported they were invisible. The carousel had no visual purpose if you couldn't see who was on it.
+
+**AI Direction:** The AI's first fix bumped CSS brightness to 7-17% and Three.js intensity to 0.4-0.9 (depth-scaled). But the user still couldn't see them. The issue: per-clan `lightScale` values (0.3-0.7) were being multiplied against the background intensity. Tremere at lightScale 0.3 meant backgrounds got `0.4 * 0.3 = 0.12` — nearly nothing.
+
+**The Pushback:** "And definitely cannot see background characters still." — reported after the first fix was deployed.
+
+**Resolution:** Decoupled background character lighting from per-clan lightScale. Background characters now get a fixed intensity (0.6-1.0 depth-scaled) regardless of the active clan's tuning. The front character's lightScale only affects the front character.
+
+**Result:** Background characters readable across all clans. The carousel shows recognizable silhouettes with enough form to be interesting.
+
+**Iteration Feedback:** When a per-clan tuning parameter (lightScale) affects elements it shouldn't (background characters), the bug is invisible during per-clan tuning because you're focused on the front character. The AI should have anticipated that lightScale values below 0.5 would crush the already-dim background characters. Tuning parameters should have clear scope — lightScale should only affect the character being tuned, not the entire scene.
+
+---
+
 *This is a living document. Entries are raw and chronological. The README gets the curated version.*
