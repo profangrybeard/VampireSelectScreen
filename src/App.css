@@ -315,7 +315,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 480ms ease;
+  transition: transform 552ms ease;
   transform-style: preserve-3d;
   animation: pentagram-pulse 6s ease-in-out infinite;
   overflow: visible;
@@ -330,8 +330,8 @@
 }
 
 @keyframes pentagram-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
+  0%, 100% { opacity: 0.5; filter: brightness(0.8); }
+  50% { opacity: 0.85; filter: brightness(1.3); }
 }
 
 /* ---- Candle slots (screen-space, vertical) ---- */

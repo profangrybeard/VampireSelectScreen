@@ -162,7 +162,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   // On every rotation change, start an rAF loop that tracks dot positions
   // for the duration of the CSS transition. The silhouettes follow frame-by-frame.
   useEffect(() => {
-    const TRANSITION_MS = 540; // slightly longer than the 480ms CSS transition
+    const TRANSITION_MS = 620; // slightly longer than the 552ms CSS transition
     const startTime = performance.now();
 
     let lastTick = 0;
@@ -519,7 +519,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         // barely visible, no internal lighting competing with main char.
         const brightness = i === activeIndex
           ? 0.20 + depthNorm * 0.60
-          : 0.07 + depthNorm * 0.10;
+          : 0.10 + depthNorm * 0.12;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
@@ -540,7 +540,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         // they should be true silhouettes, no specular or normal detail.
         const lightIntensity = i === activeIndex
           ? (0.8 + depthNorm * 2.0) * lerpedLightScale
-          : 0.15 * lerpedLightScale;
+          : (0.4 + depthNorm * 0.5) * lerpedLightScale;
 
         return (
           <div
