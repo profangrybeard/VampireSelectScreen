@@ -291,4 +291,66 @@ Each resistance moment follows this structure:
 
 ---
 
+### R-016 — Brujah Interior Holes from Threshold Stripping (2026-03-30)
+
+**Lead-Up:** The Brujah character rendered with random holes — light breaking through the figure in patches, visible especially on the dark leather jacket.
+
+**AI Direction:** When stripping the black background earlier (R-012), the AI used a threshold approach: any pixel with RGB all ≤ 15 became transparent. This was fast but lossy — it couldn't distinguish between "black background pixel" and "dark shadow inside the figure." The Brujah's dark jacket, ink strokes, and shadow areas all fell below the threshold and got deleted. ~15,700 interior holes.
+
+**The Pushback:** "It almost looks like he has random holes in him. Any idea what is going on?" — the professor spotted it immediately as a rendering artifact.
+
+**Resolution:** Reprocessed the original diffuse using the Brujah normal map's alpha channel as the mask instead. The normal map was delivered with proper transparency from the source tool, so it had an authoritative figure boundary. Applied the normal's alpha to the diffuse pixel-by-pixel (with resolution scaling since they were different sizes). Interior holes dropped from 15,700 to 587 (legitimate gaps).
+
+**Result:** Solid figure rendering. No more Swiss cheese.
+
+**Iteration Feedback:** Threshold-based background removal is fundamentally the wrong tool for dark artwork. When the figure IS dark, you can't separate it from a dark background by color alone. The correct approach is to use an authoritative alpha source — in this case, the normal map that was generated with proper transparency. The AI should have flagged the risk when it first chose the threshold approach: "this figure has a lot of dark values that will be close to the background threshold." Flood-fill was tried as a middle ground but failed because dark interior areas connected to the background through thin pixel gaps.
+
+---
+
+### R-017 — Colored Spotlight Washing Out Normal Detail (2026-03-30)
+
+**Lead-Up:** Each clan had been tuned with a single colored spotlight as the primary light source (red for Tremere, violet for Malkavian, orange for Brujah, etc.). The presets looked dramatic in isolation during tuning.
+
+**AI Direction:** The AI implemented the user's tuned presets directly — single colored spotlights at high intensity. This was technically correct (it matched the JSON the user pasted), but the AI didn't flag the compositional problem.
+
+**The Pushback:** "Your lighting looks like someone is shining a colored flashlight directly at the characters' chests. The Tremere is completely washed out in red, losing all the beautiful normal map detail on her dress. The Gangrel is only lit on his left shoulder, leaving his entire lower body in a pitch-black void." The professor then prescribed the fix: neutral key light for detail, colored rim light for identity.
+
+**Resolution:** Split every clan's single colored spotlight into two: (1) Neutral white key light (#d4d0cc) in the same tuned position/angle — shows normal map detail with pure value contrast. (2) Clan-colored rim light from behind/above — catches edges with colored highlight. Also added a low fill point light (#998888, y=-0.8) to rescue the lower body from vanishing into black.
+
+**Result:** Front = readable detail. Edges = clan color identity. Lower body = visible. Three-light rig (key + rim + low fill) per character.
+
+**Iteration Feedback:** Colored lights as the primary illumination source destroy value contrast on normal-mapped surfaces. The AI should have recognized that saturated colored light + dark material = mud. The photography principle is well-known: key light should be neutral to show detail; color belongs on rims, practicals, and accents. The AI accepted the colored presets without questioning whether color-as-key-light would work in a dark scene. In future, when a user tunes a saturated colored spotlight as the main light, the AI should flag the potential wash-out before committing.
+
+---
+
+### R-018 — Graphic Poster vs 3D Atmosphere — Three Iterations to Synthesis (2026-03-30)
+
+**Lead-Up:** The composition needed a stronger graphic element to frame the character and introduce clan color. The ritual circle (occult geometry) was too subtle.
+
+**AI Direction — Iteration 1:** Replaced the ritual circle with a solid clan-colored vertical rectangle (graphic backdrop/banner). Clean, flat, modern. Title aligned to its left edge for a strong vertical axis. This was the "graphic poster" approach.
+
+**AI Direction — Iteration 2:** User asked to extend the banner to the bottom and hide the 3D floor elements (pentagram, candles, smoke) for a pure flat presentation. The AI complied and hid everything.
+
+**The Pushback:** "Changed my mind on the last revision. We lost some 3D magic with that change. How do we keep pentagram, candles, smoke wisps and have it play nice with banner, graphic poster idea?" — the pure flat approach killed the atmosphere.
+
+**AI Direction — Iteration 3:** Restored all 3D floor elements, dropped banner to z-0 behind them. Hybrid: banner as backdrop, ritual floor as foreground. Better, but still two competing visual languages.
+
+**The Pushback:** "Let us try another integration of the two approaches. Fill the pentagram circle with the color of the clan. Hide the banner behind the characters. Draw thick bands of smoke from the candles to the top frame in clan color, replacing the graphic poster."
+
+**Resolution — Iteration 4 (Final):** Pentagram circle filled with clan accent color (radial gradient). Banner removed entirely. Small smoke wisps replaced with thick clan-colored smoke columns (8-14px wide, heavily blurred, 500px tall) rising from each candle to the top of the frame. 36 total columns with slow staggered sway. The smoke IS the color element — living atmospheric color rising from the ritual floor.
+
+**Result:** The synthesis works. The color story runs: pentagram floor (filled with accent) → candle flames (tinted to accent) → smoke columns (accent color, rising) → all lerping smoothly between clans. No static rectangle. The color is alive and comes from a diegetic source (the ritual).
+
+**Iteration Feedback — for the classroom:**
+
+1. **The first good idea is rarely the final good idea.** The graphic banner worked as a concept but needed three more iterations to find the right execution. Each iteration was informed by the previous failure: too subtle (ritual circle) → too flat (solid banner) → too sterile (hide 3D) → just right (smoke carries the color from the floor).
+
+2. **"Changed my mind" is progress, not failure.** The user saw the flat poster approach, recognized what was lost (3D atmosphere), and pushed for synthesis. The AI's job was to execute each direction quickly enough that the user could evaluate and redirect without losing momentum. Four iterations in ~15 minutes is the right speed.
+
+3. **Diegetic color > arbitrary color.** A colored rectangle is decoration. Colored smoke rising from ritual candles on a clan-colored pentagram is *storytelling*. The color has a source, a path, and a purpose. This is the difference between art direction and graphic design.
+
+4. **The AI should propose synthesis earlier.** When the user said "hide the 3D elements," the AI could have asked "what if we keep the 3D but make IT the color source?" instead of complying with a binary choice. The synthesis was always the better answer — the AI just didn't suggest it.
+
+---
+
 *This is a living document. Entries are raw and chronological. The README gets the curated version.*

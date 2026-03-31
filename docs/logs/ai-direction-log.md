@@ -100,6 +100,70 @@
 **Produced:** Replaced flat fill with per-candle SVG linearGradient: #1a1816 (base, near-black) → #3a3530 (40%) → #706858 (85%) → #8a8070 (top, muted warm). Wax top toned down from #cdc5b5 to #8a8070 to match gradient endpoint. The candles now darken into the floor shadow and only show wax color where the flame light would catch them.
 **Decision:** The gradient sells the illusion that the flame is the light source for the wax itself. Bottom of candle = floor shadow zone. Top of candle = flame-lit zone. The candles are no longer competing with the characters for attention.
 
+## Entry 20 — 2026-03-30
+**Asked:** Add dark inner rim / cel-shader edge effect since we already have the outer glow. Dark on the inside of the edge.
+**Produced:** Fresnel-like darkening in the character shader using normal map Z component. Where normals face away from camera (form edges), pixels darken. Two tuneable uniforms: rimDarkness (intensity) and rimWidth (narrow edge vs broad falloff). Dev sliders in Texture panel. Edge-guarded by alpha mask to avoid artifacts at the alpha boundary.
+**Decision:** Pairs with existing outer glow — dark inside edge + bright outside edge = cel-shader read. Defaults to off until dialed per clan.
+
+## Entry 21 — 2026-03-30
+**Asked:** Save slot UX is backwards — tap loads (destructive), double-tap saves (unreliable on mobile). Need to fix.
+**Produced:** Redesigned: tap = save (flashes green), long-press 500ms = load (flashes blue with ↓ arrow). Empty slots show dashed outline at 50% opacity.
+**Decision:** Safe action = easy gesture. Destructive action = deliberate hold. Mobile-first UX principle.
+
+## Entry 22 — 2026-03-30
+**Asked:** Tremere art drop — diffuse + normal map. Last clan to get full art.
+**Produced:** Tremere diffuse and normal map (1440x2880 RGBA with proper alpha) dropped into pipeline. All 5 clans now rendering via Three.js with normal maps. Zero SVG fallbacks remaining.
+**Decision:** Milestone — full art pipeline complete. Every clan has diffuse + normal + ink normalization + soft-light tint + dark rim shader.
+
+## Entry 23 — 2026-03-30
+**Asked:** Crush blacks, spike whites. Background too light, background figures too visible with competing highlights, main character needs stronger directed light.
+**Produced:** Background pushed to #030303. Background figure brightness crushed to 4-12% (was 15-47%). Three.js light intensity on non-active characters dropped to 0.15 (was 0.5-2.0). Front character fill boosted. Emissive reduced. All clan spotlights upgraded to strong key lights (intensity 8-9). Pentagram line gradients brightened at center.
+**Decision:** Aggressive value contrast. Background figures are true silhouettes now — no specular, no normal detail, no competing light.
+
+## Entry 24 — 2026-03-30
+**Asked:** Set all clans to new defaults: tint white @ 0.7, normal 3.7, rough 0.55, rim darkness 0.6, width 0.12. Stomp local changes.
+**Produced:** Updated all clan defaults in clans.js. Bumped settings version to auto-clear localStorage. Updated App.jsx initial state values to match.
+**Decision:** Clean slate for fresh iteration with the new value contrast pass as baseline.
+
+## Entry 25 — 2026-03-30
+**Asked:** Fix the fuzzy halo around every character — looks like badly masked 2D stickers.
+**Produced:** Five stacked fixes: (1) Disabled WebGL antialias — biggest offender, AA bled edge pixels. (2) Enabled premultipliedAlpha for correct compositing. (3) Switched transparent:true to transparent:false — pure alpha-test cutout. (4) alphaTest bumped 0.5→0.65 for sharper clip. (5) Rim shader edge guard via smoothstep on alpha.
+**Decision:** All lighting now 100% inside Three.js shader. No CSS effects on figures. Razor-sharp silhouette edges.
+
+## Entry 26 — 2026-03-30
+**Asked:** Replace ritual circle with clan-colored graphic backdrop. Strong geometric frame behind main character. Align title to backdrop edge.
+**Produced:** Tall vertical rectangle filled with clan accent color (from design-intent palette). Fades at top via gradient. Title and stats left-aligned to backdrop edge at 31% for strong vertical line. Clan accent colors added to clans.js.
+**Decision:** The graphic backdrop introduces intentional color without relying on noisy lights. Title alignment creates invisible vertical axis through the composition. Later evolved into smoke columns (see Entry 30).
+
+## Entry 27 — 2026-03-30
+**Asked:** Make the floor pentagram lerp to clan color when switching characters. Lines and candle color should smoothly transition.
+**Produced:** Computed lerpedAccent from prev/active clan accent colors. Applied to: pentagram line gradients, star gradient, fill gradient, candle flame gradients, floor glow (via CSS custom property + color-mix), candle floor circles, backdrop panel. All interpolate during 400ms carousel rotation.
+**Decision:** The entire floor plane now shifts color identity per clan. The color story runs from pentagram → candles → smoke → all in accent.
+
+## Entry 28 — 2026-03-30
+**Asked:** Brujah renders with random holes — lighting breaks through the figure.
+**Produced:** Root cause: the threshold-based background strip (RGB ≤ 15 → transparent) had punched ~15,700 holes in the figure's dark areas (jacket shadows, dark ink). Fixed by using the Brujah normal map's alpha channel as the mask instead — the normal had proper transparency from source. Interior holes dropped from 15,700 to 587.
+**Decision:** Normal map alpha is the authoritative figure boundary. Threshold stripping is lossy for dark artwork.
+
+## Entry 29 — 2026-03-30
+**Asked:** Lock all 5 clan lighting presets from on-device tuning sessions.
+**Produced:** Each clan received individually tuned presets via Copy→paste JSON workflow:
+- Nosferatu: Green key from right, lavender tint, rim 0.88
+- Brujah: Orange underlight, mint tint 0.9, ink 0.95, wide rim 0.3
+- Malkavian: Violet key, zero roughness, heavy ink 0.83, pink tint
+- Gangrel: Gold key from right-low, lavender tint 0.88
+- Tremere: Pure red key from left, normal 4.9, heavy ink 0.87
+**Decision:** Mobile-first tuning → Copy JSON → paste to Claude → lock in source. Pipeline proven for per-clan iteration.
+
+## Entry 30 — 2026-03-30
+**Asked:** Kill the outer glow halo, fix flashlight lighting, rescue lower body, unify floor and banner.
+**Produced:** Four-step art direction pass:
+1. Removed CSS drop-shadow rim light entirely — Pass 1 holdover creating sticker-cutout halos.
+2. Split each clan's single colored spotlight into neutral white key (front, shows detail) + clan-colored rim (behind, catches edges). All 5 clans restructured.
+3. Added low fill point light (#998888, y=-0.8) to rescue boots/legs from black void. Front character only.
+4. Tried full graphic poster (hide floor elements) → too flat, lost 3D magic → restored floor elements on top of banner → final: replaced banner with clan-colored smoke columns rising from candles + pentagram circle filled with accent color. Living atmospheric color replaces static rectangle.
+**Decision:** The smoke columns are the synthesis — they carry clan color from the ritual floor upward through the frame as living atmosphere, maintaining both the 3D depth and the graphic color identity. Key+rim split preserves normal map detail while introducing clan color at the edges only.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
