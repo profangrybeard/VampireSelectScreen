@@ -362,6 +362,7 @@ export default function App() {
         devLineSmooth={devLineSmooth}
         devRimDarkness={devRimDarkness}
         devRimWidth={devRimWidth}
+        holdProgress={holdProgress}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -422,7 +423,6 @@ export default function App() {
       {/* Hold-to-Embrace — covers center silhouette area */}
       <EmbraceHold
         active={selectionPhase === 'browse' && !transitioning}
-        holdProgress={holdProgress}
         onHoldStart={handleHoldStart}
         onHoldProgress={handleHoldProgress}
         onHoldComplete={handleHoldComplete}

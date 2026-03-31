@@ -10,7 +10,7 @@ import { useRef, useCallback, useEffect } from 'react';
 
 const EMBRACE_DURATION_MS = 2000;
 
-export default function EmbraceHold({ active, holdProgress, onHoldStart, onHoldProgress, onHoldComplete, onHoldCancel }) {
+export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHoldComplete, onHoldCancel }) {
   const holding = useRef(false);
   const startTime = useRef(0);
   const rafRef = useRef(null);
@@ -72,14 +72,6 @@ export default function EmbraceHold({ active, holdProgress, onHoldStart, onHoldP
       className="embrace-hold"
       onPointerDown={handleDown}
       onPointerUp={handleUp}
-    >
-      {/* Vignette — darkens screen edges as you hold */}
-      <div
-        className="embrace-vignette"
-        style={{
-          opacity: holdProgress * 0.85,
-        }}
-      />
-    </div>
+    />
   );
 }

@@ -648,21 +648,6 @@
   -webkit-touch-callout: none;
 }
 
-/* Progressive vignette — darkens screen edges during hold */
-.embrace-vignette {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 50% 50% at center,
-    transparent 10%,
-    rgba(0, 0, 0, 0.4) 50%,
-    rgba(0, 0, 0, 0.95) 100%
-  );
-  opacity: 0;
-  transition: opacity 150ms ease;
-}
 
 /* Ritual stage — wraps pentagram, candles, and silhouettes */
 .ritual-stage {
@@ -703,10 +688,14 @@
   pointer-events: auto;
 }
 
-/* The iframe wrapper clips the oversized iframe */
+/* The iframe wrapper clips the oversized iframe.
+   Inset 15% top/bottom to shrink ~30%, keeping end logo in frame. */
 .trailer-iframe-wrap {
   position: absolute;
-  inset: 0;
+  top: 15%;
+  bottom: 15%;
+  left: 0;
+  right: 0;
   overflow: hidden;
 }
 

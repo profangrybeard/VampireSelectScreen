@@ -114,7 +114,7 @@ function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
-export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15, devRimDarkness = 0.0, devRimWidth = 0.5, holdProgress = 0, selectionPhase = 'browse' }) {
+export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15, devRimDarkness = 0.0, devRimWidth = 0.5, holdProgress = 0 }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -269,21 +269,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   const activeAccent = CLANS[activeIndex]?.accent || '#333';
   const lerpedAccent = lerpColor(prevAccent, activeAccent, lerpT);
 
-  // Compute focal point for hold zoom — active character's upper-body area.
-  // dotPositions give us the foot position; shift up ~20% for chest.
-  const activeDot = dotPositions[activeIndex];
-  const holdFocalX = activeDot ? activeDot.x : 50;
-  const holdFocalY = activeDot ? activeDot.y - 20 : 50;
-  const holdZoom = selectionPhase === 'holding' ? 1 + holdProgress * 0.15 : 1;
-
   return (
-    <div
-      className={`ritual-stage${selectionPhase === 'holding' ? ' ritual-stage--holding' : ''}`}
-      style={{
-        transformOrigin: `${holdFocalX}% ${holdFocalY}%`,
-        transform: holdZoom !== 1 ? `scale(${holdZoom})` : undefined,
-      }}
-    >
+    <div className="ritual-stage">
       {/* Floor glow — the ritual light source.
           Positioned on the pentagram floor plane, below all characters.
           All silhouettes are uplit from this point. */}
@@ -293,7 +280,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           style={{
             left: `${floorLightPos.x}%`,
             top: `${floorLightPos.y}%`,
-            opacity: transitioning ? 0.15 : 0.55,
+            opacity: (transitioning ? 0.15 : 0.55) * (1 - holdProgress),
             '--glow-color': lerpColor('#c8c0b0', lerpedAccent, 0.5),
           }}
         />
@@ -305,6 +292,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           className="pentagram-perspective"
           style={{
             transform: `rotateX(${TILT_DEG}deg) rotate(${parentRotation}deg)`,
+            opacity: 1 - holdProgress * 0.9,
           }}
         >
           <svg
@@ -435,6 +423,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               width: `${w}px`,
               height: `${h}px`,
               transform: 'translate(-50%, -100%)',
+              opacity: 1 - holdProgress,
               zIndex,
             }}
           >
@@ -551,11 +540,19 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         // Light intensity: front character scales with dev lightScale.
         // Background figures get a fixed subtle fill — NOT scaled by
         // lightScale so they're always readable regardless of per-clan tuning.
+        // During hold: all non-key lights dim to 0.
+        const hp = holdProgress;
         const lightIntensity = i === activeIndex
-          ? (0.8 + depthNorm * 2.0) * lerpedLightScale
-          : 0.6 + depthNorm * 0.4;
+          ? (0.8 + depthNorm * 2.0) * lerpedLightScale * (1 - hp)
+          : (0.6 + depthNorm * 0.4) * (1 - hp);
 
-        // (Hold zoom now applied to .ritual-stage wrapper, not per-silhouette)
+        // During hold: dim rim/fill spots, shrink key angle. Key intensity stays.
+        const holdSpots = hp > 0 && i === activeIndex
+          ? lerpedSpots.map((s, si) => si === 0
+            ? { ...s, angle: s.angle * (1 - hp * 0.6) }  // shrink key angle
+            : { ...s, intensity: (s.intensity ?? 3) * (1 - hp) }  // dim non-key
+          )
+          : lerpedSpots;
 
         return (
           <div
@@ -566,14 +563,11 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               left: `${pos.x}%`,
               top: `${pos.y}%`,
               transform: `translate(-50%, -100%) scale(${silScale})`,
-              opacity,
+              opacity: i === activeIndex ? opacity : opacity * (1 - hp),
               filter: `brightness(${brightness})`,
               zIndex,
-              // NO transition — position is updated every frame by rAF
             }}
           >
-            {/* Each slot uses its OWN clan's texture preset.
-                Only the active/front character gets lerped + dev overrides. */}
             <SilhouetteLoader
               clanId={clanIds[i] || ''}
               FallbackSVG={Silhouette}
@@ -582,7 +576,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               normalScale={i === activeIndex ? lerpedNormalScale : (CLANS[i]?.lighting?.normalScale ?? 1.5)}
               roughness={i === activeIndex ? lerpedRoughness : (CLANS[i]?.lighting?.roughness ?? 0.4)}
               spotActive={i === activeIndex}
-              spotPos={{ spots: lerpedSpots }}
+              spotPos={{ spots: holdSpots }}
               tint={i === activeIndex ? lerpedTint : (CLANS[i]?.lighting?.tint || { color: '#000000', opacity: 0 })}
               lineWeight={i === activeIndex ? lerpedLineWeight : (CLANS[i]?.lighting?.lineWeight ?? 0.5)}
               lineSmooth={i === activeIndex ? lerpedLineSmooth : (CLANS[i]?.lighting?.lineSmooth ?? 0.15)}
