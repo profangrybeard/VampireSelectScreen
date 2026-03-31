@@ -439,6 +439,7 @@ export default function App() {
       {/* Trailer — vertically cropped YouTube embed */}
       <TrailerEmbed
         visible={selectionPhase === 'trailer'}
+        preload={selectionPhase === 'holding' || selectionPhase === 'blackout'}
         onClose={handleTrailerClose}
       />
     </div>

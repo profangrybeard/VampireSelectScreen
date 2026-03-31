@@ -734,6 +734,26 @@
   background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
 }
 
+/* Trailer credit */
+.trailer-credit {
+  position: absolute;
+  bottom: 4%;
+  left: 0;
+  right: 0;
+  z-index: 47;
+  text-align: center;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  animation: credit-fade-in 2s ease 1s forwards;
+}
+
+@keyframes credit-fade-in {
+  to { opacity: 1; }
+}
+
 /* Trailer controls */
 .trailer-controls {
   position: absolute;

@@ -6,27 +6,32 @@
  * to show only the center slice — a natural vertical crop.
  *
  * Autoplay requires muted on mobile. Unmute toggle provided.
+ *
+ * preload: when true, loads the YT API and starts buffering
+ * the video in the background before the trailer is shown.
  */
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 const VIDEO_ID = 'OEi7nQbNDog';
 
-export default function TrailerEmbed({ visible, onClose }) {
+export default function TrailerEmbed({ visible, preload, onClose }) {
   const [muted, setMuted] = useState(true);
   const [playerReady, setPlayerReady] = useState(false);
   const playerRef = useRef(null);
   const containerRef = useRef(null);
   const iframeRef = useRef(null);
+  const apiLoaded = useRef(false);
 
-  // Load YouTube IFrame API
+  // Load YouTube IFrame API when preloading or visible
   useEffect(() => {
-    if (!visible) return;
+    if (!visible && !preload) return;
+
     if (window.YT?.Player) {
       initPlayer();
       return;
     }
 
-    // Load the API script
+    // Load the API script once
     if (!document.getElementById('yt-iframe-api')) {
       const tag = document.createElement('script');
       tag.id = 'yt-iframe-api';
@@ -34,19 +39,33 @@ export default function TrailerEmbed({ visible, onClose }) {
       document.head.appendChild(tag);
     }
 
-    window.onYouTubeIframeAPIReady = () => initPlayer();
+    if (!apiLoaded.current) {
+      window.onYouTubeIframeAPIReady = () => {
+        apiLoaded.current = true;
+        initPlayer();
+      };
+    }
 
     return () => {
-      window.onYouTubeIframeAPIReady = null;
+      if (!apiLoaded.current) window.onYouTubeIframeAPIReady = null;
     };
+  }, [visible, preload]);
+
+  // When transitioning from preload to visible, play the video
+  useEffect(() => {
+    if (visible && playerRef.current) {
+      try { playerRef.current.playVideo(); } catch {}
+    }
   }, [visible]);
 
   function initPlayer() {
     if (playerRef.current) {
-      // Already initialized — just play
-      try { playerRef.current.playVideo(); } catch {}
+      if (visible) {
+        try { playerRef.current.playVideo(); } catch {}
+      }
       return;
     }
+    if (!iframeRef.current) return;
     playerRef.current = new window.YT.Player(iframeRef.current, {
       videoId: VIDEO_ID,
       playerVars: {
@@ -84,15 +103,15 @@ export default function TrailerEmbed({ visible, onClose }) {
     onClose?.();
   }, [onClose]);
 
-  // Destroy player when hidden
+  // Destroy player when hidden and not preloading
   useEffect(() => {
-    if (!visible && playerRef.current) {
+    if (!visible && !preload && playerRef.current) {
       try { playerRef.current.destroy(); } catch {}
       playerRef.current = null;
       setPlayerReady(false);
       setMuted(true);
     }
-  }, [visible]);
+  }, [visible, preload]);
 
   return (
     <div
@@ -104,9 +123,16 @@ export default function TrailerEmbed({ visible, onClose }) {
         <div ref={iframeRef} className="trailer-iframe-target" />
       </div>
 
-      {/* Top gradient feather */}
+      {/* Top/bottom gradient feathers */}
       <div className="trailer-feather trailer-feather--top" />
       <div className="trailer-feather trailer-feather--bottom" />
+
+      {/* Credit */}
+      {visible && (
+        <div className="trailer-credit">
+          World of Darkness &middot; CCP Games, 2010
+        </div>
+      )}
 
       {/* Controls */}
       {visible && (
