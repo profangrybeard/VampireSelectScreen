@@ -293,6 +293,8 @@ export default function App() {
       <ClanTitle
         name={activeClan.name}
         archetype={activeClan.archetype}
+        accent={activeClan.accent}
+        statsOpen={statsOpen}
         onClick={toggleStats}
       />
 

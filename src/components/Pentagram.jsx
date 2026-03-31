@@ -162,7 +162,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   // On every rotation change, start an rAF loop that tracks dot positions
   // for the duration of the CSS transition. The silhouettes follow frame-by-frame.
   useEffect(() => {
-    const TRANSITION_MS = 450; // slightly longer than the 400ms CSS transition
+    const TRANSITION_MS = 540; // slightly longer than the 480ms CSS transition
     const startTime = performance.now();
 
     let lastTick = 0;
