@@ -321,6 +321,7 @@
    Staggered via nth-child so they don't pulse in unison. */
 .candle-flame {
   transform-origin: center bottom;
+  will-change: transform, opacity;
   animation: flame-flicker 2s ease-in-out infinite;
 }
 
@@ -348,19 +349,21 @@
   position: absolute;
   bottom: 80%;
   left: 50%;
-  width: 12px;
+  width: 28px;
   height: 500px;
-  border-radius: 6px;
+  border-radius: 14px;
   background: linear-gradient(
     to top,
     var(--smoke-color, #444) 0%,
-    color-mix(in srgb, var(--smoke-color, #444) 60%, transparent) 40%,
+    color-mix(in srgb, var(--smoke-color, #444) 40%, transparent) 35%,
     transparent 100%
   );
-  filter: blur(8px);
+  /* No blur filter — soft look from wide width + low opacity + border-radius.
+     blur(8px) on 36 animated elements was the #1 mobile GPU killer. */
   pointer-events: none;
   opacity: 0;
   transform-origin: bottom center;
+  will-change: transform, opacity;
   animation: smoke-column var(--smoke-dur, 6s) ease-in-out infinite;
   animation-delay: var(--smoke-delay, 0s);
 }
@@ -369,20 +372,19 @@
   --smoke-dur: 7s;
   --smoke-delay: 0s;
   --smoke-sway: 15px;
-  width: 14px;
-  opacity: 0.2;
+  width: 32px;
 }
 .candle-smoke--1 {
   --smoke-dur: 9s;
   --smoke-delay: -3s;
   --smoke-sway: -12px;
-  width: 10px;
+  width: 24px;
 }
 .candle-smoke--2 {
   --smoke-dur: 8s;
   --smoke-delay: -5.5s;
   --smoke-sway: 10px;
-  width: 8px;
+  width: 18px;
 }
 
 @keyframes smoke-column {

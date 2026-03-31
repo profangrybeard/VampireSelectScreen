@@ -295,6 +295,13 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     rimUniforms.uRimDarkness.value = rimDarkness;
     rimUniforms.uRimWidth.value = rimWidth;
 
+    // Skip render for background characters during rapid updates —
+    // they're crushed to silhouettes and don't need 60fps.
+    if (!spotActive) {
+      const now = performance.now();
+      if (now - (stateRef.current._lastBgRender || 0) < 200) return; // 5fps cap
+      stateRef.current._lastBgRender = now;
+    }
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth]);

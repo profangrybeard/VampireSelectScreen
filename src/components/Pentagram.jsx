@@ -123,48 +123,42 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   const centerRef = useRef(null);
   const candleRefs = useRef([]);
   const rafRef = useRef(null);
+  // Candle/center positions use refs — they don't need to trigger React re-renders.
+  // Only dot positions and lerpT trigger re-renders (silhouette placement).
   const [dotPositions, setDotPositions] = useState([]);
-  const [centerPos, setCenterPos] = useState(null);
+  const centerPosRef = useRef(null);
+  const candlePosRef = useRef([]);
   const [candlePositions, setCandlePositions] = useState([]);
   const [lerpT, setLerpT] = useState(1); // 0 = at prev clan, 1 = at active clan
 
-  // Read dot positions from the DOM — called every animation frame during transitions
+  // Read all positions in one batched DOM read — called every animation frame.
+  // All getBoundingClientRect calls happen together before any state updates
+  // to avoid interleaved layout thrashing.
   const readPositions = useCallback(() => {
     const screen = containerRef.current?.closest('.screen');
     if (!screen) return;
     const screenRect = screen.getBoundingClientRect();
+    const sl = screenRect.left, st = screenRect.top;
+    const sw = screenRect.width, sh = screenRect.height;
 
-    const positions = dotRefs.current.map((dot) => {
-      if (!dot) return { x: 50, y: 50 };
-      const r = dot.getBoundingClientRect();
-      return {
-        x: ((r.left + r.right) / 2 - screenRect.left) / screenRect.width * 100,
-        y: ((r.top + r.bottom) / 2 - screenRect.top) / screenRect.height * 100,
-      };
-    });
+    // Batch all DOM reads first (no state updates between reads)
+    const dotRects = dotRefs.current.map(d => d?.getBoundingClientRect());
+    const centerRect = centerRef.current?.getBoundingClientRect();
+    const candleRects = candleRefs.current.map(d => d?.getBoundingClientRect());
 
-    setDotPositions(positions);
+    // Convert to percentages
+    const toPos = (r) => r ? {
+      x: ((r.left + r.right) / 2 - sl) / sw * 100,
+      y: ((r.top + r.bottom) / 2 - st) / sh * 100,
+    } : { x: 50, y: 50 };
 
-    // Track center point for lighting
-    const cd = centerRef.current;
-    if (cd) {
-      const cr = cd.getBoundingClientRect();
-      setCenterPos({
-        x: ((cr.left + cr.right) / 2 - screenRect.left) / screenRect.width * 100,
-        y: ((cr.top + cr.bottom) / 2 - screenRect.top) / screenRect.height * 100,
-      });
-    }
+    // Now set state (single batch)
+    setDotPositions(dotRects.map(toPos));
+    centerPosRef.current = centerRect ? toPos(centerRect) : null;
 
-    // Track candle anchor positions
-    const cPositions = candleRefs.current.map((dot) => {
-      if (!dot) return { x: 50, y: 50 };
-      const r = dot.getBoundingClientRect();
-      return {
-        x: ((r.left + r.right) / 2 - screenRect.left) / screenRect.width * 100,
-        y: ((r.top + r.bottom) / 2 - screenRect.top) / screenRect.height * 100,
-      };
-    });
-    setCandlePositions(cPositions);
+    const cPos = candleRects.map(toPos);
+    candlePosRef.current = cPos;
+    setCandlePositions(cPos);
   }, []);
 
   // On every rotation change, start an rAF loop that tracks dot positions
@@ -196,9 +190,10 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   // Floor-level light position — the glow sits on the pentagram floor,
   // below all characters. We offset the tracked center down toward the
   // front character's feet so all shadows push upward (uplight).
-  const floorLightPos = centerPos ? {
-    x: centerPos.x,
-    y: centerPos.y + 18,
+  const cp = centerPosRef.current;
+  const floorLightPos = cp ? {
+    x: cp.x,
+    y: cp.y + 18,
   } : null;
 
   // Compute uplight style for a silhouette based on its position
