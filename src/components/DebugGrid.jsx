@@ -8,6 +8,7 @@
  * Temporary — removed before final build.
  */
 import { useState, useEffect, useRef } from 'react';
+import ColorWheel from './ColorWheel.jsx';
 
 // Golden ratio
 const PHI = 1.618033988749895;
@@ -279,15 +280,12 @@ export default function DebugGrid({
               onChange={(e) => onSpotTargetY?.(parseFloat(e.target.value))}
             />
           </label>
-          <div className="dev-panel__sep">COLOR</div>
-          <label>
-            <span>Spot</span>
-            <input type="color"
-              value={devSpotColor}
-              onChange={(e) => onSpotColor?.(e.target.value)}
-              style={{ width: '60px', height: '20px', border: '1px solid #444', background: 'none', cursor: 'pointer' }}
-            />
-          </label>
+          <div className="dev-panel__sep">SPOT COLOR</div>
+          <ColorWheel
+            value={devSpotColor}
+            onChange={(c) => onSpotColor?.(c)}
+            storageKey="spot"
+          />
         </div>
       )}
 
@@ -339,15 +337,12 @@ export default function DebugGrid({
               onChange={(e) => onRimWidth?.(parseFloat(e.target.value))}
             />
           </label>
-          <div className="dev-panel__sep">SOFT-LIGHT TINT</div>
-          <label>
-            <span>Color</span>
-            <input type="color"
-              value={devTintColor}
-              onChange={(e) => onTintColor?.(e.target.value)}
-              style={{ width: '60px', height: '20px', border: '1px solid #444', background: 'none', cursor: 'pointer' }}
-            />
-          </label>
+          <div className="dev-panel__sep">TINT COLOR</div>
+          <ColorWheel
+            value={devTintColor}
+            onChange={(c) => onTintColor?.(c)}
+            storageKey="tint"
+          />
           <label>
             <span>Opacity {devTintOpacity.toFixed(2)}</span>
             <input type="range" min="0" max="1" step="0.02"
