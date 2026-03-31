@@ -292,7 +292,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           className="pentagram-perspective"
           style={{
             transform: `rotateX(${TILT_DEG}deg) rotate(${parentRotation}deg)`,
-            opacity: 1 - holdProgress * 0.9,
+            opacity: 1 - holdProgress,
           }}
         >
           <svg
