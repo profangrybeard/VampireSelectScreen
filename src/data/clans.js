@@ -5,6 +5,15 @@
  * The active character uses these; background characters get none.
  * Lighting values are tuned via the Dev panel, then saved here.
  *
+ * Lighting strategy (key + rim):
+ *   Spot 1 — Key light: neutral white/grey, front-facing. Shows
+ *            normal map detail (wrinkles, belts, jewelry) with
+ *            pure value contrast.
+ *   Spot 2 — Rim light: clan accent color, from behind/above.
+ *            Catches edges with a brilliant colored highlight that
+ *            ties the character to their clan identity without
+ *            washing out the front detail.
+ *
  * Spotlight shape:
  *   { x, y, z, targetX, targetY, intensity, angle, penumbra }
  */
@@ -28,7 +37,10 @@ const CLANS = [
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#bbffad' },
+        // Key: neutral white, same position/angle as tuned
+        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#d4d0cc' },
+        // Rim: toxic green from behind-above
+        { x: -1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 6.0, angle: 0.35, penumbra: 0.6, color: '#bbffad' },
       ],
     },
   },
@@ -50,7 +62,10 @@ const CLANS = [
       lineWeight: 0.95,
       lineSmooth: 0.12,
       spots: [
-        { x: 0, y: -2, z: 1.2, targetX: -0.1, targetY: 0.5, intensity: 10, angle: 0.22, penumbra: 0.45, color: '#ff6600' },
+        // Key: neutral white from below
+        { x: 0, y: -2, z: 1.2, targetX: -0.1, targetY: 0.5, intensity: 10, angle: 0.22, penumbra: 0.45, color: '#d4d0cc' },
+        // Rim: hot orange from behind-right
+        { x: 1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#ff6600' },
       ],
     },
   },
@@ -72,7 +87,10 @@ const CLANS = [
       lineWeight: 0.83,
       lineSmooth: 0.11,
       spots: [
-        { x: 1.5, y: 1.4, z: 1.2, targetX: -0.15, targetY: 0.6, intensity: 10, angle: 0.45, penumbra: 0.85, color: '#c966ff' },
+        // Key: neutral white, wide soft
+        { x: 1.5, y: 1.4, z: 1.2, targetX: -0.15, targetY: 0.6, intensity: 10, angle: 0.45, penumbra: 0.85, color: '#d4d0cc' },
+        // Rim: fractured violet from behind-left
+        { x: -1.8, y: 1.8, z: -1.5, targetX: 0, targetY: 0.5, intensity: 7.0, angle: 0.35, penumbra: 0.5, color: '#c966ff' },
       ],
     },
   },
@@ -94,7 +112,10 @@ const CLANS = [
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        { x: 2, y: -0.9, z: 0, targetX: 0.25, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.4, color: '#f4be62' },
+        // Key: neutral white from right
+        { x: 2, y: -0.9, z: 0, targetX: 0.25, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.4, color: '#d4d0cc' },
+        // Rim: warm gold from behind-left
+        { x: -1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#f4be62' },
       ],
     },
   },
@@ -116,7 +137,10 @@ const CLANS = [
       lineWeight: 0.87,
       lineSmooth: 0.29,
       spots: [
-        { x: -1, y: 1.1, z: 0.7, targetX: 0.5, targetY: 0.7, intensity: 10, angle: 0.65, penumbra: 0.3, color: '#ff0000' },
+        // Key: neutral white from left
+        { x: -1, y: 1.1, z: 0.7, targetX: 0.5, targetY: 0.7, intensity: 10, angle: 0.65, penumbra: 0.3, color: '#d4d0cc' },
+        // Rim: blood red from behind-right
+        { x: 1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 7.0, angle: 0.35, penumbra: 0.5, color: '#ff0000' },
       ],
     },
   },

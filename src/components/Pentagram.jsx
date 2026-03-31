@@ -238,9 +238,14 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   const prevEffective = getEffectiveLighting(prevActiveIndex);
   const activeEffective = getEffectiveLighting(activeIndex);
 
-  const prevSpot = prevEffective.spots?.[0] || {};
-  const activeSpot = activeEffective.spots?.[0] || {};
-  const lerpedSpotConfig = lerpT >= 1 ? devSpot : lerpSpot(prevSpot, activeSpot, lerpT);
+  // Lerp all spots (up to 3) between prev and active clan
+  const maxSpots = Math.max(prevEffective.spots?.length || 0, activeEffective.spots?.length || 0, 1);
+  const lerpedSpots = [];
+  for (let s = 0; s < maxSpots; s++) {
+    const prev = prevEffective.spots?.[s] || {};
+    const active = activeEffective.spots?.[s] || {};
+    lerpedSpots.push(lerpT >= 1 ? (s === 0 ? devSpot : active) : lerpSpot(prev, active, lerpT));
+  }
 
   const lerpedNormalScale = lerpT >= 1 ? devNormalScale : lerp(prevEffective.normalScale ?? 1.5, activeEffective.normalScale ?? 1.5, lerpT);
   const lerpedRoughness = lerpT >= 1 ? devRoughness : lerp(prevEffective.roughness ?? 0.4, activeEffective.roughness ?? 0.4, lerpT);
@@ -573,7 +578,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               normalScale={i === activeIndex ? lerpedNormalScale : (CLANS[i]?.lighting?.normalScale ?? 1.5)}
               roughness={i === activeIndex ? lerpedRoughness : (CLANS[i]?.lighting?.roughness ?? 0.4)}
               spotActive={i === activeIndex}
-              spotPos={{ spots: [{ ...lerpedSpotConfig }] }}
+              spotPos={{ spots: lerpedSpots }}
               tint={i === activeIndex ? lerpedTint : (CLANS[i]?.lighting?.tint || { color: '#000000', opacity: 0 })}
               lineWeight={i === activeIndex ? lerpedLineWeight : (CLANS[i]?.lighting?.lineWeight ?? 0.5)}
               lineSmooth={i === activeIndex ? lerpedLineSmooth : (CLANS[i]?.lighting?.lineSmooth ?? 0.15)}

@@ -101,7 +101,7 @@ export default function App() {
   // Format: { nosferatu: { slots: { A: {...}, B: {...}, C: {...} }, active: "A" }, ... }
   // Bump SETTINGS_VERSION to invalidate all saved presets when defaults change.
   const STORAGE_KEY = 'vss-settings';
-  const SETTINGS_VERSION = 2;
+  const SETTINGS_VERSION = 3;
 
   // Wipe stale localStorage when version changes
   useEffect(() => {
