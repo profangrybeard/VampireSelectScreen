@@ -202,35 +202,10 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   } : null;
 
   // Compute uplight style for a silhouette based on its position
-  // relative to the floor light. All characters get shadows that
-  // push upward — light is below them on the floor plane.
-  function getLightStyle(pos, depthNorm) {
-    if (!floorLightPos) return '';
-
-    // Vector from floor light to silhouette
-    const dx = pos.x - floorLightPos.x;
-    const dy = pos.y - floorLightPos.y;
-    const angle = Math.atan2(dy, dx);
-
-    // Tight rim light — small offset, minimal blur.
-    // The reference: razor-thin edge catch, not a soft halo.
-    const dist = 1 + depthNorm * 1.5;   // front: 2.5px, back: 1px
-    const blur = 1 + depthNorm * 2;     // front: 3px, back: 1px — crisp edge
-    const alpha = 0.06 + depthNorm * 0.34; // front: 0.40, flanking: ~0.18, back: 0.06
-
-    // Dim during transition — light is "resetting" between clans
-    const dimFactor = transitioning ? 0.3 : 1;
-    const finalAlpha = alpha * dimFactor;
-
-    // Shadow offsets TOWARD the light source. CSS drop-shadow renders
-    // the glow on the side it's offset to — so pushing toward the light
-    // puts the glow on the edge facing the candles. Not away from them.
-    const shadowX = -Math.cos(angle) * dist;
-    const shadowY = -Math.sin(angle) * dist;
-
-    // Warm grey — not pure white. Candlelight even in monochrome.
-    return `drop-shadow(${shadowX.toFixed(1)}px ${shadowY.toFixed(1)}px ${blur.toFixed(1)}px rgba(180,170,155,${finalAlpha.toFixed(2)}))`;
-  }
+  // CSS drop-shadow rim light removed — it created a fuzzy halo
+  // around every character that looked like a bad cutout artifact.
+  // All lighting is now handled inside the Three.js shader
+  // (spotlight, normal map, rim darkening). No CSS light effects.
 
   // Get effective lighting for a clan — checks localStorage (vss-settings)
   // for the active slot, falls back to CLANS defaults.
@@ -556,9 +531,6 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
 
-        // Directional light from pentagram center
-        const shadowFilter = getLightStyle(pos, depthNorm);
-
         // Three.js light direction — convert screen-space floor light
         // position to a 3D vector relative to this sprite.
         // X: horizontal offset (screen % mapped to -2..2 range)
@@ -586,7 +558,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               top: `${pos.y}%`,
               transform: `translate(-50%, -100%) scale(${silScale})`,
               opacity,
-              filter: `brightness(${brightness}) ${shadowFilter}`,
+              filter: `brightness(${brightness})`,
               zIndex,
               // NO transition — position is updated every frame by rAF
             }}
