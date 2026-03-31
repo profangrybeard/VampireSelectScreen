@@ -80,15 +80,15 @@ const CLANS = [
     lighting: {
       normalScale: 2.4,
       roughness: 0,
-      lightScale: 0.7,
+      lightScale: 0.9,
       tint: { color: '#fff5f8', opacity: 0.7 },
       rimDarkness: 0.88,
       rimWidth: 0.12,
       lineWeight: 0.83,
       lineSmooth: 0.11,
       spots: [
-        // Key: neutral white, wide soft
-        { x: 1.5, y: 1.4, z: 1.2, targetX: -0.15, targetY: 0.6, intensity: 10, angle: 0.45, penumbra: 0.85, color: '#d4d0cc' },
+        // Key: magenta, tight penumbra, aimed right-high
+        { x: 1.5, y: 2, z: 1.2, targetX: 1, targetY: 0.05, intensity: 10, angle: 0.45, penumbra: 0.3, color: '#ff00ff' },
         // Rim: fractured violet from behind-left
         { x: -1.8, y: 1.8, z: -1.5, targetX: 0, targetY: 0.5, intensity: 7.0, angle: 0.35, penumbra: 0.5, color: '#c966ff' },
       ],
