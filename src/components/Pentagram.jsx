@@ -310,8 +310,9 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 <stop offset="100%" stopColor={lerpColor('#383838', lerpedAccent, 0.2)} />
               </radialGradient>
               <radialGradient id="pentagram-fill-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor={lerpColor('#dcd7c8', lerpedAccent, 0.5)} stopOpacity="0.1" />
-                <stop offset="100%" stopColor={lerpColor('#c8c8c8', lerpedAccent, 0.3)} stopOpacity="0" />
+                <stop offset="0%" stopColor={lerpedAccent} stopOpacity="0.35" />
+                <stop offset="70%" stopColor={lerpedAccent} stopOpacity="0.15" />
+                <stop offset="100%" stopColor={lerpedAccent} stopOpacity="0" />
               </radialGradient>
             </defs>
 
@@ -488,6 +489,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 className={`candle-smoke candle-smoke--${wi}`}
                 style={{
                   '--smoke-seed': ((i * 3 + wi) * 137.5) % 360,
+                  '--smoke-color': lerpedAccent,
                 }}
               />
             ))}

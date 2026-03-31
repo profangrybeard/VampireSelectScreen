@@ -239,23 +239,9 @@
 /* Bold vertical shape centered on the front character. Provides
    high-contrast surface for the silhouette and introduces clan
    accent color. Fades at top/bottom via mask-image. */
+/* Banner hidden — replaced by colored smoke columns + pentagram fill */
 .clan-backdrop {
-  position: absolute;
-  width: 38%;
-  top: 8%;
-  bottom: 0;
-  transform: translateX(-50%);
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 6px 6px 0 0;
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    var(--accent, #333) 10%,
-    var(--accent, #333) 100%
-  );
-  opacity: 0.25;
-  transition: opacity 400ms ease, background 400ms ease;
+  display: none;
 }
 
 /* ---- Central glow (ritual light source) ---- */
@@ -353,67 +339,68 @@
   75% { transform: scaleX(0.94) scaleY(1.05); opacity: 0.96; }
 }
 
-/* ---- Candle smoke wisps ---- */
-/* Wispy incense trails rising from each candle flame.
-   Each wisp is a small blurred circle that drifts upward,
-   sways laterally, fades out, and shrinks as it rises.
-   3 wisps per candle with staggered timing for organic feel. */
+/* ---- Candle smoke columns ---- */
+/* Thick bands of clan-colored smoke rising from candles to
+   the top of the frame. Replaces the graphic poster banner —
+   the smoke IS the color element now. Each column sways
+   gently with staggered timing. */
 .candle-smoke {
   position: absolute;
-  bottom: 85%;
+  bottom: 80%;
   left: 50%;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(180, 175, 165, 0.35);
-  filter: blur(1.5px);
+  width: 12px;
+  height: 500px;
+  border-radius: 6px;
+  background: linear-gradient(
+    to top,
+    var(--smoke-color, #444) 0%,
+    color-mix(in srgb, var(--smoke-color, #444) 60%, transparent) 40%,
+    transparent 100%
+  );
+  filter: blur(8px);
   pointer-events: none;
   opacity: 0;
-  animation: smoke-rise var(--smoke-dur, 3.5s) ease-out infinite;
+  transform-origin: bottom center;
+  animation: smoke-column var(--smoke-dur, 6s) ease-in-out infinite;
   animation-delay: var(--smoke-delay, 0s);
 }
 
 .candle-smoke--0 {
-  --smoke-dur: 3.2s;
+  --smoke-dur: 7s;
   --smoke-delay: 0s;
-  --smoke-sway: 4px;
+  --smoke-sway: 15px;
+  width: 14px;
+  opacity: 0.2;
 }
 .candle-smoke--1 {
-  --smoke-dur: 4.0s;
-  --smoke-delay: -1.3s;
-  --smoke-sway: -5px;
-  width: 2.5px;
-  height: 2.5px;
+  --smoke-dur: 9s;
+  --smoke-delay: -3s;
+  --smoke-sway: -12px;
+  width: 10px;
 }
 .candle-smoke--2 {
-  --smoke-dur: 3.6s;
-  --smoke-delay: -2.4s;
-  --smoke-sway: 3px;
-  width: 2px;
-  height: 2px;
-  background: rgba(180, 175, 165, 0.25);
+  --smoke-dur: 8s;
+  --smoke-delay: -5.5s;
+  --smoke-sway: 10px;
+  width: 8px;
 }
 
-@keyframes smoke-rise {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, 0) scale(1);
-  }
-  8% {
-    opacity: 0.4;
-    transform: translate(-50%, -2px) scale(1.1);
-  }
-  30% {
-    opacity: 0.3;
-    transform: translate(calc(-50% + var(--smoke-sway, 4px) * 0.6), -10px) scale(1.3);
-  }
-  60% {
+@keyframes smoke-column {
+  0%, 100% {
     opacity: 0.15;
-    transform: translate(calc(-50% + var(--smoke-sway, 4px)), -22px) scale(0.8);
+    transform: translateX(calc(-50% - var(--smoke-sway, 10px))) scaleX(0.8);
   }
-  100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--smoke-sway, 4px) * 0.5), -36px) scale(0.3);
+  25% {
+    opacity: 0.25;
+    transform: translateX(calc(-50% + var(--smoke-sway, 10px) * 0.3)) scaleX(1.1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: translateX(calc(-50% + var(--smoke-sway, 10px))) scaleX(0.9);
+  }
+  75% {
+    opacity: 0.25;
+    transform: translateX(calc(-50% - var(--smoke-sway, 10px) * 0.5)) scaleX(1.05);
   }
 }
 
