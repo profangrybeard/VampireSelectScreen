@@ -81,11 +81,13 @@
   touch-action: pan-y; /* allow vertical scroll, capture horizontal */
 }
 
-/* ---- Clan title (top-left, stats draw below) ---- */
+/* ---- Clan title (aligned to backdrop left edge) ---- */
+/* Left edge aligns with the graphic backdrop panel to create
+   a strong invisible vertical line through the composition. */
 .clan-title {
   position: absolute;
   top: 4%;
-  left: 5%;
+  left: 31%;
   z-index: 20;
   text-align: left;
   pointer-events: auto;
@@ -118,7 +120,7 @@
 .stats-panel {
   position: absolute;
   top: 12%;
-  left: 5%;
+  left: 31%;
   z-index: 20;
   max-height: 0;
   opacity: 0;
@@ -253,7 +255,7 @@
     var(--accent, #333) 88%,
     transparent 100%
   );
-  opacity: 0.18;
+  opacity: 0.25;
   transition: opacity 400ms ease, background 400ms ease;
 }
 
