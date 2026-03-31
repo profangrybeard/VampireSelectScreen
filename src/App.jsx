@@ -315,7 +315,9 @@ export default function App() {
   const handleHoldComplete = useCallback(() => {
     setSelectedClanIndex(activeIndex);
     setHoldProgress(0);
-    setSelectionPhase('trailer');
+    // Go black first, then bring up trailer after a beat
+    setSelectionPhase('blackout');
+    setTimeout(() => setSelectionPhase('trailer'), 400);
   }, [activeIndex]);
 
   const handleHoldCancel = useCallback(() => {
@@ -337,7 +339,7 @@ export default function App() {
   const screenClass = [
     'screen',
     selectionPhase === 'holding' && 'screen--holding',
-    (selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
+    (selectionPhase === 'blackout' || selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
   ].filter(Boolean).join(' ');
 
   return (
@@ -429,16 +431,16 @@ export default function App() {
         onHoldCancel={handleHoldCancel}
       />
 
+      {/* Blackout — solid black between hold and trailer */}
+      {(selectionPhase === 'blackout' || selectionPhase === 'trailer' || selectionPhase === 'returning') && (
+        <div style={{ position: 'absolute', inset: 0, zIndex: 44, background: '#000', pointerEvents: 'none' }} />
+      )}
+
       {/* Trailer — vertically cropped YouTube embed */}
       <TrailerEmbed
         visible={selectionPhase === 'trailer'}
         onClose={handleTrailerClose}
       />
-
-      {/* Return fade — black overlay for reverse transition */}
-      {selectionPhase === 'returning' && (
-        <div style={{ position: 'absolute', inset: 0, zIndex: 51, background: '#000', opacity: 1, transition: 'opacity 600ms ease-out', pointerEvents: 'none' }} />
-      )}
     </div>
   );
 }
