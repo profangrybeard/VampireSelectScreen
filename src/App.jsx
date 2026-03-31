@@ -178,6 +178,8 @@ export default function App() {
       tint: lighting.tint || { color: '#000000', opacity: 0 },
       lineWeight: lighting.lineWeight ?? 0.5,
       lineSmooth: lighting.lineSmooth ?? 0.15,
+      rimDarkness: lighting.rimDarkness ?? 0.0,
+      rimWidth: lighting.rimWidth ?? 0.5,
     };
   }, [readStorage]);
 
@@ -210,6 +212,33 @@ export default function App() {
       setActiveSlot(slot);
     }
   }, [activeIndex, readStorage, writeStorage, applySettings]);
+
+  // Reset to source defaults: load clans.js values for current clan
+  const resetToDefaults = useCallback(() => {
+    const clan = CLANS[activeIndex];
+    if (!clan) return;
+    const lighting = clan.lighting || {};
+    const spot = lighting.spots?.[0] || {};
+    applySettings({
+      lightScale: lighting.lightScale ?? 1.0,
+      normalScale: lighting.normalScale ?? 1.5,
+      roughness: lighting.roughness ?? 0.4,
+      spot: { x: spot.x ?? -0.5, y: spot.y ?? 1.0, z: spot.z ?? 1.5, intensity: spot.intensity ?? 3.0, angle: spot.angle ?? 0.3, penumbra: spot.penumbra ?? 0.5, targetX: spot.targetX ?? 0, targetY: spot.targetY ?? 0.5, color: spot.color || '#c8bfb0' },
+      tint: lighting.tint || { color: '#000000', opacity: 0 },
+      lineWeight: lighting.lineWeight ?? 0.5,
+      lineSmooth: lighting.lineSmooth ?? 0.15,
+      rimDarkness: lighting.rimDarkness ?? 0.0,
+      rimWidth: lighting.rimWidth ?? 0.5,
+    });
+    // Clear active slot — we're back to source
+    const store = readStorage();
+    const clanId = clan.id;
+    if (store[clanId]) {
+      store[clanId].active = null;
+      writeStorage(store);
+    }
+    setActiveSlot(null);
+  }, [activeIndex, applySettings, readStorage, writeStorage]);
 
   // Get slot preview for UI
   const getSlotPreview = useCallback((slot) => {
@@ -322,6 +351,7 @@ export default function App() {
         devRimDarkness={devRimDarkness} onRimDarkness={setDevRimDarkness}
         devRimWidth={devRimWidth} onRimWidth={setDevRimWidth}
         onCopy={handleCopy}
+        onReset={resetToDefaults}
         activeSlot={activeSlot}
         onSaveSlot={saveToSlot}
         onLoadSlot={loadFromSlot}

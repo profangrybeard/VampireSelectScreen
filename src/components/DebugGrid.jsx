@@ -72,7 +72,7 @@ export default function DebugGrid({
   devLineSmooth = 0.15, onLineSmooth,
   devRimDarkness = 0.0, onRimDarkness,
   devRimWidth = 0.5, onRimWidth,
-  onCopy,
+  onCopy, onReset,
   activeSlot, onSaveSlot, onLoadSlot, getSlotPreview,
 }) {
   const [showGrid, setShowGrid] = useState(false);
@@ -81,6 +81,7 @@ export default function DebugGrid({
   const [showTexture, setShowTexture] = useState(false);
   const [saveFlash, setSaveFlash] = useState(null); // slot letter when save fires
   const [copyFlash, setCopyFlash] = useState(false);
+  const [resetFlash, setResetFlash] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [triggerVisible, setTriggerVisible] = useState(true);
   const fadeTimerRef = useRef(null);
@@ -194,6 +195,13 @@ export default function DebugGrid({
             style={copyFlash ? { color: '#4a4', borderColor: '#4a4' } : {}}
           >
             {copyFlash ? 'Copied' : 'Copy'}
+          </button>
+          <button
+            className="debug-btn"
+            onClick={() => { onReset?.(); setResetFlash(true); setTimeout(() => setResetFlash(false), 600); }}
+            style={resetFlash ? { color: '#f84', borderColor: '#f84' } : {}}
+          >
+            {resetFlash ? 'Reset!' : 'Dflt'}
           </button>
         </div>
       )}

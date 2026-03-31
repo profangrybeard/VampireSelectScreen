@@ -535,12 +535,12 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           z: 0.8 + depthNorm * 0.4,
         } : { x: 0, y: -1, z: 0.5 };
 
-        // Light intensity: front character gets strong fill for the key
-        // light to carve against. Background figures get near-zero —
-        // they should be true silhouettes, no specular or normal detail.
+        // Light intensity: front character scales with dev lightScale.
+        // Background figures get a fixed subtle fill — NOT scaled by
+        // lightScale so they're always readable regardless of per-clan tuning.
         const lightIntensity = i === activeIndex
           ? (0.8 + depthNorm * 2.0) * lerpedLightScale
-          : (0.4 + depthNorm * 0.5) * lerpedLightScale;
+          : 0.6 + depthNorm * 0.4;
 
         return (
           <div
