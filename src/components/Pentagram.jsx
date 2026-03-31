@@ -281,6 +281,11 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   const lerpedRimDarkness = lerpT >= 1 ? devRimDarkness : lerp(prevEffective.rimDarkness ?? 0.0, activeEffective.rimDarkness ?? 0.0, lerpT);
   const lerpedRimWidth = lerpT >= 1 ? devRimWidth : lerp(prevEffective.rimWidth ?? 0.5, activeEffective.rimWidth ?? 0.5, lerpT);
 
+  // Lerped clan accent color — drives pentagram lines, candle flames, backdrop
+  const prevAccent = CLANS[prevActiveIndex]?.accent || '#333';
+  const activeAccent = CLANS[activeIndex]?.accent || '#333';
+  const lerpedAccent = lerpColor(prevAccent, activeAccent, lerpT);
+
   return (
     <>
       {/* Floor glow — the ritual light source.
@@ -293,6 +298,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
             left: `${floorLightPos.x}%`,
             top: `${floorLightPos.y}%`,
             opacity: transitioning ? 0.15 : 0.55,
+            '--glow-color': lerpColor('#c8c0b0', lerpedAccent, 0.5),
           }}
         />
       )}
@@ -311,21 +317,21 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
             className="pentagram-svg"
           >
             {/* Radial gradient — bright center, dim at edges.
-                The pentagram glows from within, magically imbued. */}
+                The pentagram glows from within, tinted to clan accent. */}
             <defs>
               <radialGradient id="pentagram-glow-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#888" />
-                <stop offset="40%" stopColor="#555" />
-                <stop offset="100%" stopColor="#2a2a2a" />
+                <stop offset="0%" stopColor={lerpColor('#888', lerpedAccent, 0.6)} />
+                <stop offset="40%" stopColor={lerpColor('#555', lerpedAccent, 0.4)} />
+                <stop offset="100%" stopColor={lerpColor('#2a2a2a', lerpedAccent, 0.2)} />
               </radialGradient>
               <radialGradient id="pentagram-star-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#aaa" />
-                <stop offset="35%" stopColor="#666" />
-                <stop offset="100%" stopColor="#383838" />
+                <stop offset="0%" stopColor={lerpColor('#aaa', lerpedAccent, 0.5)} />
+                <stop offset="35%" stopColor={lerpColor('#666', lerpedAccent, 0.4)} />
+                <stop offset="100%" stopColor={lerpColor('#383838', lerpedAccent, 0.2)} />
               </radialGradient>
               <radialGradient id="pentagram-fill-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="rgba(220,215,200,0.1)" />
-                <stop offset="100%" stopColor="rgba(200,200,200,0)" />
+                <stop offset="0%" stopColor={lerpColor('#dcd7c8', lerpedAccent, 0.5)} stopOpacity="0.1" />
+                <stop offset="100%" stopColor={lerpColor('#c8c8c8', lerpedAccent, 0.3)} stopOpacity="0" />
               </radialGradient>
             </defs>
 
@@ -360,7 +366,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 cy={CY + c.dy}
                 r={c.width * 0.8}
                 fill="none"
-                stroke="rgba(180,175,160,0.2)"
+                stroke={lerpColor('#b4af9f', lerpedAccent, 0.5)}
+                opacity={0.2}
                 strokeWidth="0.5"
               />
             ))}
@@ -450,9 +457,9 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                   </feMerge>
                 </filter>
                 <radialGradient id={`fgrad-${candle.id}`} cx="50%" cy="35%" r="55%">
-                  <stop offset="0%" stopColor={lerpColor('#ffffff', lerpedTint.color || '#ffffff', lerpedTint.opacity ?? 0)} />
-                  <stop offset="40%" stopColor={lerpColor('#fff0d0', lerpedTint.color || '#fff0d0', lerpedTint.opacity ?? 0)} />
-                  <stop offset="100%" stopColor={lerpColor('#cc9850', lerpedTint.color || '#cc9850', lerpedTint.opacity ?? 0)} />
+                  <stop offset="0%" stopColor={lerpColor('#ffffff', lerpedAccent, 0.15)} />
+                  <stop offset="40%" stopColor={lerpColor('#fff0d0', lerpedAccent, 0.3)} />
+                  <stop offset="100%" stopColor={lerpColor('#cc9850', lerpedAccent, 0.5)} />
                 </radialGradient>
                 {/* Wax body gradient — dark at base, lit near flame */}
                 <linearGradient id={`wax-${candle.id}`} x1="0" y1="1" x2="0" y2="0">
@@ -516,13 +523,12 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
       {dotPositions.length === 5 && (() => {
         const frontPos = dotPositions[activeIndex];
         if (!frontPos) return null;
-        const accent = CLANS[activeIndex]?.accent || '#333';
         return (
           <div
             className="clan-backdrop"
             style={{
               left: `${frontPos.x}%`,
-              '--accent': accent,
+              '--accent': lerpedAccent,
             }}
           />
         );

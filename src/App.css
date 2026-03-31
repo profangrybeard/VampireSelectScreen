@@ -269,8 +269,8 @@
   transform: translate(-50%, -50%);
   background: radial-gradient(
     ellipse at center,
-    rgba(220, 215, 200, 0.3) 0%,
-    rgba(210, 205, 190, 0.12) 40%,
+    color-mix(in srgb, var(--glow-color, #c8c0b0) 30%, transparent) 0%,
+    color-mix(in srgb, var(--glow-color, #c8c0b0) 12%, transparent) 40%,
     transparent 70%
   );
   z-index: 3;
