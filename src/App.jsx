@@ -70,8 +70,8 @@ export default function App() {
 
   // Dev controls — tunable lighting props
   const [devLightScale, setDevLightScale] = useState(1.0);
-  const [devNormalScale, setDevNormalScale] = useState(1.0);
-  const [devRoughness, setDevRoughness] = useState(0.65);
+  const [devNormalScale, setDevNormalScale] = useState(3.7);
+  const [devRoughness, setDevRoughness] = useState(0.55);
 
   // Spotlight dev controls — Nosferatu defaults from tuning session
   const [devSpotX, setDevSpotX] = useState(-1.7);
@@ -84,22 +84,33 @@ export default function App() {
   const [devSpotTargetY, setDevSpotTargetY] = useState(0.6);
   const [devSpotColor, setDevSpotColor] = useState('#c8bfb0');
 
-  // Additive tint controls
-  const [devTintColor, setDevTintColor] = useState('#2d4a1e');
-  const [devTintOpacity, setDevTintOpacity] = useState(0.0);
+  // Soft-light tint controls
+  const [devTintColor, setDevTintColor] = useState('#ffffff');
+  const [devTintOpacity, setDevTintOpacity] = useState(0.7);
 
   // Ink normalization controls
   const [devLineWeight, setDevLineWeight] = useState(0.5);
   const [devLineSmooth, setDevLineSmooth] = useState(0.15);
 
   // Dark inner rim controls
-  const [devRimDarkness, setDevRimDarkness] = useState(0.0);
-  const [devRimWidth, setDevRimWidth] = useState(0.5);
+  const [devRimDarkness, setDevRimDarkness] = useState(0.6);
+  const [devRimWidth, setDevRimWidth] = useState(0.12);
 
   // === PERSISTENCE — ONE SOURCE OF TRUTH ===
   // Single localStorage key: vss-settings
   // Format: { nosferatu: { slots: { A: {...}, B: {...}, C: {...} }, active: "A" }, ... }
+  // Bump SETTINGS_VERSION to invalidate all saved presets when defaults change.
   const STORAGE_KEY = 'vss-settings';
+  const SETTINGS_VERSION = 2;
+
+  // Wipe stale localStorage when version changes
+  useEffect(() => {
+    const ver = localStorage.getItem('vss-settings-version');
+    if (ver !== String(SETTINGS_VERSION)) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.setItem('vss-settings-version', String(SETTINGS_VERSION));
+    }
+  }, []);
 
   const readStorage = useCallback(() => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
