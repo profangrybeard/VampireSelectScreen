@@ -497,24 +497,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         );
       })}
 
-      {/* Graphic backdrop — bold vertical shape behind front character.
-          Provides a high-contrast surface for the silhouette to pop against
-          and introduces the clan accent color. Sits between background
-          figures (z 0-4) and front character (z 10). Fades at top and
-          bottom edges via CSS mask. */}
-      {dotPositions.length === 5 && (() => {
-        const frontPos = dotPositions[activeIndex];
-        if (!frontPos) return null;
-        return (
-          <div
-            className="clan-backdrop"
-            style={{
-              left: `${frontPos.x}%`,
-              '--accent': lerpedAccent,
-            }}
-          />
-        );
-      })()}
+      {/* Graphic backdrop removed — replaced by smoke columns + pentagram fill */}
 
       {/* Silhouettes — NO transitions. Positioned directly at dot locations
           every frame. Movement comes from tracking the pentagram.
