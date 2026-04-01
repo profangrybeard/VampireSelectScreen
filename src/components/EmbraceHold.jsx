@@ -3,7 +3,7 @@
  *
  * Renders nothing visible — listens on window-level pointer events
  * so it never blocks swipe detection. Checks touch coordinates
- * against the center area of the screen.
+ * against the center area of the .screen container.
  *
  * 300ms dead zone: quick touches/swipes are ignored. Only sustained
  * contact in the center zone engages the hold.
@@ -12,13 +12,6 @@ import { useRef, useCallback, useEffect } from 'react';
 
 const DEAD_ZONE_MS = 300;
 const EMBRACE_DURATION_MS = 2000;
-
-// Embrace zone: center area of screen (matches old .embrace-hold bounds)
-function inEmbraceZone(e) {
-  const x = e.clientX / window.innerWidth;
-  const y = e.clientY / window.innerHeight;
-  return x > 0.22 && x < 0.78 && y > 0.15 && y < 0.80;
-}
 
 export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHoldComplete, onHoldCancel }) {
   const phase = useRef('idle'); // idle | waiting | holding
@@ -50,7 +43,15 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
   useEffect(() => {
     const handleDown = (e) => {
       if (!active) return;
-      if (!inEmbraceZone(e)) return;
+
+      // Check touch is in the center zone of the .screen container
+      const screen = document.querySelector('.screen');
+      if (!screen) return;
+      const rect = screen.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      if (x < 0.22 || x > 0.78 || y < 0.15 || y > 0.80) return;
+
       phase.current = 'waiting';
       waitTimer.current = setTimeout(() => {
         if (phase.current === 'waiting') {
@@ -96,6 +97,5 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
     };
   }, [active, engage, onHoldCancel]);
 
-  // No DOM element — purely event-driven, never blocks other interactions
   return null;
 }
