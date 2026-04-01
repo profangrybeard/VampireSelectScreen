@@ -105,7 +105,7 @@
 }
 
 .clan-title__name {
-  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive;
   font-weight: 700;
   font-size: clamp(24px, 7vw, 40px);
   color: #c8c8c8;

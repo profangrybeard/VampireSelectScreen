@@ -306,13 +306,16 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
                 The pentagram glows from within, tinted to clan accent. */}
             <defs>
               <radialGradient id="pentagram-glow-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor={lerpColor('#888', lerpedAccent, 0.6)} />
-                <stop offset="40%" stopColor={lerpColor('#555', lerpedAccent, 0.4)} />
-                <stop offset="100%" stopColor={lerpColor('#2a2a2a', lerpedAccent, 0.2)} />
+                <stop offset="0%" stopColor="#ff0000" />
+                <stop offset="20%" stopColor="#ff8800" />
+                <stop offset="40%" stopColor="#ffff00" />
+                <stop offset="60%" stopColor="#00ff00" />
+                <stop offset="80%" stopColor="#0088ff" />
+                <stop offset="100%" stopColor="#ff00ff" />
               </radialGradient>
               <radialGradient id="pentagram-star-grad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor={lerpColor('#aaa', lerpedAccent, 0.5)} />
-                <stop offset="35%" stopColor={lerpColor('#666', lerpedAccent, 0.4)} />
+                <stop offset="0%" stopColor="#ff00ff" />
+                <stop offset="35%" stopColor="#00ffff" />
                 <stop offset="100%" stopColor={lerpColor('#383838', lerpedAccent, 0.2)} />
               </radialGradient>
               <radialGradient id="pentagram-fill-grad" cx="50%" cy="50%" r="50%">
@@ -326,14 +329,14 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
             <circle cx={CX} cy={CY} r={R} fill="url(#pentagram-fill-grad)" />
 
             <circle cx={CX} cy={CY} r={R}
-              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.75" opacity="0.4" />
+              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="3" opacity="1" />
             <circle cx={CX} cy={CY} r={INNER_R}
-              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.5" opacity="0.3" />
+              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="2.5" opacity="1" />
             <polygon points={starLines(CX, CY, R)}
-              fill="none" stroke="url(#pentagram-star-grad)" strokeWidth="1.25"
-              strokeLinejoin="round" opacity="0.6" />
+              fill="none" stroke="url(#pentagram-star-grad)" strokeWidth="4"
+              strokeLinejoin="round" opacity="1" />
             <polygon points={pentagramPoints(CX, CY, R, INNER_R)}
-              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="0.5" opacity="0.3" />
+              fill="none" stroke="url(#pentagram-glow-grad)" strokeWidth="2.5" opacity="1" />
 
             {/* Center reference point — invisible, tracked for lighting */}
             <circle
