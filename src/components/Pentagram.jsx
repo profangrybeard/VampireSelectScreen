@@ -523,7 +523,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         // barely visible, no internal lighting competing with main char.
         const brightness = i === activeIndex
           ? 0.20 + depthNorm * 0.60
-          : 0.04 + depthNorm * 0.06;
+          : 0.08 + depthNorm * 0.10;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
