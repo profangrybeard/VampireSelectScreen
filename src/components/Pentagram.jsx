@@ -280,8 +280,9 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           style={{
             left: `${floorLightPos.x}%`,
             top: `${floorLightPos.y}%`,
-            opacity: (transitioning ? 0.15 : 0.55) * (1 - holdProgress),
-            '--glow-color': lerpColor('#c8c0b0', lerpedAccent, 0.5),
+            opacity: (transitioning ? 0.15 : 0.55) + holdProgress * 0.4,
+            '--glow-color': lerpColor('#c8c0b0', lerpedAccent, 0.5 + holdProgress * 0.5),
+            transform: `translate(-50%, -50%) scale(${1 + holdProgress * 0.3})`,
           }}
         />
       )}
@@ -292,7 +293,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           className="pentagram-perspective"
           style={{
             transform: `rotateX(${TILT_DEG}deg) rotate(${parentRotation}deg)`,
-            opacity: 1 - holdProgress,
+            opacity: 1 + holdProgress * 0.5,
+            filter: `brightness(${1 + holdProgress * 2})`,
           }}
         >
           <svg
@@ -422,8 +424,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               top: `${pos.y}%`,
               width: `${w}px`,
               height: `${h}px`,
-              transform: 'translate(-50%, -100%)',
-              opacity: 1 - holdProgress,
+              transform: `translate(-50%, -100%) scale(${1 + holdProgress * 0.4})`,
+              filter: `brightness(${1 + holdProgress * 1.5})`,
               zIndex,
             }}
           >

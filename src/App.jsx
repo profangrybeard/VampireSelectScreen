@@ -72,9 +72,11 @@ export default function App() {
 
   // === EMBRACE SELECTION FLOW ===
   const [selectionPhase, setSelectionPhase] = useState('browse');
-  // 'browse' | 'holding' | 'celebrating' | 'trailer' | 'returning'
+  // 'browse' | 'holding' | 'blackout' | 'trailer' | 'returning'
   const [holdProgress, setHoldProgress] = useState(0);
   const [selectedClanIndex, setSelectedClanIndex] = useState(null);
+  const [idle, setIdle] = useState(false);
+  const idleTimer = useRef(null);
 
   // Dev controls — tunable lighting props
   const [devLightScale, setDevLightScale] = useState(1.0);
@@ -283,8 +285,22 @@ export default function App() {
     setActiveSlot(store[clanId]?.active || null);
   }, [activeIndex, getEffectiveForClan, applySettings, readStorage]);
 
+  // Idle timer — show "Hold to Embrace" after 3s of no interaction
+  const resetIdle = useCallback(() => {
+    setIdle(false);
+    clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => setIdle(true), 3000);
+  }, []);
+
+  // Start idle timer on mount and when phase returns to browse
+  useEffect(() => {
+    if (selectionPhase === 'browse') resetIdle();
+    return () => clearTimeout(idleTimer.current);
+  }, [selectionPhase, activeIndex, resetIdle]);
+
   const rotate = useCallback((direction) => {
     if (transitioning || selectionPhase !== 'browse') return;
+    resetIdle();
     setTransitioning(true);
     setPrevActiveIndex(activeIndex);
     setActiveIndex((prev) => {
@@ -294,7 +310,7 @@ export default function App() {
     });
     setRotationDeg((prev) => direction === 'left' ? prev - 72 : prev + 72);
     setTimeout(() => setTransitioning(false), 420);
-  }, [transitioning, activeIndex]);
+  }, [transitioning, activeIndex, resetIdle]);
 
   const toggleStats = useCallback(() => {
     setStatsOpen((prev) => !prev);
@@ -338,12 +354,13 @@ export default function App() {
   // Screen class drives CSS phase gating
   const screenClass = [
     'screen',
+    idle && selectionPhase === 'browse' && 'screen--idle',
     selectionPhase === 'holding' && 'screen--holding',
     (selectionPhase === 'blackout' || selectionPhase === 'trailer' || selectionPhase === 'returning') && 'screen--trailer',
   ].filter(Boolean).join(' ');
 
   return (
-    <div className={screenClass}>
+    <div className={screenClass} style={{ '--hold-progress': holdProgress }}>
       {/* Indicator dots */}
       <IndicatorDots count={CLANS.length} active={activeIndex} />
 
@@ -421,6 +438,9 @@ export default function App() {
 
       {/* Swipe zone — center area, avoids Android edge gesture zones */}
       <SwipeZone onSwipeLeft={() => rotate('left')} onSwipeRight={() => rotate('right')} />
+
+      {/* Hold-to-Embrace signifier — fades in after idle */}
+      <div className="embrace-signifier">Hold to Embrace</div>
 
       {/* Hold-to-Embrace — covers center silhouette area */}
       <EmbraceHold

@@ -1,60 +1,82 @@
 /**
  * EmbraceHold — press-and-hold interaction for clan selection.
  *
- * The user holds the silhouette to "succumb" to the Embrace.
- * The screen darkens progressively via vignette.
- * Fang overlay (BiteTransition) handles visual progress.
- * Release early = escape. Hold through = the Embrace fires.
+ * Touch detection with 300ms dead zone: quick touches/swipes pass
+ * through. Only after 300ms of still contact does the embrace
+ * engage and start filling holdProgress toward completion.
  */
 import { useRef, useCallback, useEffect } from 'react';
 
+const DEAD_ZONE_MS = 300;
 const EMBRACE_DURATION_MS = 2000;
 
 export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHoldComplete, onHoldCancel }) {
-  const holding = useRef(false);
+  const phase = useRef('idle'); // idle | waiting | holding
   const startTime = useRef(0);
+  const waitTimer = useRef(null);
   const rafRef = useRef(null);
 
   const tick = useCallback(() => {
-    if (!holding.current) return;
+    if (phase.current !== 'holding') return;
     const elapsed = performance.now() - startTime.current;
     const progress = Math.min(1, elapsed / EMBRACE_DURATION_MS);
     onHoldProgress(progress);
 
     if (progress >= 1) {
-      holding.current = false;
+      phase.current = 'idle';
       onHoldComplete();
     } else {
       rafRef.current = requestAnimationFrame(tick);
     }
   }, [onHoldProgress, onHoldComplete]);
 
-  const handleDown = useCallback((e) => {
-    if (!active) return;
-    e.preventDefault();
-    holding.current = true;
+  const engage = useCallback(() => {
+    phase.current = 'holding';
     startTime.current = performance.now();
     onHoldStart();
     rafRef.current = requestAnimationFrame(tick);
-  }, [active, onHoldStart, tick]);
+  }, [onHoldStart, tick]);
+
+  const handleDown = useCallback((e) => {
+    if (!active) return;
+    // Don't prevent default — let swipe zone see the touch
+    phase.current = 'waiting';
+    waitTimer.current = setTimeout(() => {
+      if (phase.current === 'waiting') {
+        engage();
+      }
+    }, DEAD_ZONE_MS);
+  }, [active, engage]);
 
   const handleUp = useCallback(() => {
-    if (!holding.current) return;
-    holding.current = false;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    onHoldCancel();
+    if (phase.current === 'waiting') {
+      // Released before dead zone — was a tap/swipe, ignore
+      clearTimeout(waitTimer.current);
+      phase.current = 'idle';
+      return;
+    }
+    if (phase.current === 'holding') {
+      phase.current = 'idle';
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      onHoldCancel();
+    }
   }, [onHoldCancel]);
 
   useEffect(() => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clearTimeout(waitTimer.current);
     };
   }, []);
 
   useEffect(() => {
     const cancel = () => {
-      if (holding.current) {
-        holding.current = false;
+      if (phase.current === 'waiting') {
+        clearTimeout(waitTimer.current);
+        phase.current = 'idle';
+      }
+      if (phase.current === 'holding') {
+        phase.current = 'idle';
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
         onHoldCancel();
       }
