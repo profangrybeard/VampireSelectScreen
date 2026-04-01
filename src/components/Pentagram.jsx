@@ -523,7 +523,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         // barely visible, no internal lighting competing with main char.
         const brightness = i === activeIndex
           ? 0.20 + depthNorm * 0.60
-          : 0.10 + depthNorm * 0.12;
+          : 0.04 + depthNorm * 0.06;
         // All on-screen silhouettes visible
         const opacity = depthNorm > 0.05 ? 1 : 0;
         const zIndex = Math.round(depthNorm * 10);
@@ -540,13 +540,13 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
         } : { x: 0, y: -1, z: 0.5 };
 
         // Light intensity: front character scales with dev lightScale.
-        // Background figures get a fixed subtle fill — NOT scaled by
-        // lightScale so they're always readable regardless of per-clan tuning.
+        // Background figures: near-zero light, just enough for normal map
+        // direction to read. They're dark silhouettes with a hint of surface.
         // During hold: all non-key lights dim to 0.
         const hp = holdProgress;
         const lightIntensity = i === activeIndex
           ? (0.8 + depthNorm * 2.0) * lerpedLightScale * (1 - hp)
-          : (0.6 + depthNorm * 0.4) * (1 - hp);
+          : 0.15 * (1 - hp);
 
         // During hold: dim rim/fill spots, shrink key angle. Key intensity stays.
         const holdSpots = hp > 0 && i === activeIndex
@@ -579,7 +579,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               roughness={i === activeIndex ? lerpedRoughness : (CLANS[i]?.lighting?.roughness ?? 0.4)}
               spotActive={i === activeIndex}
               spotPos={{ spots: holdSpots }}
-              tint={i === activeIndex ? lerpedTint : (CLANS[i]?.lighting?.tint || { color: '#000000', opacity: 0 })}
+              tint={i === activeIndex ? lerpedTint : { color: '#000000', opacity: 0 }}
               lineWeight={i === activeIndex ? lerpedLineWeight : (CLANS[i]?.lighting?.lineWeight ?? 0.5)}
               lineSmooth={i === activeIndex ? lerpedLineSmooth : (CLANS[i]?.lighting?.lineSmooth ?? 0.15)}
               rimDarkness={i === activeIndex ? lerpedRimDarkness : (CLANS[i]?.lighting?.rimDarkness ?? 0.0)}
