@@ -575,6 +575,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               FallbackSVG={Silhouette}
               lightDir={lightDir}
               lightIntensity={lightIntensity}
+              baseColor={i === activeIndex ? 0x1a1a1a : 0x000000}
               normalScale={i === activeIndex ? lerpedNormalScale : (CLANS[i]?.lighting?.normalScale ?? 1.5)}
               roughness={i === activeIndex ? lerpedRoughness : (CLANS[i]?.lighting?.roughness ?? 0.4)}
               spotActive={i === activeIndex}
