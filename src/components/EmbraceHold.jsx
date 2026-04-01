@@ -1,14 +1,24 @@
 /**
  * EmbraceHold — press-and-hold interaction for clan selection.
  *
- * Touch detection with 300ms dead zone: quick touches/swipes pass
- * through. Only after 300ms of still contact does the embrace
- * engage and start filling holdProgress toward completion.
+ * Renders nothing visible — listens on window-level pointer events
+ * so it never blocks swipe detection. Checks touch coordinates
+ * against the center area of the screen.
+ *
+ * 300ms dead zone: quick touches/swipes are ignored. Only sustained
+ * contact in the center zone engages the hold.
  */
 import { useRef, useCallback, useEffect } from 'react';
 
 const DEAD_ZONE_MS = 300;
 const EMBRACE_DURATION_MS = 2000;
+
+// Embrace zone: center area of screen (matches old .embrace-hold bounds)
+function inEmbraceZone(e) {
+  const x = e.clientX / window.innerWidth;
+  const y = e.clientY / window.innerHeight;
+  return x > 0.22 && x < 0.78 && y > 0.15 && y < 0.80;
+}
 
 export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHoldComplete, onHoldCancel }) {
   const phase = useRef('idle'); // idle | waiting | holding
@@ -37,40 +47,32 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
     rafRef.current = requestAnimationFrame(tick);
   }, [onHoldStart, tick]);
 
-  const handleDown = useCallback((e) => {
-    if (!active) return;
-    // Don't prevent default — let swipe zone see the touch
-    phase.current = 'waiting';
-    waitTimer.current = setTimeout(() => {
-      if (phase.current === 'waiting') {
-        engage();
-      }
-    }, DEAD_ZONE_MS);
-  }, [active, engage]);
-
-  const handleUp = useCallback(() => {
-    if (phase.current === 'waiting') {
-      // Released before dead zone — was a tap/swipe, ignore
-      clearTimeout(waitTimer.current);
-      phase.current = 'idle';
-      return;
-    }
-    if (phase.current === 'holding') {
-      phase.current = 'idle';
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      onHoldCancel();
-    }
-  }, [onHoldCancel]);
-
   useEffect(() => {
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      clearTimeout(waitTimer.current);
+    const handleDown = (e) => {
+      if (!active) return;
+      if (!inEmbraceZone(e)) return;
+      phase.current = 'waiting';
+      waitTimer.current = setTimeout(() => {
+        if (phase.current === 'waiting') {
+          engage();
+        }
+      }, DEAD_ZONE_MS);
     };
-  }, []);
 
-  useEffect(() => {
-    const cancel = () => {
+    const handleUp = () => {
+      if (phase.current === 'waiting') {
+        clearTimeout(waitTimer.current);
+        phase.current = 'idle';
+        return;
+      }
+      if (phase.current === 'holding') {
+        phase.current = 'idle';
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        onHoldCancel();
+      }
+    };
+
+    const handleCancel = () => {
       if (phase.current === 'waiting') {
         clearTimeout(waitTimer.current);
         phase.current = 'idle';
@@ -81,19 +83,19 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
         onHoldCancel();
       }
     };
-    window.addEventListener('pointercancel', cancel);
-    window.addEventListener('pointerup', cancel);
-    return () => {
-      window.removeEventListener('pointercancel', cancel);
-      window.removeEventListener('pointerup', cancel);
-    };
-  }, [onHoldCancel]);
 
-  return (
-    <div
-      className="embrace-hold"
-      onPointerDown={handleDown}
-      onPointerUp={handleUp}
-    />
-  );
+    window.addEventListener('pointerdown', handleDown);
+    window.addEventListener('pointerup', handleUp);
+    window.addEventListener('pointercancel', handleCancel);
+    return () => {
+      window.removeEventListener('pointerdown', handleDown);
+      window.removeEventListener('pointerup', handleUp);
+      window.removeEventListener('pointercancel', handleCancel);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clearTimeout(waitTimer.current);
+    };
+  }, [active, engage, onHoldCancel]);
+
+  // No DOM element — purely event-driven, never blocks other interactions
+  return null;
 }

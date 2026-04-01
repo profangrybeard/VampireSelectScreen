@@ -676,19 +676,7 @@
 
 /* ==== EMBRACE HOLD SYSTEM ==== */
 
-/* Hold interaction zone — covers the center silhouette area.
-   Above swipe zone, below clan title. */
-.embrace-hold {
-  position: absolute;
-  top: 15%;
-  bottom: 20%;
-  left: 22%;
-  right: 22%;
-  z-index: 11;
-  cursor: pointer;
-  touch-action: none;
-  -webkit-touch-callout: none;
-}
+/* EmbraceHold is now event-driven (no DOM element) so swipe zone is never blocked */
 
 
 /* Ritual stage — wraps pentagram, candles, and silhouettes */
