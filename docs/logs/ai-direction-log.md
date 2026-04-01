@@ -200,6 +200,34 @@ Round 2: Trimmed candles from 12 to 8. Smoke columns from 3 to 2 per candle (16 
 - Gangrel: Key to cool blue (#6082e6), contrasting warm gold rim
 **Decision:** Each clan's key light now carries intentional color — moving away from pure neutral keys toward clan-specific character lighting. The rim still provides the accent color edge.
 
+## Entry 37 — 2026-03-31
+**Asked:** Review the hold-to-Embrace selection flow. The zoom zooms into the character's crotch, and character breaks plane above head and brightens independently of the background.
+**Produced:** Three options proposed: (A) zoom entire screen container, (B) drop zoom entirely and lean into vignette, (C) zoom the pentagram-container (the 3D ritual stage) as a unit. Implemented Option C: wrapped all ritual elements in a `.ritual-stage` div that scales from the active character's upper-body focal point.
+**Decision:** Option C selected. Pushed, tested — still janky. Character and background separation remained a problem. Ultimately abandoned zoom entirely in favor of light-based approach.
+
+## Entry 38 — 2026-03-31
+**Asked:** Strip everything janky. Keep hold-to-choose and trailer. Ditch zoom, flash, bar, celebration sequence. Brainstorm: fang overlay that opens slowly during hold and snaps shut for the transition.
+**Produced:** Three rounds:
+1. BiteTransition component with fang PNG drifting down during hold, snapping shut on complete. Asset provided by instructor (vampire mouth, desaturated, black background).
+2. Instructor rejected — "oh god, this path is terrible." Stripped to bare minimum: hold → instant black → trailer.
+3. Still janky — vignette only covered center 60%, bright frames between hold and trailer.
+**Decision:** Stripped everything: zoom, flash, supernova, bar, fangs, vignette. Hold completes → instant solid black overlay → 400ms pause → trailer fades up. Simplest possible path.
+
+## Entry 39 — 2026-03-31
+**Asked:** Ditch the vignette. Dim all light sources during hold except the key light. Shrink key light angle. Use what we already have.
+**Produced:** holdProgress now drives Three.js lighting: fill light (0.8→0), ambient (→0), rim spots (→0), point light (→0). Key light (spot[0]) retains intensity, angle tightens. Pentagram floor, candles, smoke, floor glow all fade to black. Background characters fade out.
+**Decision:** "Finally. Nice." — the light-based approach worked because it uses the existing lighting rig rather than adding overlay effects. The character stands in increasingly dramatic isolation as everything else dies.
+
+## Entry 40 — 2026-03-31
+**Asked:** Fade fills faster (2x), key light wink out in last 20%, trailer needs to fit end logo (shrink 30%).
+**Produced:** Implemented 2x speed ramps, key fade in last 20%.
+**Decision:** Reverted — "we fucked it up." The accelerated ramps broke the feel. Returned to the even, linear dimming from Entry 39.
+
+## Entry 41 — 2026-03-31
+**Asked:** Swipe is blocked by hold zone. Rethink hold-to-Embrace with a signifier. Tie it to candles/fires getting more violent during hold.
+**Produced:** 300ms touch dead zone (quick swipes pass through, only sustained contact engages hold). "Hold to Embrace" text fades in after 3s idle. During hold: candle flames speed up (2s→0.4s), scale up 40%, brightness 2.5x. Pentagram brightens. Smoke intensifies. Floor glow expands and shifts toward full clan accent.
+**Decision:** Shipped. The ritual elements becoming more violent during hold serves as both progress indicator and atmosphere — the flames are the signifier. The 300ms dead zone fixes the swipe conflict without additional UI.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*

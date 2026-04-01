@@ -403,6 +403,55 @@ User reported "80% better" after round 1, "much better" after round 2.
 
 **Iteration Feedback:** When a per-clan tuning parameter (lightScale) affects elements it shouldn't (background characters), the bug is invisible during per-clan tuning because you're focused on the front character. The AI should have anticipated that lightScale values below 0.5 would crush the already-dim background characters. Tuning parameters should have clear scope — lightScale should only affect the character being tuned, not the entire scene.
 
+## R-022 — Zoom Is Not The Answer (4 Attempts)
+
+**Date:** 2026-03-31
+**Context:** The Embrace selection flow needed a visual transition from browse to commitment. AI proposed zooming the active character during hold.
+
+**What Was Tried:**
+1. Per-silhouette zoom (original) — character zooms, background doesn't, character breaks plane and brightens. User: "looks dumb and janky."
+2. Zoom entire ritual stage — wrapped all elements in a div, scaled from focal point. Better unity but still awkward.
+3. Fang overlay (BiteTransition) — user-provided fang PNG drifts down during hold, snaps shut. User: "oh god. this path is terrible."
+4. Stripped to bare minimum — vignette darkening only. User: "vignette doesn't cover the screen. Looks bad. Gets bright again for a second."
+
+**The Pushback:** Four distinct attempts at visual transition effects, each rejected. The user progressively simplified the request until arriving at: "Use what we have. No extra steps."
+
+**Resolution:** Dim the existing Three.js lights during hold. Fill, ambient, rim → 0. Key light survives alone. No overlays, no new visual elements. The existing lighting rig IS the transition.
+
+**Result:** "Finally. Nice." — First approval after four rejections.
+
+**Lesson for classroom:** When overlay effects fail repeatedly, the answer is often subtraction, not addition. The project already had a sophisticated lighting system. Dimming the existing lights created a more atmospheric transition than any overlay could. The AI kept proposing new layers when the answer was to manipulate what was already there. **Use what you have.**
+
+---
+
+## R-023 — Accelerated Timing Breaks Feel
+
+**Date:** 2026-03-31
+**Context:** After the linear light dimming was approved, user asked for fills to dim at 2x speed and key to wink out in the last 20% of hold.
+
+**What Was Tried:** Implemented non-linear ramps — fills gone by 50% hold progress, key light fading 80-100%.
+
+**The Pushback:** "revert all that. we fucked it up." — Immediate full revert requested.
+
+**Resolution:** Reverted to even, linear dimming across the full 2-second hold.
+
+**Result:** Linear ramp restored. The even pace was right.
+
+**Lesson for classroom:** Timing curves that look clever on paper can feel wrong in practice. The linear ramp worked because the 2-second hold is already creating tension through sustained commitment — adding accelerated timing on top made it feel rushed and uncontrolled. Sometimes boring math is the right math.
+
+---
+
+## R-024 — Hold Zone Blocks Swipe (Interaction Conflict)
+
+**Date:** 2026-03-31
+**Context:** The EmbraceHold component was a large invisible div covering the center of the screen, capturing all pointer events. This blocked the SwipeZone underneath it.
+
+**What Happened:** After multiple rounds of Embrace iteration, the user discovered they could no longer swipe to rotate the carousel. The hold zone was eating all touches.
+
+**Resolution:** Added 300ms dead zone. Touches under 300ms pass through to swipe detection. Only sustained contact (300ms+) engages the embrace hold. No changes to the swipe system needed.
+
+**Lesson for classroom:** When adding new interaction layers, test that they don't break existing ones. The hold zone was designed in isolation without considering the swipe zone sharing the same screen space. Interaction conflict resolution (dead zones, gesture disambiguation) should be planned at design time, not discovered in testing.
+
 ---
 
 *This is a living document. Entries are raw and chronological. The README gets the curated version.*
