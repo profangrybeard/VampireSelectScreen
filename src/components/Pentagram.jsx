@@ -280,7 +280,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           style={{
             left: `${floorLightPos.x}%`,
             top: `${floorLightPos.y}%`,
-            opacity: (transitioning ? 0.15 : 0.55) * (1 - Math.min(1, holdProgress * 2)),
+            opacity: (transitioning ? 0.15 : 0.55) * (1 - holdProgress),
             '--glow-color': lerpColor('#c8c0b0', lerpedAccent, 0.5),
           }}
         />
@@ -292,7 +292,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           className="pentagram-perspective"
           style={{
             transform: `rotateX(${TILT_DEG}deg) rotate(${parentRotation}deg)`,
-            opacity: 1 - Math.min(1, holdProgress * 2),
+            opacity: 1 - holdProgress,
           }}
         >
           <svg
@@ -423,7 +423,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               width: `${w}px`,
               height: `${h}px`,
               transform: 'translate(-50%, -100%)',
-              opacity: 1 - Math.min(1, holdProgress * 2),
+              opacity: 1 - holdProgress,
               zIndex,
             }}
           >
@@ -537,21 +537,20 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
           z: 0.8 + depthNorm * 0.4,
         } : { x: 0, y: -1, z: 0.5 };
 
-        // Hold ramps — fills die at 2x, everything else at 2x, key winks out last 20%
+        // Light intensity: front character scales with dev lightScale.
+        // Background figures get a fixed subtle fill — NOT scaled by
+        // lightScale so they're always readable regardless of per-clan tuning.
+        // During hold: all non-key lights dim to 0.
         const hp = holdProgress;
-        const fillDim = Math.min(1, hp * 2);      // fills gone by 50%
-        const envDim = Math.min(1, hp * 2);        // environment at 2x
-        const keyDim = hp > 0.8 ? (hp - 0.8) / 0.2 : 0; // key fades in last 20%
-
         const lightIntensity = i === activeIndex
-          ? (0.8 + depthNorm * 2.0) * lerpedLightScale * (1 - fillDim)
-          : (0.6 + depthNorm * 0.4) * (1 - envDim);
+          ? (0.8 + depthNorm * 2.0) * lerpedLightScale * (1 - hp)
+          : (0.6 + depthNorm * 0.4) * (1 - hp);
 
-        // During hold: dim rim/fill spots at 2x, shrink+kill key in last 20%.
+        // During hold: dim rim/fill spots, shrink key angle. Key intensity stays.
         const holdSpots = hp > 0 && i === activeIndex
           ? lerpedSpots.map((s, si) => si === 0
-            ? { ...s, angle: s.angle * (1 - hp * 0.6), intensity: (s.intensity ?? 3) * (1 - keyDim) }
-            : { ...s, intensity: (s.intensity ?? 3) * (1 - fillDim) }
+            ? { ...s, angle: s.angle * (1 - hp * 0.6) }  // shrink key angle
+            : { ...s, intensity: (s.intensity ?? 3) * (1 - hp) }  // dim non-key
           )
           : lerpedSpots;
 
@@ -564,7 +563,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               left: `${pos.x}%`,
               top: `${pos.y}%`,
               transform: `translate(-50%, -100%) scale(${silScale})`,
-              opacity: i === activeIndex ? opacity : opacity * (1 - envDim),
+              opacity: i === activeIndex ? opacity : opacity * (1 - hp),
               filter: `brightness(${brightness})`,
               zIndex,
             }}
