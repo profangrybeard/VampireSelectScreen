@@ -441,16 +441,33 @@ User reported "80% better" after round 1, "much better" after round 2.
 
 ---
 
-## R-024 — Hold Zone Blocks Swipe (Interaction Conflict)
+## R-024 — Hold Zone Blocks Swipe (Three-Part Fix)
 
-**Date:** 2026-03-31
+**Date:** 2026-03-31 → 2026-04-01
 **Context:** The EmbraceHold component was a large invisible div covering the center of the screen, capturing all pointer events. This blocked the SwipeZone underneath it.
 
-**What Happened:** After multiple rounds of Embrace iteration, the user discovered they could no longer swipe to rotate the carousel. The hold zone was eating all touches.
+**What Happened:** After multiple rounds of Embrace iteration, the user discovered they could no longer swipe to rotate the carousel. The hold zone was eating all touches. Three rounds of fixes:
 
-**Resolution:** Added 300ms dead zone. Touches under 300ms pass through to swipe detection. Only sustained contact (300ms+) engages the embrace hold. No changes to the swipe system needed.
+1. **300ms dead zone** — touches under 300ms pass through. But the DOM element still blocked events from reaching the swipe zone below.
+2. **Remove DOM element** — moved to window-level pointer events with coordinate checking. But used `window.innerWidth/Height` instead of `.screen` bounding rect — coordinates didn't match the constrained aspect-ratio container. Embrace couldn't be initiated at all.
+3. **Bounding rect + ref-based lifecycle** — fixed coordinate check to use `.screen` element rect. Then discovered a third bug: when hold started, `selectionPhase` changed, flipping `active` to false, causing the useEffect to re-run cleanup and cancel the rAF tick loop mid-hold. Fixed by storing all callbacks in refs so the effect mounts once.
 
-**Lesson for classroom:** When adding new interaction layers, test that they don't break existing ones. The hold zone was designed in isolation without considering the swipe zone sharing the same screen space. Interaction conflict resolution (dead zones, gesture disambiguation) should be planned at design time, not discovered in testing.
+**Resolution:** EmbraceHold renders no DOM element. Window-level pointer events check coordinates against `.screen` bounding rect. All callbacks stored in refs to prevent React effect lifecycle from interrupting in-progress holds. Also disabled when dev menu is open.
+
+**Lesson for classroom:** Interaction conflict resolution was a three-layer problem: (1) DOM event ordering, (2) coordinate space mismatch between window and constrained container, (3) React's effect lifecycle tearing down imperative animation loops when props change. Each fix revealed the next bug. When moving from declarative React patterns to imperative animation (rAF loops), refs are essential — effects re-run on prop changes, which is usually correct but catastrophic for in-progress animations.
+
+---
+
+## R-025 — Flame Agitation: Shaking vs Flickering
+
+**Date:** 2026-04-01
+**Context:** During hold, candle flames were set to a 0.4s animation cycle to convey intensification.
+
+**What Happened:** "Our agitation on the candles is too much. It is shaking. It is not flickering." The 0.4s cycle was so fast the flames were vibrating like they were glitched, not burning intensely.
+
+**Resolution:** Replaced with 1.2s ease-in-out "wink" cycle: slow sway in (opacity 0.7), quick bright peak at center (opacity 1.0, scale 1.3), slow sway out. The curve is slow-fast-slow, and the effect is a brightness wink, not a position shake.
+
+**Lesson for classroom:** Animation speed alone doesn't convey intensity. A 5x speed increase (2s→0.4s) made flames look broken, not dramatic. The fix was a different animation shape (slow-fast-slow with brightness winking) rather than a faster version of the same animation. Intensity comes from contrast (dim→bright→dim), not frequency.
 
 ---
 
