@@ -228,6 +228,19 @@ Round 2: Trimmed candles from 12 to 8. Smoke columns from 3 to 2 per candle (16 
 **Produced:** 300ms touch dead zone (quick swipes pass through, only sustained contact engages hold). "Hold to Embrace" text fades in after 3s idle. During hold: candle flames speed up (2s→0.4s), scale up 40%, brightness 2.5x. Pentagram brightens. Smoke intensifies. Floor glow expands and shifts toward full clan accent.
 **Decision:** Shipped. The ritual elements becoming more violent during hold serves as both progress indicator and atmosphere — the flames are the signifier. The 300ms dead zone fixes the swipe conflict without additional UI.
 
+## Entry 42 — 2026-04-01
+**Asked:** Candle agitation during hold is too much — shaking, not flickering. Needs slow-fast-slow curve with brightness winking.
+**Produced:** Replaced 0.4s vibrating animation with 1.2s ease-in-out "flame-flicker-hold" keyframes: slow sway in (opacity 0.7), quick bright peak at center (opacity 1.0, scale 1.3), slow sway out. Smoke columns slowed from 2s to 3s.
+**Decision:** Shipped. The wink reads as intensification, not seizure.
+
+## Entry 43 — 2026-04-01
+**Asked:** Swipe still doesn't work (hold zone blocking). Then: Embrace no longer initiating at all.
+**Produced:** Two bugs, two fixes:
+1. EmbraceHold rendered an invisible div (z-index 11) on top of the swipe zone (z-index 10), eating all touch events. Fix: removed the DOM element entirely, moved to window-level pointer events with coordinate checking against `.screen` bounding rect.
+2. Coordinate check used `window.innerWidth/Height` instead of the `.screen` container rect — didn't match on the constrained aspect-ratio layout.
+3. When hold started, `selectionPhase` changed to `'holding'`, flipping `active` to false, which caused the useEffect to re-run cleanup and cancel the rAF tick loop mid-hold. Fix: stored all callbacks and `active` in refs so the effect mounts once and never tears down during an in-progress hold.
+**Decision:** Three commits to fully resolve. The interaction conflict between hold and swipe zones was an architectural problem — overlapping DOM touch targets. The ref-based approach prevents React's effect lifecycle from interfering with imperative animation loops.
+
 ---
 
 *New entries are added as work continues. Each entry follows the Asked/Produced/Decision format.*
