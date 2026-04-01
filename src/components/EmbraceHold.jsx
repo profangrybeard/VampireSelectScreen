@@ -19,30 +19,43 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
   const waitTimer = useRef(null);
   const rafRef = useRef(null);
 
+  // Store callbacks and active in refs so the effect doesn't re-run
+  // when they change (which would kill an in-progress hold)
+  const activeRef = useRef(active);
+  activeRef.current = active;
+  const onHoldStartRef = useRef(onHoldStart);
+  onHoldStartRef.current = onHoldStart;
+  const onHoldProgressRef = useRef(onHoldProgress);
+  onHoldProgressRef.current = onHoldProgress;
+  const onHoldCompleteRef = useRef(onHoldComplete);
+  onHoldCompleteRef.current = onHoldComplete;
+  const onHoldCancelRef = useRef(onHoldCancel);
+  onHoldCancelRef.current = onHoldCancel;
+
   const tick = useCallback(() => {
     if (phase.current !== 'holding') return;
     const elapsed = performance.now() - startTime.current;
     const progress = Math.min(1, elapsed / EMBRACE_DURATION_MS);
-    onHoldProgress(progress);
+    onHoldProgressRef.current(progress);
 
     if (progress >= 1) {
       phase.current = 'idle';
-      onHoldComplete();
+      onHoldCompleteRef.current();
     } else {
       rafRef.current = requestAnimationFrame(tick);
     }
-  }, [onHoldProgress, onHoldComplete]);
+  }, []);
 
   const engage = useCallback(() => {
     phase.current = 'holding';
     startTime.current = performance.now();
-    onHoldStart();
+    onHoldStartRef.current();
     rafRef.current = requestAnimationFrame(tick);
-  }, [onHoldStart, tick]);
+  }, [tick]);
 
   useEffect(() => {
     const handleDown = (e) => {
-      if (!active) return;
+      if (!activeRef.current) return;
 
       // Check touch is in the center zone of the .screen container
       const screen = document.querySelector('.screen');
@@ -69,7 +82,7 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
       if (phase.current === 'holding') {
         phase.current = 'idle';
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        onHoldCancel();
+        onHoldCancelRef.current();
       }
     };
 
@@ -81,7 +94,7 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
       if (phase.current === 'holding') {
         phase.current = 'idle';
         if (rafRef.current) cancelAnimationFrame(rafRef.current);
-        onHoldCancel();
+        onHoldCancelRef.current();
       }
     };
 
@@ -95,7 +108,7 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       clearTimeout(waitTimer.current);
     };
-  }, [active, engage, onHoldCancel]);
+  }, [engage]);
 
   return null;
 }
