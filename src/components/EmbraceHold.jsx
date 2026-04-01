@@ -57,6 +57,9 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
     const handleDown = (e) => {
       if (!activeRef.current) return;
 
+      // Don't engage hold when dev menu is open
+      if (document.querySelector('.debug-menu')) return;
+
       // Check touch is in the center zone of the .screen container
       const screen = document.querySelector('.screen');
       if (!screen) return;
