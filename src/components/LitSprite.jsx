@@ -60,7 +60,8 @@ export default function LitSprite({
     camera.position.z = 2;
 
     // --- CHARACTER PLANE ---
-    const geometry = new THREE.PlaneGeometry(1, 2);
+    // Subdivided vertically for vertex-driven breathing displacement.
+    const geometry = new THREE.PlaneGeometry(1, 2, 1, 32);
     // --- LINE WEIGHT UNIFORMS ---
     // Shared uniforms for the ink normalization shader.
     // lineWeight: threshold center (0 = only darkest ink, 1 = everything becomes ink)
@@ -96,6 +97,9 @@ export default function LitSprite({
       uRimDarkness: { value: rimDarkness },
       uRimWidth: { value: rimWidth },
     };
+    const breathUniforms = {
+      uBreath: { value: 0.0 },
+    };
 
     material.onBeforeCompile = (shader) => {
       shader.uniforms.uLineWeight = inkUniforms.uLineWeight;
@@ -104,6 +108,27 @@ export default function LitSprite({
       shader.uniforms.uTintOpacity = tintUniforms.uTintOpacity;
       shader.uniforms.uRimDarkness = rimUniforms.uRimDarkness;
       shader.uniforms.uRimWidth = rimUniforms.uRimWidth;
+      shader.uniforms.uBreath = breathUniforms.uBreath;
+
+      // Vertex shader: subtle horizontal displacement for breathing.
+      // Strongest at chest height (uv.y ~0.6-0.7), zero at feet (0.0)
+      // and near-zero at head (1.0). Sine of uBreath drives the cycle.
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <common>',
+        `#include <common>
+uniform float uBreath;`
+      );
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+// Breath envelope: peaks at chest (y ~0.3 in model space, maps to ~65% up the 1:2 card)
+// tapers to zero at feet (y = -1.0) and head (y = 1.0)
+float breathHeight = 1.0 - abs(position.y - 0.3);
+breathHeight = max(0.0, breathHeight);
+breathHeight = breathHeight * breathHeight; // sharpen falloff
+float breathDisp = sin(uBreath) * 0.006 * breathHeight;
+transformed.x += breathDisp;`
+      );
 
       shader.fragmentShader = shader.fragmentShader.replace(
         '#include <common>',
@@ -229,7 +254,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
       renderer, scene, camera,
       pointLight, lowFill, ambientLight, spotLights,
       material, geometry, mesh,
-      tintUniforms, inkUniforms, rimUniforms,
+      tintUniforms, inkUniforms, rimUniforms, breathUniforms,
       render,
     };
 
@@ -306,6 +331,23 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth, holdProgress]);
+
+  // Breathing animation — slow sine cycle on the active character only.
+  // ~4s per breath. Drives vertex displacement via uBreath uniform.
+  useEffect(() => {
+    const state = stateRef.current;
+    if (!state || !spotActive) return;
+    let raf;
+    const breathTick = () => {
+      if (!stateRef.current) return;
+      const t = performance.now() * 0.0015; // ~4s full cycle
+      stateRef.current.breathUniforms.uBreath.value = t;
+      stateRef.current.render();
+      raf = requestAnimationFrame(breathTick);
+    };
+    raf = requestAnimationFrame(breathTick);
+    return () => cancelAnimationFrame(raf);
+  }, [spotActive]);
 
   return (
     <canvas
