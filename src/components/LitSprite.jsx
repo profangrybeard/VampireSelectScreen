@@ -127,7 +127,7 @@ uniform float uBreathAmp;`
         `#include <begin_vertex>
 // Breath envelope: peaks at chest (y ~0.3 in model space, maps to ~65% up the 1:2 card)
 // tapers to zero at feet (y = -1.0) and head (y = 1.0)
-float breathHeight = 1.0 - abs(position.y - 0.3);
+float breathHeight = 1.0 - abs(position.y - 0.55);
 breathHeight = max(0.0, breathHeight);
 breathHeight = breathHeight * breathHeight; // sharpen falloff
 float breathDisp = sin(uBreath) * uBreathAmp * breathHeight;
