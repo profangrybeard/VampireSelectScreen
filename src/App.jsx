@@ -427,12 +427,12 @@ export default function App() {
       {/* Tap zones */}
       <div
         className="tap-zone tap-zone--left"
-        onClick={() => rotate('left')}
+        onClick={() => rotate('right')}
         aria-label="Previous clan"
       />
       <div
         className="tap-zone tap-zone--right"
-        onClick={() => rotate('right')}
+        onClick={() => rotate('left')}
         aria-label="Next clan"
       />
 
