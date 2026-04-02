@@ -100,7 +100,7 @@ export default function LitSprite({
     };
     const breathUniforms = {
       uBreath: { value: 0.0 },
-      uBreathAmp: { value: 0.006 * breathScale },
+      uBreathAmp: { value: 0.012 * breathScale },
     };
 
     material.onBeforeCompile = (shader) => {
