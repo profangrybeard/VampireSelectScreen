@@ -31,6 +31,7 @@ export default function LitSprite({
   lineWeight = 0.5,
   lineSmooth = 0.15,
   holdProgress = 0,
+  breathScale = 1.0,
   rimDarkness = 0.0,
   rimWidth = 0.5,
 }) {
@@ -99,6 +100,7 @@ export default function LitSprite({
     };
     const breathUniforms = {
       uBreath: { value: 0.0 },
+      uBreathAmp: { value: 0.006 * breathScale },
     };
 
     material.onBeforeCompile = (shader) => {
@@ -109,6 +111,7 @@ export default function LitSprite({
       shader.uniforms.uRimDarkness = rimUniforms.uRimDarkness;
       shader.uniforms.uRimWidth = rimUniforms.uRimWidth;
       shader.uniforms.uBreath = breathUniforms.uBreath;
+      shader.uniforms.uBreathAmp = breathUniforms.uBreathAmp;
 
       // Vertex shader: subtle horizontal displacement for breathing.
       // Strongest at chest height (uv.y ~0.6-0.7), zero at feet (0.0)
@@ -116,7 +119,8 @@ export default function LitSprite({
       shader.vertexShader = shader.vertexShader.replace(
         '#include <common>',
         `#include <common>
-uniform float uBreath;`
+uniform float uBreath;
+uniform float uBreathAmp;`
       );
       shader.vertexShader = shader.vertexShader.replace(
         '#include <begin_vertex>',
@@ -126,7 +130,7 @@ uniform float uBreath;`
 float breathHeight = 1.0 - abs(position.y - 0.3);
 breathHeight = max(0.0, breathHeight);
 breathHeight = breathHeight * breathHeight; // sharpen falloff
-float breathDisp = sin(uBreath) * 0.006 * breathHeight;
+float breathDisp = sin(uBreath) * uBreathAmp * breathHeight;
 transformed.x += breathDisp;`
       );
 

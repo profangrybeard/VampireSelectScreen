@@ -586,6 +586,7 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               rimDarkness={i === activeIndex ? lerpedRimDarkness : (CLANS[i]?.lighting?.rimDarkness ?? 0.0)}
               rimWidth={i === activeIndex ? lerpedRimWidth : (CLANS[i]?.lighting?.rimWidth ?? 0.5)}
               holdProgress={i === activeIndex ? hp : 0}
+              breathScale={i === activeIndex ? (CLANS[activeIndex]?.lighting?.breathScale ?? 1.0) : 0}
             />
           </div>
         );
