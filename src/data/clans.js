@@ -30,16 +30,16 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
-      lightScale: 0.4,
+      lightScale: 3.6,
       breathScale: 0.5,
-      tint: { color: '#ece5ff', opacity: 0.7 },
+      tint: { color: '#9aff8f', opacity: 0.08 },
       rimDarkness: 0.88,
       rimWidth: 0.12,
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
         // Key: soft green from right
-        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#9ae391' },
+        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.25, color: '#f894ff' },
         // Rim: toxic green from behind-above
         { x: -1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 6.0, angle: 0.35, penumbra: 0.6, color: '#bbffad' },
       ],
@@ -56,16 +56,16 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
-      lightScale: 0.2,
+      lightScale: 2.2,
       breathScale: 2.8,
-      tint: { color: '#f0fffd', opacity: 0.9 },
+      tint: { color: '#ffffff', opacity: 0.96 },
       rimDarkness: 0.88,
       rimWidth: 0.3,
       lineWeight: 0.95,
       lineSmooth: 0.12,
       spots: [
         // Key: deep indigo from right-high, razor tight beam
-        { x: 2, y: 3.8, z: 0, targetX: -0.5, targetY: -1, intensity: 10, angle: 0.05, penumbra: 0, color: '#331c87' },
+        { x: 2, y: 3.8, z: 0, targetX: -0.5, targetY: -1, intensity: 10, angle: 0.05, penumbra: 0, color: '#1b00e6' },
         // Rim: hot orange from behind-right
         { x: 1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#ff6600' },
       ],
@@ -82,7 +82,7 @@ const CLANS = [
     lighting: {
       normalScale: 2.4,
       roughness: 0,
-      lightScale: 0.9,
+      lightScale: 3.5,
       breathScale: 4.0,
       tint: { color: '#fff5f8', opacity: 0.7 },
       rimDarkness: 0.88,
@@ -108,16 +108,16 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
-      lightScale: 0.7,
+      lightScale: 1.7,
       breathScale: 1.6,
-      tint: { color: '#bab5c9', opacity: 0.88 },
+      tint: { color: '#f6fafe', opacity: 0.88 },
       rimDarkness: 0.88,
       rimWidth: 0.12,
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        // Key: cool blue from right-low
-        { x: 2, y: -0.9, z: 0, targetX: 0.25, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.4, color: '#6082e6' },
+        // Key: warm gold from right-low
+        { x: 2, y: -0.9, z: 0, targetX: -0.05, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 1, color: '#fbbd04' },
         // Rim: warm gold from behind-left
         { x: -1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#f4be62' },
       ],

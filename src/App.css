@@ -545,32 +545,6 @@
 }
 
 /* Preset slot buttons */
-.debug-slot {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-}
-
-.debug-slot--empty {
-  border-style: dashed;
-  opacity: 0.5;
-}
-
-.debug-slot--active {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.debug-slot__swatch {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
 /* ---- Dev slider panel ---- */
 .dev-panel {
   position: absolute;
@@ -649,6 +623,15 @@
   transition: color 1.5s ease;
 }
 
+/* Show touch hint by default (mobile-first), hide mouse hint */
+.embrace-signifier__mouse { display: none; }
+
+/* On devices with a fine pointer (mouse/trackpad), swap hints */
+@media (pointer: fine) {
+  .embrace-signifier__touch { display: none; }
+  .embrace-signifier__mouse { display: inline; }
+}
+
 .screen--idle .embrace-signifier {
   color: rgba(255, 255, 255, 0.35);
 }
@@ -717,13 +700,14 @@
 }
 
 /* The iframe wrapper clips the oversized iframe.
-   Inset 15% top/bottom to shrink ~30%, keeping end logo in frame. */
+   Square aspect ratio so the visible video sits in a 1:1 frame. */
 .trailer-iframe-wrap {
   position: absolute;
-  top: 18%;
-  bottom: 18%;
   left: 0;
   right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  aspect-ratio: 1 / 1;
   overflow: hidden;
 }
 

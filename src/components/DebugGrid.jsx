@@ -74,21 +74,16 @@ export default function DebugGrid({
   devRimDarkness = 0.0, onRimDarkness,
   devRimWidth = 0.5, onRimWidth,
   onCopy, onReset,
-  activeSlot, onSaveSlot, onLoadSlot, getSlotPreview,
 }) {
   const [showGrid, setShowGrid] = useState(false);
   const [showGolden, setShowGolden] = useState(false);
   const [showLight, setShowLight] = useState(false);
   const [showTexture, setShowTexture] = useState(false);
-  const [saveFlash, setSaveFlash] = useState(null); // slot letter when save fires
   const [copyFlash, setCopyFlash] = useState(false);
   const [resetFlash, setResetFlash] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [triggerVisible, setTriggerVisible] = useState(true);
   const fadeTimerRef = useRef(null);
-  const longPressRef = useRef(null);
-  const longPressTriggeredRef = useRef(false);
-  const [loadFlash, setLoadFlash] = useState(null); // slot letter when load fires
 
   // Auto-fade the bug icon after 5 seconds
   useEffect(() => {
@@ -152,44 +147,6 @@ export default function DebugGrid({
           >
             Tex
           </button>
-          {/* Preset slots — tap to SAVE, long-press to LOAD.
-              Safe action (save) = easy gesture. Destructive action (load) = deliberate hold. */}
-          {['A', 'B', 'C'].map(slot => {
-            const preview = getSlotPreview?.(slot);
-            const spotColor = preview?.spot?.color || null;
-            const isEmpty = !preview;
-            const isActive = activeSlot === slot;
-            const isLoadFlash = loadFlash === slot;
-            return (
-              <button
-                key={slot}
-                className={`debug-btn debug-slot ${isActive ? 'debug-slot--active' : ''} ${isEmpty ? 'debug-slot--empty' : ''}`}
-                style={isLoadFlash ? { color: '#48f', borderColor: '#48f' } : saveFlash === slot ? { color: '#4a4', borderColor: '#4a4' } : {}}
-                onPointerDown={() => {
-                  longPressTriggeredRef.current = false;
-                  longPressRef.current = setTimeout(() => {
-                    longPressTriggeredRef.current = true;
-                    onLoadSlot?.(slot);
-                    setLoadFlash(slot);
-                    setTimeout(() => setLoadFlash(null), 600);
-                  }, 500);
-                }}
-                onPointerUp={() => {
-                  clearTimeout(longPressRef.current);
-                  if (!longPressTriggeredRef.current) {
-                    onSaveSlot?.(slot);
-                    setSaveFlash(slot);
-                    setTimeout(() => setSaveFlash(null), 600);
-                  }
-                }}
-                onPointerLeave={() => { clearTimeout(longPressRef.current); }}
-                title={isEmpty ? `Tap: save to ${slot}` : `Tap: save / Hold: load ${slot}`}
-              >
-                {spotColor && <span className="debug-slot__swatch" style={{ background: spotColor }} />}
-                <span>{isLoadFlash ? '↓' : slot}</span>
-              </button>
-            );
-          })}
           <button
             className="debug-btn"
             onClick={() => { onCopy?.(); setCopyFlash(true); setTimeout(() => setCopyFlash(false), 600); }}
