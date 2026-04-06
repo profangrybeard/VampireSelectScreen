@@ -726,13 +726,14 @@
 }
 
 /* The iframe wrapper clips the oversized iframe.
-   Inset 15% top/bottom to shrink ~30%, keeping end logo in frame. */
+   Square aspect ratio so the visible video sits in a 1:1 frame. */
 .trailer-iframe-wrap {
   position: absolute;
-  top: 18%;
-  bottom: 18%;
   left: 0;
   right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  aspect-ratio: 1 / 1;
   overflow: hidden;
 }
 
