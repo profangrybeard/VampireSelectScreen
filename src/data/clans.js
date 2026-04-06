@@ -30,16 +30,16 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
-      lightScale: 0.4,
+      lightScale: 3.6,
       breathScale: 0.5,
-      tint: { color: '#ece5ff', opacity: 0.7 },
+      tint: { color: '#9aff8f', opacity: 0.08 },
       rimDarkness: 0.88,
       rimWidth: 0.12,
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
         // Key: soft green from right
-        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 8.5, angle: 0.1, penumbra: 0.25, color: '#9ae391' },
+        { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.25, color: '#f894ff' },
         // Rim: toxic green from behind-above
         { x: -1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 6.0, angle: 0.35, penumbra: 0.6, color: '#bbffad' },
       ],
