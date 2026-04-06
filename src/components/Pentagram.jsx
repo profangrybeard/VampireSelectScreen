@@ -213,25 +213,6 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
   // Get effective lighting for a clan — checks localStorage (vss-settings)
   // for the active slot, falls back to CLANS defaults.
   function getEffectiveLighting(clanIndex) {
-    const clanId = CLANS[clanIndex]?.id;
-    try {
-      const store = JSON.parse(localStorage.getItem('vss-settings') || '{}');
-      const clanData = store[clanId];
-      if (clanData?.active && clanData.slots?.[clanData.active]) {
-        const saved = clanData.slots[clanData.active];
-        return {
-          normalScale: saved.normalScale ?? 1.5,
-          roughness: saved.roughness ?? 0.4,
-          lightScale: saved.lightScale ?? 1.0,
-          tint: saved.tint || { color: '#000000', opacity: 0 },
-          spots: [saved.spot || {}],
-          lineWeight: saved.lineWeight ?? 0.5,
-          lineSmooth: saved.lineSmooth ?? 0.15,
-          rimDarkness: saved.rimDarkness ?? 0.0,
-          rimWidth: saved.rimWidth ?? 0.5,
-        };
-      }
-    } catch (e) { /* ignore */ }
     return CLANS[clanIndex]?.lighting || {};
   }
 

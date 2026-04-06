@@ -106,30 +106,9 @@ export default function App() {
   const [devRimDarkness, setDevRimDarkness] = useState(0.6);
   const [devRimWidth, setDevRimWidth] = useState(0.12);
 
-  // === PERSISTENCE — ONE SOURCE OF TRUTH ===
-  // Single localStorage key: vss-settings
-  // Format: { nosferatu: { slots: { A: {...}, B: {...}, C: {...} }, active: "A" }, ... }
-  // Bump SETTINGS_VERSION to invalidate all saved presets when defaults change.
-  const STORAGE_KEY = 'vss-settings';
-  const SETTINGS_VERSION = 4;
-
-  // Wipe stale localStorage when version changes
-  useEffect(() => {
-    const ver = localStorage.getItem('vss-settings-version');
-    if (ver !== String(SETTINGS_VERSION)) {
-      localStorage.removeItem(STORAGE_KEY);
-      localStorage.setItem('vss-settings-version', String(SETTINGS_VERSION));
-    }
-  }, []);
-
-  const readStorage = useCallback(() => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
-    catch { return {}; }
-  }, []);
-
-  const writeStorage = useCallback((data) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, []);
+  // === SETTINGS — clans.js is the single source of truth ===
+  // Dev sliders override at rest (lerpT >= 1) for live tuning.
+  // Copy captures current slider state. Reset reloads clans.js defaults.
 
   const getDevSettings = useCallback(() => ({
     lightScale: devLightScale,
@@ -169,14 +148,8 @@ export default function App() {
     if (s.rimWidth != null) setDevRimWidth(s.rimWidth);
   }, []);
 
-  // Get the effective settings for a clan: active slot → CLANS fallback
-  const getEffectiveForClan = useCallback((clanId) => {
-    const store = readStorage();
-    const clanData = store[clanId];
-    if (clanData?.active && clanData.slots?.[clanData.active]) {
-      return clanData.slots[clanData.active];
-    }
-    // Fallback to CLANS defaults
+  // Read clan defaults directly from clans.js — no localStorage
+  const getClanDefaults = useCallback((clanId) => {
     const clan = CLANS.find(c => c.id === clanId);
     const lighting = clan?.lighting || {};
     const spot = lighting.spots?.[0] || {};
@@ -191,71 +164,14 @@ export default function App() {
       rimDarkness: lighting.rimDarkness ?? 0.0,
       rimWidth: lighting.rimWidth ?? 0.5,
     };
-  }, [readStorage]);
-
-  const [activeSlot, setActiveSlot] = useState(() => {
-    const store = readStorage();
-    return store[CLANS[0]?.id]?.active || null;
-  });
-
-  // Save to slot: write current values, mark as active, persist immediately
-  const saveToSlot = useCallback((slot) => {
-    const clanId = CLANS[activeIndex]?.id || 'unknown';
-    const s = getDevSettings();
-    const store = readStorage();
-    if (!store[clanId]) store[clanId] = { slots: {}, active: null };
-    store[clanId].slots[slot] = s;
-    store[clanId].active = slot;
-    writeStorage(store);
-    setActiveSlot(slot);
-  }, [getDevSettings, activeIndex, readStorage, writeStorage]);
-
-  // Load from slot: apply values, mark as active
-  const loadFromSlot = useCallback((slot) => {
-    const clanId = CLANS[activeIndex]?.id || 'unknown';
-    const store = readStorage();
-    const s = store[clanId]?.slots?.[slot];
-    if (s) {
-      applySettings(s);
-      store[clanId].active = slot;
-      writeStorage(store);
-      setActiveSlot(slot);
-    }
-  }, [activeIndex, readStorage, writeStorage, applySettings]);
+  }, []);
 
   // Reset to source defaults: load clans.js values for current clan
   const resetToDefaults = useCallback(() => {
     const clan = CLANS[activeIndex];
     if (!clan) return;
-    const lighting = clan.lighting || {};
-    const spot = lighting.spots?.[0] || {};
-    applySettings({
-      lightScale: lighting.lightScale ?? 1.0,
-      normalScale: lighting.normalScale ?? 1.5,
-      roughness: lighting.roughness ?? 0.4,
-      spot: { x: spot.x ?? -0.5, y: spot.y ?? 1.0, z: spot.z ?? 1.5, intensity: spot.intensity ?? 3.0, angle: spot.angle ?? 0.3, penumbra: spot.penumbra ?? 0.5, targetX: spot.targetX ?? 0, targetY: spot.targetY ?? 0.5, color: spot.color || '#c8bfb0' },
-      tint: lighting.tint || { color: '#000000', opacity: 0 },
-      lineWeight: lighting.lineWeight ?? 0.5,
-      lineSmooth: lighting.lineSmooth ?? 0.15,
-      rimDarkness: lighting.rimDarkness ?? 0.0,
-      rimWidth: lighting.rimWidth ?? 0.5,
-    });
-    // Clear active slot — we're back to source
-    const store = readStorage();
-    const clanId = clan.id;
-    if (store[clanId]) {
-      store[clanId].active = null;
-      writeStorage(store);
-    }
-    setActiveSlot(null);
-  }, [activeIndex, applySettings, readStorage, writeStorage]);
-
-  // Get slot preview for UI
-  const getSlotPreview = useCallback((slot) => {
-    const clanId = CLANS[activeIndex]?.id || 'unknown';
-    const store = readStorage();
-    return store[clanId]?.slots?.[slot] || null;
-  }, [activeIndex, readStorage]);
+    applySettings(getClanDefaults(clan.id));
+  }, [activeIndex, applySettings, getClanDefaults]);
 
   const handleCopy = useCallback(() => {
     const clanId = CLANS[activeIndex]?.id || 'unknown';
@@ -265,25 +181,16 @@ export default function App() {
     });
   }, [getDevSettings, activeIndex]);
 
-  // On mount: load the active slot for the initial clan
+  // On mount: load defaults for the initial clan
   useEffect(() => {
-    const clanId = CLANS[0]?.id;
-    const s = getEffectiveForClan(clanId);
-    applySettings(s);
+    applySettings(getClanDefaults(CLANS[0]?.id));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // On rotation: load the new clan's settings IMMEDIATELY so the dev
-  // sliders already hold the target values by the time the Pentagram
-  // lerp reaches 1. The old approach (setTimeout 460ms) caused a flash
-  // because lerpT hit 1 before dev state caught up.
+  // On rotation: load the new clan's clans.js defaults into dev sliders
   useEffect(() => {
-    const clanId = CLANS[activeIndex]?.id;
-    const s = getEffectiveForClan(clanId);
-    applySettings(s);
-    const store = readStorage();
-    setActiveSlot(store[clanId]?.active || null);
-  }, [activeIndex, getEffectiveForClan, applySettings, readStorage]);
+    applySettings(getClanDefaults(CLANS[activeIndex]?.id));
+  }, [activeIndex, getClanDefaults, applySettings]);
 
   // Idle timer — show "Hold to Embrace" after 3s of no interaction
   const resetIdle = useCallback(() => {
@@ -418,10 +325,6 @@ export default function App() {
         devRimWidth={devRimWidth} onRimWidth={setDevRimWidth}
         onCopy={handleCopy}
         onReset={resetToDefaults}
-        activeSlot={activeSlot}
-        onSaveSlot={saveToSlot}
-        onLoadSlot={loadFromSlot}
-        getSlotPreview={getSlotPreview}
       />
 
       {/* Tap zones */}
