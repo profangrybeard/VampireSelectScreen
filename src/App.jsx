@@ -74,6 +74,7 @@ export default function App() {
   const [selectionPhase, setSelectionPhase] = useState('browse');
   // 'browse' | 'holding' | 'blackout' | 'trailer' | 'returning'
   const [holdProgress, setHoldProgress] = useState(0);
+  const [holdOrigin, setHoldOrigin] = useState(null); // { x, y } in px
   const [selectedClanIndex, setSelectedClanIndex] = useState(null);
   const [idle, setIdle] = useState(false);
   const idleTimer = useRef(null);
@@ -224,11 +225,12 @@ export default function App() {
   }, []);
 
   // === EMBRACE HANDLERS ===
-  const handleHoldStart = useCallback(() => {
+  const handleHoldStart = useCallback((x, y) => {
     if (selectionPhase !== 'browse' || transitioning) return;
     setSelectionPhase('holding');
     setStatsOpen(false);
     setHoldProgress(0);
+    setHoldOrigin(x != null ? { x, y } : null);
   }, [selectionPhase, transitioning]);
 
   const handleHoldProgress = useCallback((progress) => {
@@ -246,6 +248,7 @@ export default function App() {
   const handleHoldCancel = useCallback(() => {
     setSelectionPhase('browse');
     setHoldProgress(0);
+    setHoldOrigin(null);
   }, []);
 
   const handleTrailerClose = useCallback(() => {
@@ -342,11 +345,17 @@ export default function App() {
       {/* Swipe zone — center area, avoids Android edge gesture zones */}
       <SwipeZone onSwipeLeft={() => rotate('left')} onSwipeRight={() => rotate('right')} />
 
-      {/* Embrace signifier — fades in after idle */}
-      <div className="embrace-signifier">
-        <span className="embrace-signifier__touch">Hold to Embrace</span>
-        <span className="embrace-signifier__mouse">Double-Click to Embrace</span>
-      </div>
+      {/* Blood pool — grows from finger during hold */}
+      {holdOrigin && selectionPhase === 'holding' && (
+        <div
+          className="blood-pool"
+          style={{
+            left: holdOrigin.x,
+            top: holdOrigin.y,
+            '--hold-progress': holdProgress,
+          }}
+        />
+      )}
 
       {/* Hold-to-Embrace — covers center silhouette area */}
       <EmbraceHold
