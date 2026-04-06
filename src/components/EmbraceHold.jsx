@@ -57,10 +57,13 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
     }
   }, []);
 
-  const engage = useCallback(() => {
+  const startPos = useRef({ x: 0, y: 0 });
+
+  const engage = useCallback((x, y) => {
     phase.current = 'holding';
     startTime.current = performance.now();
-    onHoldStartRef.current();
+    startPos.current = { x, y };
+    onHoldStartRef.current(x, y);
     rafRef.current = requestAnimationFrame(tick);
   }, [tick]);
 
@@ -91,10 +94,11 @@ export default function EmbraceHold({ active, onHoldStart, onHoldProgress, onHol
       }
 
       // Touch/pen path: hold gesture
+      const px = e.clientX, py = e.clientY;
       phase.current = 'waiting';
       waitTimer.current = setTimeout(() => {
         if (phase.current === 'waiting') {
-          engage();
+          engage(px, py);
         }
       }, DEAD_ZONE_MS);
     };

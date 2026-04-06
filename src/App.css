@@ -606,34 +606,35 @@
   accent-color: #666;
 }
 
-/* ---- Hold-to-Embrace signifier ---- */
-.embrace-signifier {
-  position: absolute;
-  bottom: 22%;
-  left: 0;
-  right: 0;
+/* ---- Blood pool — diegetic embrace feedback ---- */
+/* Grows from finger position. Heartbeat pulse decelerates to death. */
+.blood-pool {
+  position: fixed;
   z-index: 12;
-  text-align: center;
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 12px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.0);
   pointer-events: none;
-  transition: color 1.5s ease;
+  transform: translate(-50%, -50%);
+  width: calc(40px + var(--hold-progress) * 280px);
+  height: calc(40px + var(--hold-progress) * 280px);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(100, 0, 0, 0.45) 0%,
+    rgba(60, 0, 0, 0.25) 50%,
+    rgba(30, 0, 0, 0.0) 100%
+  );
+  animation: blood-pulse var(--pulse-speed, 0.6s) ease-in-out infinite;
+  /* Pulse slows as progress increases: 0.6s → 2.4s */
+  --pulse-speed: calc(0.6s + var(--hold-progress) * 1.8s);
 }
 
-/* Show touch hint by default (mobile-first), hide mouse hint */
-.embrace-signifier__mouse { display: none; }
-
-/* On devices with a fine pointer (mouse/trackpad), swap hints */
-@media (pointer: fine) {
-  .embrace-signifier__touch { display: none; }
-  .embrace-signifier__mouse { display: inline; }
-}
-
-.screen--idle .embrace-signifier {
-  color: rgba(255, 255, 255, 0.35);
+@keyframes blood-pulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  /* lub */
+  15% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
+  25% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.0); }
+  /* dub */
+  35% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.05); }
+  45% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.0); }
 }
 
 /* During hold: flames die — desperate flicker, shrinking */
