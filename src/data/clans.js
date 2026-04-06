@@ -56,16 +56,16 @@ const CLANS = [
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
-      lightScale: 0.2,
+      lightScale: 2.2,
       breathScale: 2.8,
-      tint: { color: '#f0fffd', opacity: 0.9 },
+      tint: { color: '#ffffff', opacity: 0.96 },
       rimDarkness: 0.88,
       rimWidth: 0.3,
       lineWeight: 0.95,
       lineSmooth: 0.12,
       spots: [
         // Key: deep indigo from right-high, razor tight beam
-        { x: 2, y: 3.8, z: 0, targetX: -0.5, targetY: -1, intensity: 10, angle: 0.05, penumbra: 0, color: '#331c87' },
+        { x: 2, y: 3.8, z: 0, targetX: -0.5, targetY: -1, intensity: 10, angle: 0.05, penumbra: 0, color: '#1b00e6' },
         // Rim: hot orange from behind-right
         { x: 1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#ff6600' },
       ],
