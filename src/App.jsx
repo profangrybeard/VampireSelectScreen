@@ -439,8 +439,11 @@ export default function App() {
       {/* Swipe zone — center area, avoids Android edge gesture zones */}
       <SwipeZone onSwipeLeft={() => rotate('left')} onSwipeRight={() => rotate('right')} />
 
-      {/* Hold-to-Embrace signifier — fades in after idle */}
-      <div className="embrace-signifier">Hold to Embrace</div>
+      {/* Embrace signifier — fades in after idle */}
+      <div className="embrace-signifier">
+        <span className="embrace-signifier__touch">Hold to Embrace</span>
+        <span className="embrace-signifier__mouse">Double-Click to Embrace</span>
+      </div>
 
       {/* Hold-to-Embrace — covers center silhouette area */}
       <EmbraceHold

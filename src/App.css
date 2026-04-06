@@ -649,6 +649,15 @@
   transition: color 1.5s ease;
 }
 
+/* Show touch hint by default (mobile-first), hide mouse hint */
+.embrace-signifier__mouse { display: none; }
+
+/* On devices with a fine pointer (mouse/trackpad), swap hints */
+@media (pointer: fine) {
+  .embrace-signifier__touch { display: none; }
+  .embrace-signifier__mouse { display: inline; }
+}
+
 .screen--idle .embrace-signifier {
   color: rgba(255, 255, 255, 0.35);
 }
