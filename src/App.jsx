@@ -352,7 +352,9 @@ export default function App() {
           style={{
             left: holdOrigin.x,
             top: holdOrigin.y,
-            '--hold-progress': holdProgress,
+            width: 40 + holdProgress * 280,
+            height: 40 + holdProgress * 280,
+            animationDuration: (0.6 + holdProgress * 1.8) + 's',
           }}
         />
       )}
