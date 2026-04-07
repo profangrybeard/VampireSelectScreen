@@ -16,6 +16,10 @@
  *
  * Spotlight shape:
  *   { x, y, z, targetX, targetY, intensity, angle, penumbra }
+ *
+ * Eye glow:
+ *   eyes: [{ x, y }, { x, y }] — UV coords (0,0 = bottom-left)
+ *   Positioned via dev panel, then locked here.
  */
 
 const CLANS = [
@@ -27,6 +31,7 @@ const CLANS = [
     disciplines: ["Obfuscate", "Potence", "Animalism"],
     humanity: 2,
     accent: '#2d4a1e',
+    eyes: [{ x: 0.44, y: 0.87 }, { x: 0.56, y: 0.87 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -53,6 +58,7 @@ const CLANS = [
     disciplines: ["Celerity", "Potence", "Presence"],
     humanity: 4,
     accent: '#8b3a0f',
+    eyes: [{ x: 0.44, y: 0.85 }, { x: 0.55, y: 0.86 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
@@ -79,6 +85,7 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Obfuscate"],
     humanity: 5,
     accent: '#4a2d6b',
+    eyes: [{ x: 0.42, y: 0.82 }, { x: 0.52, y: 0.83 }],
     lighting: {
       normalScale: 2.4,
       roughness: 0,
@@ -105,6 +112,7 @@ const CLANS = [
     disciplines: ["Animalism", "Fortitude", "Protean"],
     humanity: 2,
     accent: '#5a3e1b',
+    eyes: [{ x: 0.43, y: 0.78 }, { x: 0.55, y: 0.78 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -131,6 +139,7 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Thaumaturgy"],
     humanity: 6,
     accent: '#6b1a1a',
+    eyes: [{ x: 0.45, y: 0.88 }, { x: 0.55, y: 0.88 }],
     lighting: {
       normalScale: 4.9,
       roughness: 0.4,

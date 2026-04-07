@@ -34,6 +34,8 @@ export default function LitSprite({
   breathScale = 1.0,
   rimDarkness = 0.0,
   rimWidth = 0.5,
+  eyes = null,       // [{ x, y }, { x, y }] UV coords, null = no eyes
+  eyeColor = '#ff4400', // clan glow color
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
@@ -223,6 +225,26 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
       spotLights.push(sl);
     }
 
+    // --- EYE GLOW ---
+    // Two small circles with additive blending, positioned at UV coords.
+    // Smolder animation driven by the breathing rAF loop.
+    const eyeGlowMeshes = [];
+    const eyeGlowMat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(eyeColor),
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    const eyeGeom = new THREE.CircleGeometry(0.012, 16);
+    for (let i = 0; i < 2; i++) {
+      const em = new THREE.Mesh(eyeGeom, eyeGlowMat.clone());
+      em.position.z = 0.01; // just in front of character plane
+      em.visible = false;
+      scene.add(em);
+      eyeGlowMeshes.push(em);
+    }
+
     // Render function
     const render = () => {
       const w = canvas.clientWidth || 200;
@@ -259,6 +281,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
       pointLight, lowFill, ambientLight, spotLights,
       material, geometry, mesh,
       tintUniforms, inkUniforms, rimUniforms, breathUniforms,
+      eyeGlowMeshes, eyeGeom, eyeGlowMat,
       render,
     };
 
@@ -267,6 +290,8 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     return () => {
       geometry.dispose();
       material.dispose();
+      eyeGeom.dispose();
+      eyeGlowMeshes.forEach(em => em.material.dispose());
       if (material.map) material.map.dispose();
       if (material.normalMap) material.normalMap.dispose();
       renderer.dispose();
@@ -325,6 +350,21 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     rimUniforms.uRimDarkness.value = rimDarkness;
     rimUniforms.uRimWidth.value = rimWidth;
 
+    // Eye glow positions — UV to plane coords:
+    // planeX = uvX - 0.5, planeY = uvY * 2 - 1
+    const { eyeGlowMeshes } = state;
+    if (eyes && spotActive) {
+      eyes.forEach((eye, i) => {
+        if (!eyeGlowMeshes[i]) return;
+        eyeGlowMeshes[i].position.x = eye.x - 0.5;
+        eyeGlowMeshes[i].position.y = eye.y * 2 - 1;
+        eyeGlowMeshes[i].material.color.set(eyeColor);
+        eyeGlowMeshes[i].visible = true;
+      });
+    } else {
+      eyeGlowMeshes.forEach(em => { em.visible = false; });
+    }
+
     // Skip render for background characters during rapid updates —
     // they're crushed to silhouettes and don't need 60fps.
     if (!spotActive) {
@@ -334,7 +374,7 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
     }
     render();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth, holdProgress]);
+  }, [lightDir.x, lightDir.y, lightDir.z, lightIntensity, ambientIntensity, normalScale, roughness, baseColor, spotActive, JSON.stringify(spotPos), tint.color, tint.opacity, lineWeight, lineSmooth, rimDarkness, rimWidth, holdProgress, JSON.stringify(eyes), eyeColor]);
 
   // Breathing animation — slow sine cycle on the active character only.
   // ~4s per breath. Drives vertex displacement via uBreath uniform.
@@ -346,6 +386,19 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
       if (!stateRef.current) return;
       const t = performance.now() * 0.0015; // ~4s full cycle
       stateRef.current.breathUniforms.uBreath.value = t;
+
+      // Eye smolder — layered sine waves for organic flicker
+      const { eyeGlowMeshes } = stateRef.current;
+      eyeGlowMeshes.forEach(em => {
+        if (!em.visible) return;
+        const slow = Math.sin(t * 0.7) * 0.15;
+        const med = Math.sin(t * 1.9 + 1.3) * 0.1;
+        const fast = Math.sin(t * 4.7 + 0.7) * 0.05;
+        em.material.opacity = 0.55 + slow + med + fast;
+        const s = 1.0 + slow * 0.3;
+        em.scale.set(s, s, 1);
+      });
+
       stateRef.current.render();
       raf = requestAnimationFrame(breathTick);
     };
