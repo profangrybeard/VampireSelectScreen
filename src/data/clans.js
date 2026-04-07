@@ -85,7 +85,7 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Obfuscate"],
     humanity: 5,
     accent: '#4a2d6b',
-    eyes: [{ x: 0.42, y: 0.82 }, { x: 0.52, y: 0.83 }],
+    eyes: [{ x: 0.45, y: 0.805 }, { x: 0.5, y: 0.805 }],
     lighting: {
       normalScale: 2.4,
       roughness: 0,
