@@ -107,6 +107,12 @@ export default function App() {
   const [devRimDarkness, setDevRimDarkness] = useState(0.6);
   const [devRimWidth, setDevRimWidth] = useState(0.12);
 
+  // Eye glow positions (UV coords, 0-1)
+  const [devEyeLX, setDevEyeLX] = useState(0.45);
+  const [devEyeLY, setDevEyeLY] = useState(0.87);
+  const [devEyeRX, setDevEyeRX] = useState(0.55);
+  const [devEyeRY, setDevEyeRY] = useState(0.87);
+
   // === SETTINGS — clans.js is the single source of truth ===
   // Dev sliders override at rest (lerpT >= 1) for live tuning.
   // Copy captures current slider state. Reset reloads clans.js defaults.
@@ -121,7 +127,8 @@ export default function App() {
     lineSmooth: devLineSmooth,
     rimDarkness: devRimDarkness,
     rimWidth: devRimWidth,
-  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity, devLineWeight, devLineSmooth, devRimDarkness, devRimWidth]);
+    eyes: [{ x: devEyeLX, y: devEyeLY }, { x: devEyeRX, y: devEyeRY }],
+  }), [devLightScale, devNormalScale, devRoughness, devSpotX, devSpotY, devSpotZ, devSpotIntensity, devSpotAngle, devSpotPenumbra, devSpotTargetX, devSpotTargetY, devSpotColor, devTintColor, devTintOpacity, devLineWeight, devLineSmooth, devRimDarkness, devRimWidth, devEyeLX, devEyeLY, devEyeRX, devEyeRY]);
 
   const applySettings = useCallback((s) => {
     if (!s) return;
@@ -147,6 +154,10 @@ export default function App() {
     if (s.lineSmooth != null) setDevLineSmooth(s.lineSmooth);
     if (s.rimDarkness != null) setDevRimDarkness(s.rimDarkness);
     if (s.rimWidth != null) setDevRimWidth(s.rimWidth);
+    if (s.eyes) {
+      if (s.eyes[0]) { setDevEyeLX(s.eyes[0].x); setDevEyeLY(s.eyes[0].y); }
+      if (s.eyes[1]) { setDevEyeRX(s.eyes[1].x); setDevEyeRY(s.eyes[1].y); }
+    }
   }, []);
 
   // Read clan defaults directly from clans.js — no localStorage
@@ -164,6 +175,7 @@ export default function App() {
       lineSmooth: lighting.lineSmooth ?? 0.15,
       rimDarkness: lighting.rimDarkness ?? 0.0,
       rimWidth: lighting.rimWidth ?? 0.5,
+      eyes: clan?.eyes || [{ x: 0.45, y: 0.87 }, { x: 0.55, y: 0.87 }],
     };
   }, []);
 
@@ -292,6 +304,7 @@ export default function App() {
         devRimDarkness={devRimDarkness}
         devRimWidth={devRimWidth}
         holdProgress={holdProgress}
+        devEyes={[{ x: devEyeLX, y: devEyeLY }, { x: devEyeRX, y: devEyeRY }]}
       />
 
       {/* Clan title — tap to toggle stats */}
@@ -326,6 +339,10 @@ export default function App() {
         devLineSmooth={devLineSmooth} onLineSmooth={setDevLineSmooth}
         devRimDarkness={devRimDarkness} onRimDarkness={setDevRimDarkness}
         devRimWidth={devRimWidth} onRimWidth={setDevRimWidth}
+        devEyeLX={devEyeLX} onEyeLX={setDevEyeLX}
+        devEyeLY={devEyeLY} onEyeLY={setDevEyeLY}
+        devEyeRX={devEyeRX} onEyeRX={setDevEyeRX}
+        devEyeRY={devEyeRY} onEyeRY={setDevEyeRY}
         onCopy={handleCopy}
         onReset={resetToDefaults}
       />

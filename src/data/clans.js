@@ -16,6 +16,10 @@
  *
  * Spotlight shape:
  *   { x, y, z, targetX, targetY, intensity, angle, penumbra }
+ *
+ * Eye glow:
+ *   eyes: [{ x, y }, { x, y }] — UV coords (0,0 = bottom-left)
+ *   Positioned via dev panel, then locked here.
  */
 
 const CLANS = [
@@ -27,18 +31,19 @@ const CLANS = [
     disciplines: ["Obfuscate", "Potence", "Animalism"],
     humanity: 2,
     accent: '#2d4a1e',
+    eyes: [{ x: 0.44, y: 0.87 }, { x: 0.56, y: 0.87 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
       lightScale: 3.6,
       breathScale: 0.5,
       tint: { color: '#9aff8f', opacity: 0.08 },
-      rimDarkness: 0.88,
-      rimWidth: 0.12,
+      rimDarkness: 0.54,
+      rimWidth: 0.44,
       lineWeight: 0.5,
       lineSmooth: 0.15,
       spots: [
-        // Key: soft green from right
+        // Key: magenta from right
         { x: 2, y: 1.3, z: 0, targetX: -0.45, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 0.25, color: '#f894ff' },
         // Rim: toxic green from behind-above
         { x: -1.5, y: 2.0, z: -1.5, targetX: 0, targetY: 0.5, intensity: 6.0, angle: 0.35, penumbra: 0.6, color: '#bbffad' },
@@ -53,6 +58,7 @@ const CLANS = [
     disciplines: ["Celerity", "Potence", "Presence"],
     humanity: 4,
     accent: '#8b3a0f',
+    eyes: [{ x: 0.44, y: 0.85 }, { x: 0.55, y: 0.86 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
@@ -79,12 +85,13 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Obfuscate"],
     humanity: 5,
     accent: '#4a2d6b',
+    eyes: [{ x: 0.42, y: 0.82 }, { x: 0.52, y: 0.83 }],
     lighting: {
       normalScale: 2.4,
       roughness: 0,
       lightScale: 3.5,
       breathScale: 4.0,
-      tint: { color: '#fff5f8', opacity: 0.7 },
+      tint: { color: '#fff5f8', opacity: 0.92 },
       rimDarkness: 0.88,
       rimWidth: 0.12,
       lineWeight: 0.83,
@@ -105,19 +112,20 @@ const CLANS = [
     disciplines: ["Animalism", "Fortitude", "Protean"],
     humanity: 2,
     accent: '#5a3e1b',
+    eyes: [{ x: 0.43, y: 0.78 }, { x: 0.55, y: 0.78 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
-      lightScale: 1.7,
+      lightScale: 1.8,
       breathScale: 1.6,
-      tint: { color: '#f6fafe', opacity: 0.88 },
+      tint: { color: '#ebebff', opacity: 1 },
       rimDarkness: 0.88,
       rimWidth: 0.12,
       lineWeight: 0.5,
-      lineSmooth: 0.15,
+      lineSmooth: 0.19,
       spots: [
-        // Key: warm gold from right-low
-        { x: 2, y: -0.9, z: 0, targetX: -0.05, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 1, color: '#fbbd04' },
+        // Key: warm peach from right-low
+        { x: 2, y: -0.9, z: 0, targetX: -0.05, targetY: 0.4, intensity: 10, angle: 0.1, penumbra: 1, color: '#ffbb80' },
         // Rim: warm gold from behind-left
         { x: -1.5, y: 1.5, z: -1.5, targetX: 0, targetY: 0.4, intensity: 6.0, angle: 0.3, penumbra: 0.5, color: '#f4be62' },
       ],
@@ -131,12 +139,13 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Thaumaturgy"],
     humanity: 6,
     accent: '#6b1a1a',
+    eyes: [{ x: 0.45, y: 0.88 }, { x: 0.55, y: 0.88 }],
     lighting: {
       normalScale: 4.9,
       roughness: 0.4,
-      lightScale: 0.3,
+      lightScale: 1.5,
       breathScale: 2.4,
-      tint: { color: '#f6f0ff', opacity: 0.84 },
+      tint: { color: '#e5c7ff', opacity: 0.84 },
       rimDarkness: 0.8,
       rimWidth: 0.12,
       lineWeight: 0.87,

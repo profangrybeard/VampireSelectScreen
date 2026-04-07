@@ -114,7 +114,7 @@ function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
-export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15, devRimDarkness = 0.0, devRimWidth = 0.5, holdProgress = 0 }) {
+export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotationDeg = 0, silhouettes = [], clanIds = [], transitioning = false, devLightScale = 1.0, devNormalScale = 1.5, devRoughness = 0.4, devSpot = {}, devTint = {}, devLineWeight = 0.5, devLineSmooth = 0.15, devRimDarkness = 0.0, devRimWidth = 0.5, holdProgress = 0, devEyes = null }) {
   const parentRotation = 180 - rotationDeg;
   const containerRef = useRef(null);
   const dotRefs = useRef([]);
@@ -567,6 +567,8 @@ export default function Pentagram({ activeIndex = 0, prevActiveIndex = 0, rotati
               rimWidth={i === activeIndex ? lerpedRimWidth : (CLANS[i]?.lighting?.rimWidth ?? 0.5)}
               holdProgress={i === activeIndex ? hp : 0}
               breathScale={i === activeIndex ? (CLANS[activeIndex]?.lighting?.breathScale ?? 1.0) : 0}
+              eyes={i === activeIndex ? (devEyes || CLANS[activeIndex]?.eyes || null) : null}
+              eyeColor={CLANS[i]?.accent || '#ff4400'}
             />
           </div>
         );

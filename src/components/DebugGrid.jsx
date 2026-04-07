@@ -73,6 +73,10 @@ export default function DebugGrid({
   devLineSmooth = 0.15, onLineSmooth,
   devRimDarkness = 0.0, onRimDarkness,
   devRimWidth = 0.5, onRimWidth,
+  devEyeLX = 0.45, onEyeLX,
+  devEyeLY = 0.87, onEyeLY,
+  devEyeRX = 0.55, onEyeRX,
+  devEyeRY = 0.87, onEyeRY,
   onCopy, onReset,
 }) {
   const [showGrid, setShowGrid] = useState(false);
@@ -305,6 +309,35 @@ export default function DebugGrid({
             <input type="range" min="0" max="1" step="0.02"
               value={devTintOpacity}
               onChange={(e) => onTintOpacity?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <div className="dev-panel__sep">EYES</div>
+          <label>
+            <span>L x {devEyeLX.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.005"
+              value={devEyeLX}
+              onChange={(e) => onEyeLX?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>L y {devEyeLY.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.005"
+              value={devEyeLY}
+              onChange={(e) => onEyeLY?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>R x {devEyeRX.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.005"
+              value={devEyeRX}
+              onChange={(e) => onEyeRX?.(parseFloat(e.target.value))}
+            />
+          </label>
+          <label>
+            <span>R y {devEyeRY.toFixed(2)}</span>
+            <input type="range" min="0" max="1" step="0.005"
+              value={devEyeRY}
+              onChange={(e) => onEyeRY?.(parseFloat(e.target.value))}
             />
           </label>
         </div>
