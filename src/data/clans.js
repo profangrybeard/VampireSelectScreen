@@ -134,9 +134,9 @@ const CLANS = [
     lighting: {
       normalScale: 4.9,
       roughness: 0.4,
-      lightScale: 0.3,
+      lightScale: 1.5,
       breathScale: 2.4,
-      tint: { color: '#f6f0ff', opacity: 0.84 },
+      tint: { color: '#e5c7ff', opacity: 0.84 },
       rimDarkness: 0.8,
       rimWidth: 0.12,
       lineWeight: 0.87,
