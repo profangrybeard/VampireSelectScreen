@@ -39,6 +39,8 @@ export default function LitSprite({
 }) {
   const canvasRef = useRef(null);
   const stateRef = useRef(null);
+  const holdProgressRef = useRef(holdProgress);
+  holdProgressRef.current = holdProgress;
 
   // Build the Three.js scene once
   useEffect(() => {
@@ -387,15 +389,19 @@ gl_FragColor.rgb = mix(gl_FragColor.rgb, tinted, uTintOpacity);`
       const t = performance.now() * 0.0015; // ~4s full cycle
       stateRef.current.breathUniforms.uBreath.value = t;
 
-      // Eye smolder — layered sine waves for organic flicker
+      // Eye smolder — layered sine waves for organic flicker.
+      // During embrace hold, eyes resist the darkness: brighter, more opaque.
+      const hp = holdProgressRef.current;
       const { eyeGlowMeshes } = stateRef.current;
       eyeGlowMeshes.forEach(em => {
         if (!em.visible) return;
         const slow = Math.sin(t * 0.7) * 0.15;
         const med = Math.sin(t * 1.9 + 1.3) * 0.1;
         const fast = Math.sin(t * 4.7 + 0.7) * 0.05;
-        em.material.opacity = 0.55 + slow + med + fast;
-        const s = 1.0 + slow * 0.3;
+        const baseOpacity = 0.55 + slow + med + fast;
+        // Boost during hold: 0.55 base → up to 0.95 at full hold
+        em.material.opacity = baseOpacity + hp * 0.4;
+        const s = 1.0 + slow * 0.3 + hp * 0.5;
         em.scale.set(s, s, 1);
       });
 
