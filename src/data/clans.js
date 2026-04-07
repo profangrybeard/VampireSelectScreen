@@ -112,7 +112,7 @@ const CLANS = [
     disciplines: ["Animalism", "Fortitude", "Protean"],
     humanity: 2,
     accent: '#5a3e1b',
-    eyes: [{ x: 0.43, y: 0.78 }, { x: 0.55, y: 0.78 }],
+    eyes: [{ x: 0.59, y: 0.785 }, { x: 0.66, y: 0.785 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
