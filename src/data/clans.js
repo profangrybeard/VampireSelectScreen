@@ -58,7 +58,7 @@ const CLANS = [
     disciplines: ["Celerity", "Potence", "Presence"],
     humanity: 4,
     accent: '#8b3a0f',
-    eyes: [{ x: 0.44, y: 0.85 }, { x: 0.55, y: 0.86 }],
+    eyes: [{ x: 0.48, y: 0.855 }, { x: 0.565, y: 0.855 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
