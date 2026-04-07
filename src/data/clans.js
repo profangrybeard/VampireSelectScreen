@@ -31,7 +31,7 @@ const CLANS = [
     disciplines: ["Obfuscate", "Potence", "Animalism"],
     humanity: 2,
     accent: '#2d4a1e',
-    eyes: [{ x: 0.44, y: 0.87 }, { x: 0.56, y: 0.87 }],
+    eyes: [{ x: 0.475, y: 0.85 }, { x: 0.565, y: 0.85 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
