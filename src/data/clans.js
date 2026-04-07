@@ -58,7 +58,7 @@ const CLANS = [
     disciplines: ["Celerity", "Potence", "Presence"],
     humanity: 4,
     accent: '#8b3a0f',
-    eyes: [{ x: 0.48, y: 0.855 }, { x: 0.565, y: 0.855 }],
+    eyes: [{ x: 0.485, y: 0.855 }, { x: 0.565, y: 0.855 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.6,
@@ -85,7 +85,7 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Obfuscate"],
     humanity: 5,
     accent: '#4a2d6b',
-    eyes: [{ x: 0.45, y: 0.805 }, { x: 0.5, y: 0.805 }],
+    eyes: [{ x: 0.455, y: 0.81 }, { x: 0.515, y: 0.81 }],
     lighting: {
       normalScale: 2.4,
       roughness: 0,
@@ -112,7 +112,7 @@ const CLANS = [
     disciplines: ["Animalism", "Fortitude", "Protean"],
     humanity: 2,
     accent: '#5a3e1b',
-    eyes: [{ x: 0.59, y: 0.785 }, { x: 0.66, y: 0.785 }],
+    eyes: [{ x: 0.585, y: 0.79 }, { x: 0.68, y: 0.785 }],
     lighting: {
       normalScale: 3.7,
       roughness: 0.55,
@@ -139,7 +139,7 @@ const CLANS = [
     disciplines: ["Auspex", "Dominate", "Thaumaturgy"],
     humanity: 6,
     accent: '#6b1a1a',
-    eyes: [{ x: 0.515, y: 0.83 }, { x: 0.58, y: 0.83 }],
+    eyes: [{ x: 0.515, y: 0.83 }, { x: 0.585, y: 0.83 }],
     lighting: {
       normalScale: 4.9,
       roughness: 0.4,
