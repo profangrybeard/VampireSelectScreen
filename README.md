@@ -116,3 +116,7 @@ This project was built using AI-assisted coding (Claude CLI and claude.ai). The 
 ---
 
 *AI 201 Creative Computing with AI | Spring 2026 | SCAD Applied AI Degree Program*
+
+## License
+
+MIT. See [LICENSE](LICENSE).
